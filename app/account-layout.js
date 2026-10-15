@@ -13,7 +13,7 @@ export default function AccountLayout({ mode, initialRole = "", setup, check, re
         <Link className="brand account-brand" href="/" aria-label="BuildMart home">
           <span className="mark brand-mark">B</span><span>BuildMart<span className="brand-country">GH</span></span>
         </Link>
-        {!isSignup ? <span className="eyebrow muted-eyebrow">{isReset || isForgot ? "ACCOUNT SECURITY" : "YOUR BUILDMART ACCOUNT"}</span> : null}
+        {isReset || isForgot ? <span className="eyebrow muted-eyebrow">ACCOUNT SECURITY</span> : null}
         {!isSignup ? <h1>{isReset ? "Reset Password" : isForgot ? "Forgot Password?" : "Welcome Back"}</h1> : null}
         <p className="account-intro">
           {isSignup
