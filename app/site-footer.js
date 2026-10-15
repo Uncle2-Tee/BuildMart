@@ -8,7 +8,8 @@ export default function SiteFooter() {
   if (
     pathname === "/dashboard/seller/market" ||
     pathname === "/login" ||
-    pathname === "/signup"
+    pathname === "/signup" ||
+    pathname === "/forgot-password"
   ) {
     return null;
   }

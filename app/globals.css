@@ -1805,6 +1805,10 @@ button {
   text-align: center;
 }
 
+.account-card .login-heading {
+  font-size: 31px;
+}
+
 .account-card .account-intro {
   max-width: 360px;
   margin: 0 auto;

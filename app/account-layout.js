@@ -14,7 +14,7 @@ export default function AccountLayout({ mode, initialRole = "", setup, check, re
           <span className="mark brand-mark">B</span><span>BuildMart<span className="brand-country">GH</span></span>
         </Link>
         {isReset || isForgot ? <span className="eyebrow muted-eyebrow">ACCOUNT SECURITY</span> : null}
-        {!isSignup ? <h1>{isReset ? "Reset Password" : isForgot ? "Forgot Password?" : "Welcome Back"}</h1> : null}
+        {!isSignup ? <h1 className={mode === "login" || isForgot ? "login-heading" : undefined}>{isReset ? "Reset Password" : isForgot ? "Forgot Password?" : "Welcome Back"}</h1> : null}
         <p className="account-intro">
           {isSignup
             ? "Create your account to shop or start your seller journey."
