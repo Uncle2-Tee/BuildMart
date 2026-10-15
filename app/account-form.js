@@ -48,10 +48,12 @@ export default function AccountForm({ mode, initialRole = "", recoveryError = fa
         });
 
         if (error) throw error;
-        if (!data.session) {
-          setMessage("Your account has been saved securely. Check your email to confirm your address, then sign in.");
-          return;
+        if (data.session) {
+          const { error: signOutError } = await supabase.auth.signOut();
+          if (signOutError) throw signOutError;
         }
+        router.replace("/login?check=1");
+        return;
       } else if (isForgot) {
         const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
           redirectTo: new URL("/login?mode=reset", siteUrl).toString(),

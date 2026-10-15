@@ -50,8 +50,8 @@ export async function proxy(request) {
     if (pathname.startsWith("/api/")) {
       return Response.json({ error: "Sign in to continue." }, { status: 401 });
     }
-    const signUpUrl = new URL("/signup", request.url);
-    const redirectResponse = NextResponse.redirect(signUpUrl);
+    const loginUrl = new URL("/login", request.url);
+    const redirectResponse = NextResponse.redirect(loginUrl);
     for (const cookie of response.cookies.getAll()) {
       redirectResponse.cookies.set(cookie);
     }

@@ -29,10 +29,11 @@ export async function POST(request) {
     shopDescription.length > 1000 ||
     shopLocation.length < 2 ||
     shopLocation.length > 120 ||
+    !shopPhone ||
     shopPhone.length > 24
   ) {
     return Response.json(
-      { error: "Enter a shop name, a description of at least 20 characters, and a location." },
+      { error: "Enter a shop name, a description of at least 20 characters, a location, and a phone number." },
       { status: 400 },
     );
   }

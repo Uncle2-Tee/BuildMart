@@ -128,11 +128,11 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
 
   return (
     <main className="dashboard-shell">
-      <header className="dashboard-header">
-        <Link className="brand" href="/"><span className="mark brand-mark">B</span><span>buildmart<span className="brand-country">GH</span></span></Link>
-        <div className="dashboard-user"><Link href="/">View marketplace ↗</Link><span className="user-avatar">{(displayName || "S").slice(0, 1).toUpperCase()}</span><SignOutButton /></div>
+      <header className="dashboard-header" id="dashboard-top">
+        <Link className="brand" href="/"><span className="mark brand-mark">B</span><span>BuildMart<span className="brand-country">GH</span></span></Link>
+        <div className="dashboard-user"><Link className="dashboard-home-link" href="/">Home</Link><Link href="/">View marketplace ↗</Link><span className="user-avatar">{(displayName || "S").slice(0, 1).toUpperCase()}</span><SignOutButton /></div>
       </header>
-      <section className="dashboard-welcome">
+      <section className={`dashboard-welcome${!shopApproved ? " seller-registration-welcome" : ""}`}>
         <div><span className="eyebrow muted-eyebrow">SELLER SPACE</span><h1>Good to have you, <em>{displayName || "seller"}.</em></h1><p>{shopApproved ? `${shop.name} · ${shop.location}` : "Register your shop to submit it for administrator approval."}</p></div>
         <span className="dashboard-date">{new Intl.DateTimeFormat("en-GH", { dateStyle: "full" }).format(new Date())}</span>
       </section>
@@ -159,10 +159,10 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
               </p>
               {shopMessage ? <p className={shopMessage.startsWith("We couldn't") ? "form-error" : "success-message"} role="status">{shopMessage}</p> : null}
               <form className="product-form shop-registration-form" onSubmit={registerShop}>
-                <label>Shop name<input name="shop_name" required minLength={2} maxLength={100} defaultValue={shop?.name ?? ""} placeholder="e.g. Accra Build & Supply" /></label>
+                <label>Shop name<input name="shop_name" required minLength={2} maxLength={100} defaultValue={shop?.name ?? ""} placeholder="e.g. Build & Supply Co." /></label>
                 <label>Shop description<textarea name="shop_description" rows="4" required minLength={20} maxLength={1000} defaultValue={shop?.description ?? ""} placeholder="Describe what you sell and what makes your shop reliable." /></label>
-                <label>Shop location<input name="shop_location" required minLength={2} maxLength={120} defaultValue={shop?.location ?? ""} placeholder="e.g. Madina, Accra" /></label>
-                <label>Shop phone <span className="optional-label">Optional</span><input name="shop_phone" type="tel" maxLength={24} defaultValue={shop?.phone ?? ""} placeholder="e.g. 024 123 4567" /></label>
+                <label>Shop location<input name="shop_location" required minLength={2} maxLength={120} defaultValue={shop?.location ?? ""} placeholder="e.g. Your town or neighbourhood" /></label>
+                <label>Shop phone<input name="shop_phone" type="tel" required maxLength={24} defaultValue={shop?.phone ?? ""} placeholder="e.g. 024 123 4567" /></label>
                 <button className="button button-dark account-submit" type="submit" disabled={shopBusy}>{shopBusy ? "Submitting…" : currentShopStatus === "rejected" ? "Resubmit shop" : "Submit shop for approval"}<span aria-hidden="true">↗</span></button>
               </form>
             </>

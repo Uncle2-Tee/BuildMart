@@ -11,7 +11,7 @@ export default function AccountLayout({ mode, initialRole = "", setup, check, re
     <main className="account-page">
       <section className={`account-card${isSignup ? " signup-card" : " login-card"}`}>
         <Link className="brand account-brand" href="/" aria-label="BuildMart home">
-          <span className="mark brand-mark">B</span><span>buildmart<span className="brand-country">GH</span></span>
+          <span className="mark brand-mark">B</span><span>BuildMart<span className="brand-country">GH</span></span>
         </Link>
         {!isSignup ? <span className="eyebrow muted-eyebrow">{isReset || isForgot ? "ACCOUNT SECURITY" : "YOUR BUILDMART ACCOUNT"}</span> : null}
         {!isSignup ? <h1>{isReset ? "Reset Password" : isForgot ? "Forgot Password?" : "Welcome Back"}</h1> : null}

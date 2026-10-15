@@ -7,7 +7,7 @@ function formatPrice(priceKobo) {
   }).format(priceKobo / 100);
 }
 
-export default function BuyerDashboard({ displayName, email, products, orders, isConfigured, catalogError }) {
+export default function BuyerDashboard({ displayName, email, products, orders, isConfigured, catalogError, page = "home" }) {
   return (
     <>
       <Marketplace
@@ -15,9 +15,11 @@ export default function BuyerDashboard({ displayName, email, products, orders, i
         isConfigured={isConfigured}
         catalogError={catalogError}
         buyerMode
+        buyerPage={page}
+        buyerName={displayName}
         buyerEmail={email}
       />
-      <section className="dashboard-shell buyer-orders" id="buyer-orders">
+      {page === "orders" ? <section className="dashboard-shell buyer-orders" id="buyer-orders">
         <div className="dashboard-welcome">
           <div>
             <span className="eyebrow muted-eyebrow">YOUR ACCOUNT</span>
@@ -25,7 +27,7 @@ export default function BuyerDashboard({ displayName, email, products, orders, i
             <p>Review the orders placed with this account.</p>
           </div>
         </div>
-        <section className="dashboard-panel">
+        <section className="dashboard-panel buyer-orders-panel">
           <div className="panel-heading">
             <div><span className="eyebrow muted-eyebrow">ORDER HISTORY</span><h2>My orders <span>{orders.length}</span></h2></div>
           </div>
@@ -48,7 +50,7 @@ export default function BuyerDashboard({ displayName, email, products, orders, i
             </div>
           ) : <p className="table-empty">Orders you place while signed in will appear here.</p>}
         </section>
-      </section>
+      </section> : null}
     </>
   );
 }

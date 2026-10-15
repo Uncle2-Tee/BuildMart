@@ -1,27 +1,22 @@
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "../lib/supabase/server";
+import Marketplace from "./marketplace";
+import { requireRole } from "../lib/auth";
+import { isSupabaseConfigured } from "../lib/supabase/server";
+import { getApprovedProductCatalog } from "../lib/buyer-dashboard-data";
 
 export default async function Home() {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) redirect("/signup");
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-  if (userError) throw new Error(`Unable to verify account: ${userError.message}`);
-  if (!user) redirect("/signup");
-
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profileError) throw new Error(`Unable to load account permissions: ${profileError.message}`);
-
+  if (!isSupabaseConfigured()) redirect("/login");
+  const { profile } = await requireRole(["buyer", "seller", "admin"]);
   if (profile.role === "buyer") redirect("/dashboard/buyer");
-  if (profile.role === "seller") redirect("/dashboard/seller");
-  if (profile.role === "admin") redirect("/admin");
+  const products = await getApprovedProductCatalog();
 
-  throw new Error("This account does not have a supported role.");
+  const dashboardHref = profile.role === "seller" ? "/dashboard/seller" : "/admin";
+  return (
+    <Marketplace
+      products={products}
+      isConfigured
+      catalogError={false}
+      dashboardHref={dashboardHref}
+    />
+  );
 }
