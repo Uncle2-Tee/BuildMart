@@ -44,6 +44,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.marketplace-main,
+.account-page,
+.dashboard-shell,
+.checkout-result {
+  flex: 1;
+}
+
+.dashboard-shell {
+  min-height: 0;
+}
+
 button,
 input,
 select,
@@ -126,6 +137,11 @@ button {
 }
 
 .mobile-menu-button {
+  display: none;
+}
+
+.mobile-navigation-signout,
+.dashboard-mobile-navigation {
   display: none;
 }
 
@@ -1481,7 +1497,7 @@ button {
 }
 
 .account-page {
-  min-height: 100vh;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1908,7 +1924,7 @@ button {
 }
 
 .dashboard-shell {
-  min-height: 100vh;
+  min-height: 0;
   padding: 0 max(30px, calc((100% - 1220px) / 2)) 60px;
   background: linear-gradient(135deg, #f7fbff 0%, #edf3f8 55%, #e1f3f1 100%);
 }
@@ -2696,7 +2712,14 @@ button {
   }
 
   .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    width: 100%;
     height: 65px;
+  }
+
+  .site-header + main {
+    padding-top: 65px;
   }
 
   .main-nav {
@@ -2719,6 +2742,37 @@ button {
 
   .mobile-menu-open .main-nav {
     display: flex;
+  }
+
+  .mobile-navigation-signout {
+    display: block;
+    margin-top: 5px;
+    padding: 8px 13px 3px;
+    border-top: 1px solid var(--line);
+  }
+
+  .mobile-navigation-signout .sign-out-control {
+    display: grid;
+    justify-items: start;
+    gap: 5px;
+  }
+
+  .mobile-navigation-signout .sign-out-button {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 11px;
+    border: 1px solid #cbd8dd;
+    border-radius: 7px;
+    background: white;
+    color: #334b55;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .desktop-signout {
+    display: none;
   }
 
   .main-nav a {
@@ -3172,6 +3226,17 @@ button {
     min-height: 64px;
   }
 
+  .dashboard-shell:has(> .dashboard-header) {
+    padding-top: 64px;
+  }
+
+  .dashboard-header {
+    position: fixed;
+    inset: 0 0 auto;
+    width: 100%;
+    padding: 0 17px;
+  }
+
   .dashboard-header .brand {
     font-size: 15px;
   }
@@ -3181,15 +3246,76 @@ button {
     font-size: 10px;
   }
 
-  .dashboard-user a {
+  .dashboard-user,
+  .dashboard-user .sign-out-control {
     display: none;
   }
 
-  .dashboard-user a.dashboard-home-link {
+  .dashboard-menu-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .dashboard-mobile-navigation {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 16px;
+    left: 16px;
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    padding: 7px;
+    border: 1px solid #dce5ef;
+    border-radius: 12px;
+    background: var(--cream);
+    box-shadow: 0 18px 38px rgba(19, 34, 56, 0.17);
+  }
+
+  .dashboard-header.mobile-menu-open .dashboard-mobile-navigation {
+    display: flex;
+  }
+
+  .dashboard-mobile-navigation > a {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    padding: 0 13px;
+    border-radius: 7px;
+    color: #35465d;
+    font-size: 13px;
+  }
+
+  .dashboard-mobile-navigation > a:hover,
+  .dashboard-mobile-navigation > a:focus-visible {
+    outline: none;
+    background: #eff7f8;
+    color: #075365;
+  }
+
+  .dashboard-mobile-signout {
+    padding: 7px 10px 3px;
+    border-top: 1px solid var(--line);
+  }
+
+  .dashboard-mobile-signout .sign-out-control {
+    display: grid;
+    justify-items: start;
+    gap: 5px;
+  }
+
+  .dashboard-mobile-signout .sign-out-button {
+    min-height: 40px;
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
-    font-size: 11px;
+    gap: 8px;
+    padding: 0 11px;
+    border: 1px solid #cbd8dd;
+    border-radius: 7px;
+    background: white;
+    color: #334b55;
+    font-size: 12px;
+    font-weight: 600;
   }
 
   .dashboard-user .sign-out-control .sign-out-button {
@@ -3414,7 +3540,7 @@ button {
   }
 
   .account-page {
-    min-height: 100dvh;
+    min-height: 0;
     padding: 20px 16px;
   }
 
@@ -3460,6 +3586,21 @@ button {
   .dashboard-user .sign-out-control .sign-out-button {
     min-height: 40px;
     padding: 0 8px;
+  }
+
+  .dashboard-shell:has(> .dashboard-header) {
+    padding-top: 62px;
+  }
+
+  .dashboard-header {
+    min-height: 62px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .dashboard-mobile-navigation {
+    right: 12px;
+    left: 12px;
   }
 
   .user-avatar {
@@ -3687,7 +3828,7 @@ button {
   }
 
   .checkout-result {
-    min-height: 100dvh;
+    min-height: 0;
     padding: 28px 18px;
   }
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import AdminPayoutForm from "../admin-payout-form";
 import AdminProductControls from "../admin-product-controls";
 import AdminSellerApproval from "../admin-seller-approval";
-import SignOutButton from "../sign-out-button";
+import DashboardHeader from "../dashboard-header";
 import { requireRole } from "../../lib/auth";
 import { createSupabaseAdminClient } from "../../lib/supabase/admin";
 import { isSupabaseConfigured } from "../../lib/supabase/server";
@@ -58,10 +58,7 @@ export default async function AdminPage() {
 
   return (
     <main className="dashboard-shell">
-      <header className="dashboard-header" id="dashboard-top">
-        <Link className="brand" href="/"><span className="mark brand-mark">B</span><span>BuildMart<span className="brand-country">GH</span></span></Link>
-        <div className="dashboard-user"><span className="admin-label">ADMINISTRATOR</span><Link className="dashboard-home-link" href="/">Home</Link><Link href="/">View marketplace ↗</Link><SignOutButton /></div>
-      </header>
+      <DashboardHeader admin />
       <section className="dashboard-welcome">
         <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><h1>Good morning, <em>{profile.display_name || "admin"}.</em></h1><p>Marketplace activity, accounts and catalogue at a glance.</p></div>
         <span className="dashboard-date">Admin control centre</span>

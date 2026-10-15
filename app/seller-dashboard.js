@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import SignOutButton from "./sign-out-button";
+import DashboardHeader from "./dashboard-header";
 
 function formatPrice(priceKobo) {
   return new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(priceKobo / 100);
@@ -128,10 +128,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
 
   return (
     <main className="dashboard-shell">
-      <header className="dashboard-header" id="dashboard-top">
-        <Link className="brand" href="/"><span className="mark brand-mark">B</span><span>BuildMart<span className="brand-country">GH</span></span></Link>
-        <div className="dashboard-user"><Link className="dashboard-home-link" href="/">Home</Link><Link href="/">View marketplace ↗</Link><span className="user-avatar">{(displayName || "S").slice(0, 1).toUpperCase()}</span><SignOutButton /></div>
-      </header>
+      <DashboardHeader displayName={displayName || "Seller"} />
       <section className={`dashboard-welcome${!shopApproved ? " seller-registration-welcome" : ""}`}>
         <div><span className="eyebrow muted-eyebrow">SELLER SPACE</span><h1>Good to have you, <em>{displayName || "seller"}.</em></h1><p>{shopApproved ? `${shop.name} · ${shop.location}` : "Register your shop to submit it for administrator approval."}</p></div>
         <span className="dashboard-date">{new Intl.DateTimeFormat("en-GH", { dateStyle: "full" }).format(new Date())}</span>

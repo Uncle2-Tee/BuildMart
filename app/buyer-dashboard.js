@@ -9,16 +9,15 @@ function formatPrice(priceKobo) {
 
 export default function BuyerDashboard({ displayName, email, products, orders, isConfigured, catalogError, page = "home" }) {
   return (
-    <>
-      <Marketplace
-        products={products}
-        isConfigured={isConfigured}
-        catalogError={catalogError}
-        buyerMode
-        buyerPage={page}
-        buyerName={displayName}
-        buyerEmail={email}
-      />
+    <Marketplace
+      products={products}
+      isConfigured={isConfigured}
+      catalogError={catalogError}
+      buyerMode
+      buyerPage={page}
+      buyerName={displayName}
+      buyerEmail={email}
+    >
       {page === "orders" ? <section className="dashboard-shell buyer-orders" id="buyer-orders">
         <div className="dashboard-welcome">
           <div>
@@ -51,6 +50,6 @@ export default function BuyerDashboard({ displayName, email, products, orders, i
           ) : <p className="table-empty">Orders you place while signed in will appear here.</p>}
         </section>
       </section> : null}
-    </>
+    </Marketplace>
   );
 }

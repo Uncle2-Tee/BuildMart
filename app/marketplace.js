@@ -28,7 +28,7 @@ function SearchIcon() {
   );
 }
 
-export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "home", buyerName = "", buyerEmail = "", dashboardHref = "" }) {
+export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "home", buyerName = "", buyerEmail = "", dashboardHref = "", children }) {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
   const [category, setCategory] = useState("All products");
@@ -161,6 +161,9 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             ) : !buyerMode ? (
               <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Seller portal</Link>
             ) : null}
+            {buyerMode || dashboardHref ? (
+              <div className="mobile-navigation-signout"><SignOutButton /></div>
+            ) : null}
           </nav>
           <div className="header-actions">
             {buyerMode && buyerPage !== "shop" ? (
@@ -173,7 +176,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               </button>
             )}
             {buyerMode || dashboardHref
-              ? <SignOutButton />
+              ? <span className="desktop-signout"><SignOutButton /></span>
               : <Link className="login-link" href="/login">Log in</Link>}
             {buyerMode || !dashboardHref ? (
               <button
@@ -204,7 +207,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
         </div>
       </header>
 
-      <main className={buyerMode ? "buyer-marketplace" : ""}>
+      <main className={`marketplace-main${buyerMode ? " buyer-marketplace" : ""}`}>
         {buyerMode && buyerPage === "home" ? (
           <section className="buyer-welcome" id="buyer-home">
             <div className="buyer-welcome-copy">
@@ -352,13 +355,8 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             <div className="art-pot">✳</div>
           </div>
         </section> : null}
+        {children}
       </main>
-
-      <footer className="site-footer">
-        <Link className="brand footer-brand" href="/"><Mark className="brand-mark">B</Mark><span>BuildMart<span className="brand-country">GH</span></span></Link>
-        <span>Better projects start close to home.</span>
-        <div>{!buyerMode ? <Link href={dashboardHref || "/login"}>{dashboardHref ? "Dashboard" : "Seller portal"}</Link> : null}<span>© {new Date().getFullYear()} BuildMart Ghana</span></div>
-      </footer>
 
       {cartOpen ? (
         <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setCartOpen(false); }}>
