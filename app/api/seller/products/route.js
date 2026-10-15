@@ -92,6 +92,7 @@ export async function POST(request) {
       category,
       price_kobo: priceKobo,
       image_url: imageData.publicUrl,
+      active: false,
     })
     .select("id, title, description, category, price_kobo, image_url, active, created_at")
     .single();
@@ -102,7 +103,7 @@ export async function POST(request) {
       .from("products")
       .remove([imagePath]);
     if (cleanupError) console.error("Unable to remove orphaned product image", cleanupError);
-    return Response.json({ error: "We couldn't publish that product. Please try again." }, { status: 500 });
+    return Response.json({ error: "We couldn't save that product. Please try again." }, { status: 500 });
   }
 
   return Response.json({ product }, { status: 201 });

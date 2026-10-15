@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import SignOutButton from "./sign-out-button";
 
-export default function DashboardHeader({ displayName, admin = false }) {
+export default function DashboardHeader({
+  displayName,
+  admin = false,
+  sellerDashboard = false,
+  showMarketplaceLinks = true,
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -24,8 +29,8 @@ export default function DashboardHeader({ displayName, admin = false }) {
       </Link>
       <div className="dashboard-user">
         {admin ? <span className="admin-label">ADMINISTRATOR</span> : null}
-        <Link className="dashboard-home-link" href="/">Home</Link>
-        <Link className="dashboard-marketplace-link" href="/">View marketplace ↗</Link>
+        {showMarketplaceLinks ? <Link className="dashboard-home-link" href="/">Home</Link> : null}
+        {showMarketplaceLinks ? <Link className="dashboard-marketplace-link" href="/">View marketplace ↗</Link> : null}
         {displayName ? <span className="user-avatar">{displayName.slice(0, 1).toUpperCase()}</span> : null}
         <SignOutButton />
       </div>
@@ -42,8 +47,17 @@ export default function DashboardHeader({ displayName, admin = false }) {
         <span />
       </button>
       <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
-        <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
-        <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
+        {sellerDashboard ? (
+          <>
+            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Home</a>
+            <Link href="/dashboard/seller/market" onClick={() => setMenuOpen(false)}>View market</Link>
+          </>
+        ) : (
+          <>
+            {showMarketplaceLinks ? <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link> : null}
+            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
+          </>
+        )}
         <div className="dashboard-mobile-signout"><SignOutButton /></div>
       </nav>
     </header>

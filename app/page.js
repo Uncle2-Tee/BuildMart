@@ -8,15 +8,15 @@ export default async function Home() {
   if (!isSupabaseConfigured()) redirect("/login");
   const { profile } = await requireRole(["buyer", "seller", "admin"]);
   if (profile.role === "buyer") redirect("/dashboard/buyer");
+  if (profile.role === "seller") redirect("/dashboard/seller/market");
   const products = await getApprovedProductCatalog();
 
-  const dashboardHref = profile.role === "seller" ? "/dashboard/seller" : "/admin";
   return (
     <Marketplace
       products={products}
       isConfigured
       catalogError={false}
-      dashboardHref={dashboardHref}
+      dashboardHref="/admin"
     />
   );
 }

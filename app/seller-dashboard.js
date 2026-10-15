@@ -65,13 +65,13 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
       });
       const result = await response.json();
       if (!response.ok) {
-        setMessage(result.error || "We couldn't publish your product.");
+        setMessage(result.error || "We couldn't save your product for preview.");
         return;
       }
 
       setProducts((current) => [result.product, ...current]);
       event.currentTarget.reset();
-      setMessage("Your product is live in the marketplace.");
+      setMessage("Product saved. Review it in View market before publishing.");
       router.refresh();
     } catch {
       setMessage("We couldn't connect to the product service. Please try again.");
@@ -128,7 +128,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
 
   return (
     <main className="dashboard-shell">
-      <DashboardHeader displayName={displayName || "Seller"} />
+      <DashboardHeader displayName={displayName || "Seller"} sellerDashboard showMarketplaceLinks={false} />
       <section className={`dashboard-welcome${!shopApproved ? " seller-registration-welcome" : ""}`}>
         <div><span className="eyebrow muted-eyebrow">SELLER SPACE</span><h1>Good to have you, <em>{displayName || "seller"}.</em></h1><p>{shopApproved ? `${shop.name} · ${shop.location}` : "Register your shop to submit it for administrator approval."}</p></div>
         <span className="dashboard-date">{new Intl.DateTimeFormat("en-GH", { dateStyle: "full" }).format(new Date())}</span>
@@ -173,8 +173,11 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
         <div className="stat-card"><span>Paid orders</span><strong>{paidOrders.length}</strong><small>Orders with confirmed payment</small></div>
       </section>
       <div className="dashboard-columns">
-        <section className="dashboard-panel">
-          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">YOUR CATALOGUE</span><h2>Products <span>{products.length}</span></h2></div></div>
+        <section className="dashboard-panel" id="seller-products">
+          <div className="panel-heading">
+            <div><span className="eyebrow muted-eyebrow">YOUR CATALOGUE</span><h2>Products <span>{products.length}</span></h2></div>
+            <Link className="seller-preview-link" href="/dashboard/seller/market">Preview in market</Link>
+          </div>
           {message ? <p className={message.includes("couldn't") ? "form-error" : "success-message"} role="status">{message}</p> : null}
           {products.length ? (
             <div className="seller-product-list">
@@ -182,8 +185,12 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
                 <article className="seller-product" key={product.id}>
                   <div className="seller-product-image" style={{ backgroundImage: `url("${product.image_url}")` }} />
                   <div className="seller-product-copy"><strong>{product.title}</strong><span>{product.category} · {formatPrice(product.price_kobo)}</span></div>
-                  <span className={product.active ? "status-pill live" : "status-pill paused"}>{product.active ? "Live" : "Hidden"}</span>
-                  <button className="small-action" type="button" onClick={() => toggleProduct(product)}>{product.active ? "Hide" : "Show"}</button>
+                  <span className={product.active ? "status-pill live" : "status-pill paused"}>{product.active ? "Live" : "Not published"}</span>
+                  {product.active ? (
+                    <button className="small-action" type="button" onClick={() => toggleProduct(product)}>Hide</button>
+                  ) : (
+                    <Link className="small-action" href="/dashboard/seller/market">Preview &amp; publish</Link>
+                  )}
                   <button className="small-action" type="button" onClick={() => removeProduct(product)} disabled={removingId === product.id}>{removingId === product.id ? "Removing…" : "Remove"}</button>
                 </article>
               ))}
@@ -198,7 +205,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
             <label>Price (GHS)<input name="price" type="number" required min="0.01" max="10000000" step="0.01" placeholder="0.00" /></label>
             <label>Description<textarea name="description" rows="3" maxLength={2000} placeholder="Tell customers what makes this product useful." /></label>
             <label className="photo-input">Product photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required /><small>JPG, PNG or WebP · maximum 5 MB</small></label>
-            <button className="button button-dark account-submit" type="submit" disabled={busy}>{busy ? "Publishing…" : "Publish product"}<span aria-hidden="true">↗</span></button>
+            <button className="button button-dark account-submit" type="submit" disabled={busy}>{busy ? "Saving…" : "Save for preview"}<span aria-hidden="true">↗</span></button>
           </form>
         </section>
       </div>

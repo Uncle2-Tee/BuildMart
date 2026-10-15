@@ -28,7 +28,7 @@ function SearchIcon() {
   );
 }
 
-export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "home", buyerName = "", buyerEmail = "", dashboardHref = "", children }) {
+export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "home", buyerName = "", buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, children }) {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
   const [category, setCategory] = useState("All products");
@@ -132,11 +132,21 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
     <>
       <header id="top" className={`site-header${buyerMode ? " buyer-site-header" : ""}${mobileMenuOpen ? " mobile-menu-open" : ""}`}>
         <div className="header-inner">
-          <Link className="brand" href="/" aria-label="BuildMart Ghana home">
-            <Mark className="brand-mark">B</Mark>
-            <span>BuildMart<span className="brand-country">GH</span></span>
-          </Link>
-          <nav id="site-navigation" className="main-nav" aria-label="Main navigation">
+          {hideMarketplaceContent ? (
+            <Link
+              className="market-back-button"
+              href={dashboardHref}
+              aria-label="Back to seller dashboard"
+            >
+              <span aria-hidden="true">←</span>
+            </Link>
+          ) : (
+            <>
+              <Link className="brand" href="/" aria-label="BuildMart Ghana home">
+                <Mark className="brand-mark">B</Mark>
+                <span>BuildMart<span className="brand-country">GH</span></span>
+              </Link>
+              <nav id="site-navigation" className="main-nav" aria-label="Main navigation">
             {buyerMode ? (
               <>
                 <Link href="/dashboard/buyer" aria-current={buyerPage === "home" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>Home</Link>
@@ -145,17 +155,17 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             ) : (
               <>
                 <a href="#top" onClick={() => setMobileMenuOpen(false)}>Home</a>
-                <a href="#shop" onClick={() => setMobileMenuOpen(false)}>Shop</a>
+                {!hideMarketplaceContent ? <a href="#shop" onClick={() => setMobileMenuOpen(false)}>Shop</a> : null}
               </>
             )}
-            {!buyerMode ? (
+            {buyerMode ? (
+              <Link href="/dashboard/buyer/orders" aria-current={buyerPage === "orders" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>My orders</Link>
+            ) : !hideMarketplaceContent ? (
               <>
                 <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>How it works</a>
                 <a href="#for-sellers" onClick={() => setMobileMenuOpen(false)}>For sellers</a>
               </>
-            ) : (
-              <Link href="/dashboard/buyer/orders" aria-current={buyerPage === "orders" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>My orders</Link>
-            )}
+            ) : null}
             {dashboardHref ? (
               <Link href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             ) : !buyerMode ? (
@@ -164,9 +174,9 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             {buyerMode || dashboardHref ? (
               <div className="mobile-navigation-signout"><SignOutButton /></div>
             ) : null}
-          </nav>
-          <div className="header-actions">
-            {buyerMode && buyerPage !== "shop" ? (
+              </nav>
+              <div className="header-actions">
+            {hideMarketplaceContent ? null : buyerMode && buyerPage !== "shop" ? (
               <Link className="header-search-button" href="/dashboard/buyer/shop" aria-label="Search products">
                 <SearchIcon />
               </Link>
@@ -203,11 +213,15 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               <span />
               <span />
             </button>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
       <main className={`marketplace-main${buyerMode ? " buyer-marketplace" : ""}`}>
+        {!hideMarketplaceContent ? (
+          <>
         {buyerMode && buyerPage === "home" ? (
           <section className="buyer-welcome" id="buyer-home">
             <div className="buyer-welcome-copy">
@@ -356,6 +370,8 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
           </div>
         </section> : null}
         {children}
+          </>
+        ) : null}
       </main>
 
       {cartOpen ? (
