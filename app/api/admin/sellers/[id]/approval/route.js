@@ -32,6 +32,15 @@ export async function PATCH(request, { params }) {
   }
 
   const admin = createSupabaseAdminClient();
+  const { data: authUser, error: authUserError } = await admin.auth.admin.getUserById(id);
+  if (authUserError) {
+    console.error("Unable to verify seller shop registration", authUserError);
+    return Response.json({ error: "We couldn't verify this seller's shop registration." }, { status: 500 });
+  }
+  if (typeof authUser.user?.user_metadata?.shop_name !== "string" || !authUser.user.user_metadata.shop_name.trim()) {
+    return Response.json({ error: "The seller must register a shop before it can be reviewed." }, { status: 409 });
+  }
+
   const { data: seller, error } = await admin
     .from("profiles")
     .update({ seller_status: body.status })

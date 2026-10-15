@@ -1,7 +1,8 @@
 import Link from "next/link";
 import BuyerDashboard from "../../buyer-dashboard";
 import { requireRole } from "../../../lib/auth";
-import { createSupabasePublicClient, isSupabaseConfigured } from "../../../lib/supabase/server";
+import { createSupabaseAdminClient } from "../../../lib/supabase/admin";
+import { isSupabaseConfigured } from "../../../lib/supabase/server";
 
 export const metadata = {
   title: "Buyer dashboard | BuildMart Ghana",
@@ -17,16 +18,27 @@ export default async function BuyerDashboardPage() {
   }
 
   const { supabase, user, profile } = await requireRole(["buyer"]);
-  const publicSupabase = createSupabasePublicClient();
+  const admin = createSupabaseAdminClient();
+  const { data: approvedSellers, error: sellersError } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("role", "seller")
+    .eq("seller_status", "approved");
+
+  if (sellersError) throw new Error(`Unable to load approved shops: ${sellersError.message}`);
+  const approvedSellerIds = (approvedSellers ?? []).map((seller) => seller.id);
   const [
     { data: products, error: productsError },
     { data: orders, error: ordersError },
   ] = await Promise.all([
-    publicSupabase
-      .from("products")
-      .select("id, title, description, category, price_kobo, image_url")
-      .eq("active", true)
-      .order("created_at", { ascending: false }),
+    approvedSellerIds.length
+      ? admin
+          .from("products")
+          .select("id, title, description, category, price_kobo, image_url")
+          .eq("active", true)
+          .in("seller_id", approvedSellerIds)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
     supabase
       .from("orders")
       .select("id, status, total_kobo, created_at, order_items(product_title, quantity)")

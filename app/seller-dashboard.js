@@ -9,12 +9,49 @@ function formatPrice(priceKobo) {
   return new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(priceKobo / 100);
 }
 
-export default function SellerDashboard({ displayName, products: initialProducts, orders }) {
+export default function SellerDashboard({ displayName, shop: initialShop, shopStatus, products: initialProducts, orders }) {
   const router = useRouter();
+  const [shop, setShop] = useState(initialShop);
+  const [currentShopStatus, setCurrentShopStatus] = useState(shopStatus);
+  const [shopMessage, setShopMessage] = useState("");
+  const [shopBusy, setShopBusy] = useState(false);
   const [products, setProducts] = useState(initialProducts);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [removingId, setRemovingId] = useState("");
+
+  async function registerShop(event) {
+    event.preventDefault();
+    setShopBusy(true);
+    setShopMessage("");
+
+    try {
+      const form = new FormData(event.currentTarget);
+      const response = await fetch("/api/seller/shop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shopName: form.get("shop_name"),
+          shopDescription: form.get("shop_description"),
+          shopLocation: form.get("shop_location"),
+          shopPhone: form.get("shop_phone"),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setShopMessage(result.error || "We couldn't submit your shop for review.");
+        return;
+      }
+      setShop(result.shop);
+      setCurrentShopStatus(result.status);
+      setShopMessage("Your shop registration was submitted for administrator review.");
+      router.refresh();
+    } catch {
+      setShopMessage("We couldn't connect to the shop service. Please try again.");
+    } finally {
+      setShopBusy(false);
+    }
+  }
 
   async function addProduct(event) {
     event.preventDefault();
@@ -87,6 +124,7 @@ export default function SellerDashboard({ displayName, products: initialProducts
 
   const activeProducts = products.filter((product) => product.active).length;
   const paidOrders = orders.filter((order) => order.status === "paid");
+  const shopApproved = currentShopStatus === "approved" && Boolean(shop);
 
   return (
     <main className="dashboard-shell">
@@ -95,9 +133,43 @@ export default function SellerDashboard({ displayName, products: initialProducts
         <div className="dashboard-user"><Link href="/">View marketplace ↗</Link><span className="user-avatar">{(displayName || "S").slice(0, 1).toUpperCase()}</span><SignOutButton /></div>
       </header>
       <section className="dashboard-welcome">
-        <div><span className="eyebrow muted-eyebrow">SELLER SPACE</span><h1>Good to have you, <em>{displayName || "seller"}.</em></h1><p>Your shop, products and orders — all in one place.</p></div>
+        <div><span className="eyebrow muted-eyebrow">SELLER SPACE</span><h1>Good to have you, <em>{displayName || "seller"}.</em></h1><p>{shopApproved ? `${shop.name} · ${shop.location}` : "Register your shop to submit it for administrator approval."}</p></div>
         <span className="dashboard-date">{new Intl.DateTimeFormat("en-GH", { dateStyle: "full" }).format(new Date())}</span>
       </section>
+      {!shopApproved ? (
+        <section className="dashboard-panel shop-registration-panel">
+          <div className="panel-heading">
+            <div>
+              <span className="eyebrow muted-eyebrow">SHOP REGISTRATION</span>
+              <h2>{shop && currentShopStatus === "pending" ? "Shop under review" : currentShopStatus === "rejected" ? "Update your shop details" : "Register your shop"}</h2>
+            </div>
+            {shop ? <span className={`status-pill ${currentShopStatus === "rejected" ? "paused" : "live"}`}>{currentShopStatus === "rejected" ? "Changes requested" : "Pending approval"}</span> : null}
+          </div>
+          {shop && currentShopStatus === "pending" ? (
+            <div className="shop-review-summary">
+              <strong>{shop.name}</strong>
+              <p>{shop.description}</p>
+              <small>{shop.location}{shop.phone ? ` · ${shop.phone}` : ""}</small>
+              <p>An administrator will review your shop. You can manage products once it is approved.</p>
+            </div>
+          ) : (
+            <>
+              <p className="shop-registration-copy">
+                Tell buyers and the BuildMart team about your business. Once submitted, an administrator will review your shop before you can list products.
+              </p>
+              {shopMessage ? <p className={shopMessage.startsWith("We couldn't") ? "form-error" : "success-message"} role="status">{shopMessage}</p> : null}
+              <form className="product-form shop-registration-form" onSubmit={registerShop}>
+                <label>Shop name<input name="shop_name" required minLength={2} maxLength={100} defaultValue={shop?.name ?? ""} placeholder="e.g. Accra Build & Supply" /></label>
+                <label>Shop description<textarea name="shop_description" rows="4" required minLength={20} maxLength={1000} defaultValue={shop?.description ?? ""} placeholder="Describe what you sell and what makes your shop reliable." /></label>
+                <label>Shop location<input name="shop_location" required minLength={2} maxLength={120} defaultValue={shop?.location ?? ""} placeholder="e.g. Madina, Accra" /></label>
+                <label>Shop phone <span className="optional-label">Optional</span><input name="shop_phone" type="tel" maxLength={24} defaultValue={shop?.phone ?? ""} placeholder="e.g. 024 123 4567" /></label>
+                <button className="button button-dark account-submit" type="submit" disabled={shopBusy}>{shopBusy ? "Submitting…" : currentShopStatus === "rejected" ? "Resubmit shop" : "Submit shop for approval"}<span aria-hidden="true">↗</span></button>
+              </form>
+            </>
+          )}
+        </section>
+      ) : (
+        <>
       <section className="stat-grid" aria-label="Shop summary">
         <div className="stat-card"><span>Live products</span><strong>{activeProducts}</strong><small>Visible in the marketplace</small></div>
         <div className="stat-card"><span>Products listed</span><strong>{products.length}</strong><small>Across your shop</small></div>
@@ -144,6 +216,8 @@ export default function SellerDashboard({ displayName, products: initialProducts
         ) : <p className="table-empty">Your orders will show here after customers check out.</p>}
         <p className="seller-order-note">Orders only include your products. Paystack sends 90% of your product sales to your verified seller account; BuildMart retains a 10% platform commission and covers Paystack fees.</p>
       </section>
+        </>
+      )}
     </main>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import SellerDashboard from "../../seller-dashboard";
-import SignOutButton from "../../sign-out-button";
 import { requireRole } from "../../../lib/auth";
 import { isSupabaseConfigured } from "../../../lib/supabase/server";
 
@@ -18,21 +17,25 @@ export default async function SellerDashboardPage() {
   }
 
   const { supabase, user, profile } = await requireRole(["seller"]);
-  if (profile.seller_status !== "approved") {
-    const rejected = profile.seller_status === "rejected";
+  const userMetadata = user.user_metadata ?? {};
+  const shop = typeof userMetadata.shop_name === "string" && userMetadata.shop_name.trim()
+    ? {
+        name: userMetadata.shop_name,
+        description: typeof userMetadata.shop_description === "string" ? userMetadata.shop_description : "",
+        location: typeof userMetadata.shop_location === "string" ? userMetadata.shop_location : "",
+        phone: typeof userMetadata.shop_phone === "string" ? userMetadata.shop_phone : "",
+      }
+    : null;
+
+  if (profile.seller_status !== "approved" || !shop) {
     return (
-      <main className="dashboard-shell">
-        <header className="dashboard-header">
-          <Link className="brand" href="/"><span className="mark brand-mark">B</span><span>buildmart<span className="brand-country">GH</span></span></Link>
-          <div className="dashboard-user"><Link href="/">View marketplace ↗</Link><SignOutButton /></div>
-        </header>
-        <div className="dashboard-empty">
-          <h1>{rejected ? "Your shop needs attention" : "Your shop is under review"}</h1>
-          <p>{rejected ? "An administrator has not approved this shop. Please contact BuildMart support for next steps." : "An administrator must approve your shop before you can publish products or receive orders."}</p>
-          <span className={`status-pill ${rejected ? "paused" : "live"}`}>{rejected ? "Not approved" : "Pending approval"}</span>
-          <p><Link href="/">Return to marketplace</Link></p>
-        </div>
-      </main>
+      <SellerDashboard
+        displayName={profile.display_name}
+        shop={shop}
+        shopStatus={profile.seller_status}
+        products={[]}
+        orders={[]}
+      />
     );
   }
 
@@ -52,5 +55,5 @@ export default async function SellerDashboardPage() {
   if (productsError) throw new Error(`Unable to load seller products: ${productsError.message}`);
   if (ordersError) throw new Error(`Unable to load seller orders: ${ordersError.message}`);
 
-  return <SellerDashboard displayName={profile.display_name} products={products ?? []} orders={orders ?? []} />;
+  return <SellerDashboard displayName={profile.display_name} shop={shop} shopStatus={profile.seller_status} products={products ?? []} orders={orders ?? []} />;
 }

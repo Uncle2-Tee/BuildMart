@@ -4,6 +4,7 @@ import AdminProductControls from "../admin-product-controls";
 import AdminSellerApproval from "../admin-seller-approval";
 import SignOutButton from "../sign-out-button";
 import { requireRole } from "../../lib/auth";
+import { createSupabaseAdminClient } from "../../lib/supabase/admin";
 import { isSupabaseConfigured } from "../../lib/supabase/server";
 
 export const metadata = {
@@ -32,6 +33,28 @@ export default async function AdminPage() {
 
   const sellers = (profiles ?? []).filter((item) => item.role === "seller");
   const paidOrders = (orders ?? []).filter((order) => order.status === "paid");
+  const adminClient = createSupabaseAdminClient();
+  const sellerIds = new Set(sellers.map((seller) => seller.id));
+  const authUsersById = new Map();
+  for (let page = 1; ; page += 1) {
+    const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw new Error(`Unable to load shop registration details: ${error.message}`);
+    for (const authUser of data.users) {
+      if (sellerIds.has(authUser.id)) authUsersById.set(authUser.id, authUser);
+    }
+    if (authUsersById.size === sellerIds.size || data.users.length < 1000) break;
+  }
+  const sellerShops = sellers.map((seller) => {
+    const authUser = authUsersById.get(seller.id);
+    const metadata = authUser?.user_metadata ?? {};
+    return {
+      ...seller,
+      shopName: typeof metadata.shop_name === "string" ? metadata.shop_name : "",
+      shopDescription: typeof metadata.shop_description === "string" ? metadata.shop_description : "",
+      shopLocation: typeof metadata.shop_location === "string" ? metadata.shop_location : "",
+      shopPhone: typeof metadata.shop_phone === "string" ? metadata.shop_phone : "",
+    };
+  });
 
   return (
     <main className="dashboard-shell">
@@ -45,7 +68,7 @@ export default async function AdminPage() {
       </section>
       <section className="stat-grid admin-stat-grid" aria-label="Marketplace summary">
         <div className="stat-card"><span>Seller accounts</span><strong>{sellers.length}</strong><small>Registered local businesses</small></div>
-        <div className="stat-card"><span>Shops pending review</span><strong>{sellers.filter((seller) => seller.seller_status === "pending").length}</strong><small>Awaiting your approval</small></div>
+        <div className="stat-card"><span>Shops pending review</span><strong>{sellerShops.filter((seller) => seller.shopName && seller.seller_status === "pending").length}</strong><small>Awaiting your approval</small></div>
         <div className="stat-card"><span>Products</span><strong>{products?.length ?? 0}</strong><small>Most recently listed</small></div>
         <div className="stat-card"><span>Paid orders</span><strong>{paidOrders.length}</strong><small>From the latest 100 orders</small></div>
       </section>
@@ -53,7 +76,7 @@ export default async function AdminPage() {
         <section className="dashboard-panel">
           <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">ACCOUNT ACCESS</span><h2>Seller accounts <span>{sellers.length}</span></h2></div></div>
           <div className="admin-list">
-            {sellers.map((seller) => <div className="admin-list-row" key={seller.id}><span className="user-avatar">{(seller.display_name || "S").slice(0, 1).toUpperCase()}</span><span><strong>{seller.display_name || "Seller"}</strong><small>Seller account · {new Date(seller.created_at).toLocaleDateString("en-GH")}</small></span><AdminSellerApproval sellerId={seller.id} initialStatus={seller.seller_status} /><AdminPayoutForm sellerId={seller.id} initialCode={seller.paystack_subaccount_code} /></div>)}
+            {sellerShops.map((seller) => <div className="admin-list-row" key={seller.id}><span className="user-avatar">{(seller.shopName || seller.display_name || "S").slice(0, 1).toUpperCase()}</span><span><strong>{seller.shopName || "Shop not registered"}</strong><small>{seller.shopName ? `${seller.display_name || "Seller"} · ${seller.shopLocation}${seller.shopPhone ? ` · ${seller.shopPhone}` : ""}` : `Seller account · ${new Date(seller.created_at).toLocaleDateString("en-GH")}`}</small>{seller.shopDescription ? <small className="seller-shop-description">{seller.shopDescription}</small> : null}</span><AdminSellerApproval sellerId={seller.id} initialStatus={seller.seller_status} hasShop={Boolean(seller.shopName)} /><AdminPayoutForm sellerId={seller.id} initialCode={seller.paystack_subaccount_code} /></div>)}
             {!sellers.length ? <p className="table-empty">New seller accounts will appear here.</p> : null}
           </div>
         </section>

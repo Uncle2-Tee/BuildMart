@@ -49,7 +49,7 @@ export default function AccountForm({ mode, initialRole = "", recoveryError = fa
 
         if (error) throw error;
         if (!data.session) {
-          setMessage("Account created. Check your email to confirm your address, then sign in.");
+          setMessage("Your account has been saved securely. Check your email to confirm your address, then sign in.");
           return;
         }
       } else if (isForgot) {
