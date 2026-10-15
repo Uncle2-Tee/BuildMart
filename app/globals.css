@@ -3994,6 +3994,37 @@ button {
     margin-top: 22px;
   }
 
+  .account-card.signup-card {
+    padding: 22px 20px 18px;
+  }
+
+  .account-card.signup-card .account-brand {
+    margin-bottom: 14px;
+  }
+
+  .account-card.signup-card .account-intro {
+    line-height: 1.45;
+  }
+
+  .account-card.signup-card .account-form {
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .account-card.signup-card .account-form input,
+  .account-card.signup-card .account-form select {
+    min-height: 44px;
+    margin-top: 4px;
+  }
+
+  .account-card.signup-card .account-form small {
+    margin-top: 3px;
+  }
+
+  .account-card.signup-card .account-switch-prompt {
+    margin-top: 13px;
+  }
+
   .account-card .account-form input,
   .account-card .account-form select {
     min-height: 48px;
