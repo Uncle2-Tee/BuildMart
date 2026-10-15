@@ -31,7 +31,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -47,12 +47,36 @@ body {
 .marketplace-main,
 .account-page,
 .dashboard-shell,
-.checkout-result {
+.checkout-result,
+.route-loading {
   flex: 1;
 }
 
 .dashboard-shell {
   min-height: 0;
+}
+
+.route-loading {
+  min-height: 45vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.route-loading-spinner {
+  width: 27px;
+  height: 27px;
+  border: 3px solid var(--line);
+  border-top-color: var(--clay);
+  border-radius: 50%;
+  animation: route-loading-spin 700ms linear infinite;
+}
+
+@keyframes route-loading-spin {
+  to { transform: rotate(360deg); }
 }
 
 button,

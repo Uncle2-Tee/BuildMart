@@ -17,8 +17,10 @@ export default async function BuyerShopPage() {
     );
   }
 
-  const { user, profile } = await requireRole(["buyer"]);
-  const products = await getApprovedProductCatalog();
+  const [{ user, profile }, products] = await Promise.all([
+    requireRole(["buyer"]),
+    getApprovedProductCatalog(),
+  ]);
 
   return (
     <BuyerDashboard
