@@ -263,7 +263,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
         {(!buyerMode || buyerPage === "shop") ? <section className="shop-section" id="shop">
           <div className="section-heading">
             <div>
-              <span className="eyebrow muted-eyebrow">THE MARKETPLACE</span>
+              {!buyerMode ? <span className="eyebrow muted-eyebrow">THE MARKETPLACE</span> : null}
               <h2>Find your next <em>good thing.</em></h2>
               <p>Useful, lasting picks from sellers who know their craft.</p>
             </div>
