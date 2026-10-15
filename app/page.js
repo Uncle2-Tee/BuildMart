@@ -7,7 +7,7 @@ import { getApprovedProductCatalog } from "../lib/buyer-dashboard-data";
 export default async function Home() {
   if (!isSupabaseConfigured()) redirect("/login");
   const { profile } = await requireRole(["buyer", "seller", "admin"]);
-  if (profile.role === "buyer") redirect("/dashboard/buyer");
+  if (profile.role === "buyer") redirect("/dashboard/buyer/shop");
   if (profile.role === "seller") redirect("/dashboard/seller/market");
   const products = await getApprovedProductCatalog();
 

@@ -93,7 +93,7 @@ export default function AccountForm({ mode, initialRole = "", recoveryError = fa
         : profile.role === "seller"
           ? "/dashboard/seller"
           : profile.role === "buyer"
-            ? "/dashboard/buyer"
+            ? "/dashboard/buyer/shop"
             : "/account";
       if (destination === "/account") throw new Error("This account does not have a supported role.");
       router.replace(destination);

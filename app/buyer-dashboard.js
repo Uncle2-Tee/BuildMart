@@ -7,7 +7,7 @@ function formatPrice(priceKobo) {
   }).format(priceKobo / 100);
 }
 
-export default function BuyerDashboard({ displayName, email, products, orders, isConfigured, catalogError, page = "home" }) {
+export default function BuyerDashboard({ displayName, email, products, orders, isConfigured, catalogError, page = "shop" }) {
   return (
     <Marketplace
       products={products}
@@ -15,7 +15,6 @@ export default function BuyerDashboard({ displayName, email, products, orders, i
       catalogError={catalogError}
       buyerMode
       buyerPage={page}
-      buyerName={displayName}
       buyerEmail={email}
     >
       {page === "orders" ? <section className="dashboard-shell buyer-orders" id="buyer-orders">

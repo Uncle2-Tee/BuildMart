@@ -5,7 +5,13 @@ import { usePathname } from "next/navigation";
 
 export default function SiteFooter() {
   const pathname = usePathname();
-  if (pathname === "/dashboard/seller/market") return null;
+  if (
+    pathname === "/dashboard/seller/market" ||
+    pathname === "/login" ||
+    pathname === "/signup"
+  ) {
+    return null;
+  }
 
   return (
     <footer className="site-footer">

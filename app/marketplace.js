@@ -28,7 +28,7 @@ function SearchIcon() {
   );
 }
 
-export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "home", buyerName = "", buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, children }) {
+export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "shop", buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, children }) {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
   const [category, setCategory] = useState("All products");
@@ -149,7 +149,6 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               <nav id="site-navigation" className="main-nav" aria-label="Main navigation">
             {buyerMode ? (
               <>
-                <Link href="/dashboard/buyer" aria-current={buyerPage === "home" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/dashboard/buyer/shop" aria-current={buyerPage === "shop" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>Shop</Link>
               </>
             ) : (
@@ -176,11 +175,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             ) : null}
               </nav>
               <div className="header-actions">
-            {hideMarketplaceContent ? null : buyerMode && buyerPage !== "shop" ? (
-              <Link className="header-search-button" href="/dashboard/buyer/shop" aria-label="Search products">
-                <SearchIcon />
-              </Link>
-            ) : (
+            {hideMarketplaceContent ? null : (
               <button className="header-search-button" type="button" aria-label="Search products" onClick={focusSearch}>
                 <SearchIcon />
               </button>
@@ -222,27 +217,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
       <main className={`marketplace-main${buyerMode ? " buyer-marketplace" : ""}`}>
         {!hideMarketplaceContent ? (
           <>
-        {buyerMode && buyerPage === "home" ? (
-          <section className="buyer-welcome" id="buyer-home">
-            <div className="buyer-welcome-copy">
-              <span className="eyebrow"><span className="eyebrow-dot" /> GHANA&apos;S HOME & BUILD MARKETPLACE</span>
-              <h1>Welcome back,<br /><em>{buyerName || "builder"}.</em></h1>
-              <p>Find thoughtful picks for your next project, all from trusted Ghanaian businesses.</p>
-              <div className="buyer-welcome-actions">
-                <Link className="button button-light" href="/dashboard/buyer/shop">Explore the marketplace <span aria-hidden="true">↘</span></Link>
-                <Link className="buyer-orders-link" href="/dashboard/buyer/orders">View my orders <span aria-hidden="true">→</span></Link>
-              </div>
-            </div>
-            <div className="buyer-welcome-art" aria-hidden="true">
-              <span className="buyer-art-orbit buyer-art-orbit-one" />
-              <span className="buyer-art-orbit buyer-art-orbit-two" />
-              <div className="buyer-art-card buyer-art-card-back"><span>HOME</span><i /></div>
-              <div className="buyer-art-card buyer-art-card-front"><span className="buyer-art-spark">✳</span><strong>Make room<br />for good things.</strong><small>LOCAL FINDS · MADE FOR YOU</small></div>
-            </div>
-            <div className="buyer-welcome-note"><span>01</span><strong>Good projects start close to home.</strong><span>Shop local. Build beautifully.</span></div>
-          </section>
-        ) : null}
-        <section className="hero">
+        {!buyerMode ? <section className="hero">
           <div className="hero-content">
             <span className="eyebrow"><span className="eyebrow-dot" /> GHANA&apos;S HOME & BUILD MARKETPLACE</span>
             <h1>Good things<br />are built <em>together.</em></h1>
@@ -265,14 +240,14 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             </div>
             <span className="hero-image-caption">A home, made your own.</span>
           </div>
-        </section>
+        </section> : null}
 
-        <section className="benefits" id="how-it-works">
+        {!buyerMode ? <section className="benefits" id="how-it-works">
           <div className="benefit"><span className="benefit-icon">✳</span><span><strong>Local first</strong><small>Shop Ghanaian sellers</small></span></div>
           <div className="benefit"><span className="benefit-icon">⌂</span><span><strong>Made for your project</strong><small>From first brick to final touch</small></span></div>
           <div className="benefit"><span className="benefit-icon">✓</span><span><strong>Simple & secure</strong><small>Pay safely with Paystack</small></span></div>
           <div className="benefit"><span className="benefit-icon">♡</span><span><strong>People behind products</strong><small>Real businesses, real craft</small></span></div>
-        </section>
+        </section> : null}
 
         {(!buyerMode || buyerPage === "shop") ? <section className="shop-section" id="shop">
           <div className="section-heading">

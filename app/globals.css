@@ -1444,13 +1444,13 @@ button {
 
 .site-footer-inner {
   width: min(1240px, calc(100% - 72px));
-  min-height: 128px;
+  min-height: 88px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(210px, 0.9fr) minmax(220px, 1fr) auto;
   align-items: center;
-  gap: 36px;
-  padding: 24px 0;
+  gap: 24px;
+  padding: 16px 0;
 }
 
 .footer-brand {
@@ -3555,8 +3555,8 @@ button {
     grid-template-areas:
       "brand"
       "tagline tagline";
-    gap: 14px;
-    padding: 20px 0;
+    gap: 8px;
+    padding: 12px 0;
   }
 
   .footer-brand {
@@ -4397,7 +4397,8 @@ button {
       "brand"
       "tagline"
       "meta";
-    gap: 12px;
+    gap: 8px;
+    padding: 12px 0;
   }
 
   .site-footer .site-footer-inner > .footer-brand {
