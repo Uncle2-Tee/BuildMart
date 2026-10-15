@@ -27,39 +27,43 @@ export default function DashboardHeader({
         <span className="mark brand-mark">B</span>
         <span>BuildMart<span className="brand-country">GH</span></span>
       </Link>
-      <div className="dashboard-user">
-        {admin ? <span className="admin-label">ADMINISTRATOR</span> : null}
-        {showMarketplaceLinks ? <Link className="dashboard-home-link" href="/">Home</Link> : null}
-        {showMarketplaceLinks ? <Link className="dashboard-marketplace-link" href="/">View marketplace ↗</Link> : null}
-        {displayName ? <span className="user-avatar">{displayName.slice(0, 1).toUpperCase()}</span> : null}
-        <SignOutButton />
-      </div>
-      <button
-        className="mobile-menu-button dashboard-menu-button"
-        type="button"
-        aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-        aria-controls="dashboard-mobile-navigation"
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen((open) => !open)}
-      >
-        <span />
-        <span />
-        <span />
-      </button>
-      <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
+      <div className={`dashboard-user${sellerDashboard ? " seller-dashboard-actions" : ""}`}>
         {sellerDashboard ? (
           <>
-            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Home</a>
-            <Link href="/dashboard/seller/market" onClick={() => setMenuOpen(false)}>View market</Link>
+            <Link className="dashboard-seller-market-link" href="/dashboard/seller/market">View market</Link>
+            <SignOutButton />
           </>
         ) : (
           <>
-            {showMarketplaceLinks ? <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link> : null}
-            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
+            {admin ? <span className="admin-label">ADMINISTRATOR</span> : null}
+            {showMarketplaceLinks ? <Link className="dashboard-home-link" href="/">Home</Link> : null}
+            {showMarketplaceLinks ? <Link className="dashboard-marketplace-link" href="/">View marketplace ↗</Link> : null}
+            {displayName ? <span className="user-avatar">{displayName.slice(0, 1).toUpperCase()}</span> : null}
+            <SignOutButton />
           </>
         )}
-        <div className="dashboard-mobile-signout"><SignOutButton /></div>
-      </nav>
+      </div>
+      {!sellerDashboard ? (
+        <>
+          <button
+            className="mobile-menu-button dashboard-menu-button"
+            type="button"
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-controls="dashboard-mobile-navigation"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
+            {showMarketplaceLinks ? <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link> : null}
+            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
+            <div className="dashboard-mobile-signout"><SignOutButton /></div>
+          </nav>
+        </>
+      ) : null}
     </header>
   );
 }
