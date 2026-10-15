@@ -45,33 +45,36 @@ export async function POST(request) {
 
   let buyerId = null;
   const userClient = await createSupabaseServerClient();
-  if (userClient) {
-    const { data: { user }, error: userError } = await userClient.auth.getUser();
-    if (userError) {
-      console.error("Unable to verify checkout account", userError);
-      return Response.json({ error: "Unable to verify your account." }, { status: 401 });
-    }
-
-    if (user) {
-      const { data: profile, error: profileError } = await userClient
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-      if (profileError) {
-        console.error("Unable to verify checkout role", profileError);
-        return Response.json({ error: "Unable to verify your account permissions." }, { status: 500 });
-      }
-      if (profile.role !== "buyer") {
-        return Response.json({ error: "Only buyer accounts can place marketplace orders." }, { status: 403 });
-      }
-      if (!user.email) {
-        return Response.json({ error: "Your buyer account needs an email address to check out." }, { status: 400 });
-      }
-      buyerId = user.id;
-      email = user.email;
-    }
+  if (!userClient) {
+    return Response.json({ error: "Buyer sign-in is required for checkout." }, { status: 503 });
   }
+
+  const { data: { user }, error: userError } = await userClient.auth.getUser();
+  if (userError) {
+    console.error("Unable to verify checkout account", userError);
+    return Response.json({ error: "Unable to verify your account." }, { status: 401 });
+  }
+  if (!user) {
+    return Response.json({ error: "Sign in with a buyer account to check out." }, { status: 401 });
+  }
+
+  const { data: profile, error: profileError } = await userClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  if (profileError) {
+    console.error("Unable to verify checkout role", profileError);
+    return Response.json({ error: "Unable to verify your account permissions." }, { status: 500 });
+  }
+  if (profile.role !== "buyer") {
+    return Response.json({ error: "Only buyer accounts can place marketplace orders." }, { status: 403 });
+  }
+  if (!user.email) {
+    return Response.json({ error: "Your buyer account needs an email address to check out." }, { status: 400 });
+  }
+  buyerId = user.id;
+  email = user.email;
 
   const uniqueIds = new Set();
   for (const item of items) {

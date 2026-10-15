@@ -1,31 +1,27 @@
-import Marketplace from "./marketplace";
-import { createSupabasePublicClient } from "../lib/supabase/server";
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "../lib/supabase/server";
 
 export default async function Home() {
-  const supabase = createSupabasePublicClient();
-  let products = [];
-  let catalogError = false;
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) redirect("/signup");
 
-  if (supabase) {
-    const { data, error } = await supabase
-      .from("products")
-      .select("id, title, description, category, price_kobo, image_url")
-      .eq("active", true)
-      .order("created_at", { ascending: false });
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError) throw new Error(`Unable to verify account: ${userError.message}`);
+  if (!user) redirect("/signup");
 
-    if (error) {
-      console.error("Unable to load the public product catalogue", error);
-      catalogError = true;
-    } else {
-      products = data ?? [];
-    }
-  }
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  if (profileError) throw new Error(`Unable to load account permissions: ${profileError.message}`);
 
-  return (
-    <Marketplace
-      products={products}
-      isConfigured={Boolean(supabase)}
-      catalogError={catalogError}
-    />
-  );
+  if (profile.role === "buyer") redirect("/dashboard/buyer");
+  if (profile.role === "seller") redirect("/dashboard/seller");
+  if (profile.role === "admin") redirect("/admin");
+
+  throw new Error("This account does not have a supported role.");
 }

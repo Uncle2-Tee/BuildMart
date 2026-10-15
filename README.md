@@ -4,18 +4,19 @@ A Ghana-focused marketplace built with Next.js, Supabase and Paystack.
 
 ## Roles
 
-- **Buyers** can create an account, browse and search the catalogue, place orders and pay securely. Signed-in buyers see only their own order history. Guest checkout remains available.
+- **Buyers** must create an account and sign in before accessing the marketplace. They can search products, place orders and pay securely; their order history is private to their account.
 - **Sellers** can request a shop account at sign-up. Their dashboard remains read-only until an administrator approves the shop; approved sellers can add, hide, show and remove their own products and see orders containing their products.
 - **Administrators** have a protected platform dashboard to review, approve or suspend seller shops, manage payout setup, and hide or remove marketplace products. They can inspect marketplace accounts and orders. Admin privileges are assigned manually in Supabase; public sign-up cannot create administrator accounts.
+- Dedicated `/signup`, `/login`, and `/forgot-password` pages provide account creation with Buyer/Seller role selection, sign-in, and password recovery. Recovery links return to `/login?mode=reset`; `/account` redirects to the login page for compatibility.
 
-Dashboard routes and APIs enforce roles server-side, while Supabase Row Level Security limits profiles and orders to their owner, sellers to their own store and order items, and administrators to platform-wide access. Unapproved shops cannot publish products or appear in the public catalogue. Checkout totals are calculated from current database prices, and payments are only marked paid after server-side Paystack verification. The Paystack webhook also verifies the signed request and transaction.
+All application pages require an authenticated session except `/signup`, `/login`, and `/forgot-password`; payment verification callbacks and the signed Paystack webhook remain accessible for payment processing. Dashboard routes and APIs enforce roles server-side, while Supabase Row Level Security limits profiles and orders to their owner, sellers to their own store and order items, and administrators to platform-wide access. Only signed-in buyers can check out. Unapproved shops cannot publish products or appear in the marketplace. Checkout totals are calculated from current database prices, and payments are only marked paid after server-side Paystack verification. The Paystack webhook also verifies the signed request and transaction.
 
 ## Configure services
 
 1. Create a Supabase project and copy `.env.example` to `.env.local`.
-2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PAYSTACK_SECRET_KEY`, and `NEXT_PUBLIC_SITE_URL`. Keep the service-role key and Paystack secret private; never prefix them with `NEXT_PUBLIC_` or commit them.
-3. Run `supabase/migrations/20261014000000_buildmart.sql` in the Supabase SQL editor (or apply it with the Supabase CLI). It creates the profiles, catalogue, orders, storage bucket, RLS policies and role-safe profile trigger.
-4. In Supabase Auth, configure the application URL and allowed redirect URL for `/account`. Enable email confirmation for account sign-up.
+2. The schema, storage bucket, and row-level security policies have been applied directly to the PostgreSQL database using the configured `DIRECT_URL` (or `DATABASE_URL`) connection. No migration-file step is required for this database.
+3. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PAYSTACK_SECRET_KEY`, and `NEXT_PUBLIC_SITE_URL`. The PostgreSQL URLs alone do not provide the Supabase Auth/Storage API credentials required by the application. Keep the service-role key and Paystack secret private; never prefix them with `NEXT_PUBLIC_` or commit them.
+4. In Supabase Auth, configure the application URL and allowed redirect URLs for `/login` and `/login?mode=reset`. Enable email confirmation for account sign-up and password recovery.
 5. Create an administrator user through Supabase Auth, then assign its role in the SQL editor:
 
    ```sql

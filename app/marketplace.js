@@ -128,7 +128,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                 <Link className="login-link" href="#buyer-orders">My orders</Link>
                 <SignOutButton />
               </>
-            ) : <Link className="login-link" href="/account">Sign in</Link>}
+            ) : <Link className="login-link" href="/login">Log in</Link>}
             <button
               className="cart-button"
               type="button"
@@ -262,7 +262,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             <span className="eyebrow">FOR GHANAIAN SELLERS</span>
             <h2>Your work deserves<br />a wider <em>market.</em></h2>
             <p>Set up your shop, list your products and reach people building a home they love.</p>
-            <Link className="button button-light" href="/account?mode=signup&role=seller">Open your seller shop <span aria-hidden="true">↗</span></Link>
+            <Link className="button button-light" href="/signup?role=seller">Open your seller shop <span aria-hidden="true">↗</span></Link>
           </div>
           <div className="seller-banner-art" aria-hidden="true">
             <div className="art-sun" />
@@ -275,7 +275,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
       <footer className="site-footer">
         <Link className="brand footer-brand" href="/"><Mark className="brand-mark">B</Mark><span>buildmart<span className="brand-country">GH</span></span></Link>
         <span>Better projects start close to home.</span>
-        <div>{!buyerMode ? <Link href="/account">Seller portal</Link> : null}<span>© {new Date().getFullYear()} BuildMart Ghana</span></div>
+        <div>{!buyerMode ? <Link href="/login">Seller portal</Link> : null}<span>© {new Date().getFullYear()} BuildMart Ghana</span></div>
       </footer>
 
       {cartOpen ? (
@@ -305,7 +305,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                 </div>
                 <form className="checkout-form" onSubmit={checkout}>
                   <label htmlFor="buyer-email">Email for your receipt</label>
-                  <input id="buyer-email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
+                  <input id="buyer-email" type="email" autoComplete="email" required readOnly={buyerMode} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
                   <div className="cart-total"><span>Subtotal</span><strong>{formatPrice(cartTotal)}</strong></div>
                   <p className="checkout-note">Secure checkout powered by Paystack. Delivery details are arranged with the seller.</p>
                   {checkoutState && checkoutState !== "loading" ? <p className="form-error" role="alert">{checkoutState}</p> : null}

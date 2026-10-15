@@ -7,6 +7,12 @@ export async function proxy(request) {
 
   if (!url || !key) return NextResponse.next({ request });
 
+  const pathname = request.nextUrl.pathname;
+  const isAuthPage = ["/login", "/signup", "/account", "/forgot-password"].includes(pathname);
+  const isPaymentCallback = [
+    "/api/payments/paystack/verify",
+    "/api/payments/paystack/webhook",
+  ].includes(pathname);
   let response = NextResponse.next({ request });
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -27,7 +33,31 @@ export async function proxy(request) {
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error && error.name !== "AuthSessionMissingError") {
+    console.error("Unable to verify request session", error);
+    if (pathname.startsWith("/api/") && !isPaymentCallback) {
+      return Response.json({ error: "Unable to verify your account." }, { status: 503 });
+    }
+    return new Response("Unable to verify your account. Please try again.", { status: 503 });
+  }
+
+  if (!user && !isAuthPage && !isPaymentCallback) {
+    if (pathname.startsWith("/api/")) {
+      return Response.json({ error: "Sign in to continue." }, { status: 401 });
+    }
+    const signUpUrl = new URL("/signup", request.url);
+    const redirectResponse = NextResponse.redirect(signUpUrl);
+    for (const cookie of response.cookies.getAll()) {
+      redirectResponse.cookies.set(cookie);
+    }
+    return redirectResponse;
+  }
+
   return response;
 }
 

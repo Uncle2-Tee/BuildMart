@@ -1,16 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #19352b;
-  --ink-soft: #395249;
-  --muted: #77877f;
-  --green: #d7e991;
-  --green-dark: #b8d36b;
-  --cream: #f6f5ed;
-  --cream-deep: #eeede1;
-  --line: #e7e9df;
+  --ink: #132238;
+  --ink-soft: #35465d;
+  --muted: #66758a;
+  --sand: #dff4f1;
+  --clay-light: #39c9ba;
+  --cream: #f1f7fc;
+  --cream-deep: #ddeaf4;
+  --line: #dce5ef;
   --white: #fff;
   --red: #a83e32;
+  --clay: #087f8c;
+  --clay-deep: #075365;
+  --brand-gradient: linear-gradient(130deg, #102a43 0%, #155e75 58%, #087f8c 100%);
+  --accent-gradient: linear-gradient(120deg, #087f8c 0%, #00a896 58%, #28c8b7 100%);
+  --surface-gradient: linear-gradient(135deg, #f7fbff 0%, #eaf3f9 55%, #ddf4f1 100%);
   --font-sans: var(--font-geist-sans);
 }
 
@@ -32,7 +37,7 @@ html {
 body {
   margin: 0;
   min-height: 100%;
-  background: #fcfcf8;
+  background: var(--surface-gradient);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
@@ -62,8 +67,8 @@ button {
 
 .site-header {
   height: 78px;
-  background: #fcfcf8;
-  border-bottom: 1px solid rgba(25, 53, 43, 0.08);
+  background: rgba(247, 251, 255, 0.94);
+  border-bottom: 1px solid rgba(19, 34, 56, 0.09);
 }
 
 .header-inner {
@@ -91,8 +96,8 @@ button {
   border-radius: 10px 10px 10px 3px;
   display: inline-grid;
   place-items: center;
-  background: var(--green);
-  color: var(--ink);
+  background: var(--accent-gradient);
+  color: #fff;
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -1px;
@@ -100,7 +105,7 @@ button {
 
 .brand-country {
   margin-left: 4px;
-  color: #87947b;
+  color: #66758a;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -112,7 +117,7 @@ button {
   align-items: center;
   gap: 37px;
   padding-left: 90px;
-  color: #68766e;
+  color: #52637a;
   font-size: 12px;
   font-weight: 550;
 }
@@ -126,7 +131,7 @@ button {
 .main-nav a:hover,
 .login-link:hover,
 .dashboard-user a:hover {
-  color: #608129;
+  color: var(--clay);
 }
 
 .header-actions {
@@ -139,14 +144,14 @@ button {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #68766e;
+  color: #52637a;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .header-actions .sign-out-control button:hover {
-  color: #608129;
+  color: var(--clay);
 }
 
 .login-link {
@@ -173,7 +178,7 @@ button {
   height: 20px;
   place-items: center;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--sand);
   font-size: 10px;
 }
 
@@ -198,7 +203,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: #72823e;
+  color: #087f8c;
   font-size: 9px;
   font-weight: 730;
   letter-spacing: 0.16em;
@@ -208,8 +213,8 @@ button {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #b4ce6d;
-  box-shadow: 0 0 0 4px rgba(180, 206, 109, 0.16);
+  background: linear-gradient(135deg, #39c9ba 0%, #087f8c 100%);
+  box-shadow: 0 0 0 4px rgba(8, 127, 140, 0.16);
 }
 
 .hero h1,
@@ -231,7 +236,7 @@ button {
 .account-card h1 em,
 .dashboard-welcome h1 em,
 .checkout-result h1 em {
-  color: #829f46;
+  color: var(--clay);
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 400;
   letter-spacing: -0.07em;
@@ -271,21 +276,21 @@ button {
 }
 
 .button-dark {
-  background: var(--ink);
+  background: var(--brand-gradient);
   color: white;
 }
 
 .button-dark:hover {
-  background: #274b3d;
+  background: linear-gradient(130deg, #0b2035 0%, #104c62 58%, #066b78 100%);
 }
 
 .button-light {
-  background: var(--green);
+  background: linear-gradient(135deg, #ddf7f3 0%, #b9ede6 100%);
   color: var(--ink);
 }
 
 .button-light:hover {
-  background: #e3f2a8;
+  background: linear-gradient(135deg, #c9f1eb 0%, #9ce1d8 100%);
 }
 
 .hero-trust {
@@ -308,9 +313,9 @@ button {
   display: inline-grid;
   place-items: center;
   margin-left: -3px;
-  border: 2px solid #fcfcf8;
+  border: 2px solid #faf8f3;
   border-radius: 50%;
-  background: #d9a779;
+  background: #087f8c;
   color: #fff;
   font-size: 7px;
   font-style: normal;
@@ -318,11 +323,11 @@ button {
 }
 
 .trust-avatars i:nth-child(2) {
-  background: #8d9e78;
+  background: #155e75;
 }
 
 .trust-avatars i:nth-child(3) {
-  background: #be7358;
+  background: #f5b942;
 }
 
 .hero-image {
@@ -334,7 +339,7 @@ button {
   background:
     linear-gradient(0deg, rgba(28, 45, 35, 0.26), transparent 48%),
     url("https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=85") center 51% / cover,
-    #ddd9c9;
+    #d6e3ed;
 }
 
 .hero-image-note {
@@ -347,13 +352,13 @@ button {
   padding: 11px 14px;
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 10px;
-  background: rgba(255, 255, 248, 0.9);
-  box-shadow: 0 10px 30px rgba(30, 41, 30, 0.1);
+  background: rgba(250, 253, 255, 0.92);
+  box-shadow: 0 10px 30px rgba(19, 42, 62, 0.12);
   backdrop-filter: blur(8px);
 }
 
 .note-spark {
-  color: #879d45;
+  color: #b06b46;
   font-size: 22px;
 }
 
@@ -423,8 +428,8 @@ button {
   display: inline-grid;
   place-items: center;
   border-radius: 11px;
-  background: #f0f2e5;
-  color: #778b3c;
+  background: #e2f4f2;
+  color: #087f8c;
   font-size: 17px;
 }
 
@@ -468,7 +473,7 @@ button {
 }
 
 .section-heading h2 em {
-  color: #829f46;
+  color: var(--clay);
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 400;
 }
@@ -513,8 +518,8 @@ button {
   flex: 0 0 auto;
   padding: 4px 5px;
   border-radius: 4px;
-  background: #f3f4ee;
-  color: #9ba39c;
+  background: #edf3f8;
+  color: #7b899a;
   font-size: 8px;
 }
 
@@ -562,20 +567,20 @@ button {
   border-radius: 10px;
   background-position: center;
   background-size: cover;
-  background-color: #ebe9de;
+  background-color: #e5edf4;
   transition: background-size 250ms ease;
 }
 
 .product-image-1 {
-  background-color: #ded9cd;
+  background-color: #dbe7ed;
 }
 
 .product-image-2 {
-  background-color: #e3e7da;
+  background-color: #dcefeb;
 }
 
 .product-image-3 {
-  background-color: #e5d8cc;
+  background-color: #e1e6f0;
 }
 
 .product-tag {
@@ -606,7 +611,7 @@ button {
 }
 
 .quick-add:hover {
-  background: var(--green);
+  background: var(--sand);
   transform: rotate(90deg);
 }
 
@@ -648,9 +653,9 @@ button {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  border: 1px dashed #d9ded0;
+  border: 1px dashed #c9dbe7;
   border-radius: 12px;
-  background: #f8f8f2;
+  background: #f4f9fc;
   text-align: center;
 }
 
@@ -676,7 +681,7 @@ button {
 }
 
 .empty-icon {
-  color: #92a64e;
+  color: #087f8c;
   font-size: 26px;
 }
 
@@ -684,7 +689,7 @@ button {
   margin-top: 5px;
   border: 0;
   background: transparent;
-  color: #688336;
+  color: var(--clay);
   font-size: 10px;
   text-decoration: underline;
   cursor: pointer;
@@ -698,7 +703,7 @@ button {
   display: flex;
   overflow: hidden;
   border-radius: 15px;
-  background: #19372c;
+  background: var(--brand-gradient);
   color: #fff;
 }
 
@@ -719,7 +724,7 @@ button {
 }
 
 .seller-banner .eyebrow {
-  color: #c2d884;
+  color: #e3c59e;
 }
 
 .seller-banner h2 {
@@ -729,13 +734,13 @@ button {
 }
 
 .seller-banner h2 em {
-  color: #d2e995;
+  color: #eed8b5;
 }
 
 .seller-banner p {
   max-width: 360px;
   margin: 0 0 23px;
-  color: #b0c0b6;
+  color: #c4c5bd;
   font-size: 11px;
   line-height: 1.8;
 }
@@ -748,9 +753,9 @@ button {
   height: 100%;
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 73% 106%, #385a42 0 30%, transparent 30.5%),
-    radial-gradient(ellipse at 81% 111%, #5a754f 0 18%, transparent 18.5%),
-    linear-gradient(125deg, transparent 5%, rgba(204, 223, 163, 0.07) 100%);
+    radial-gradient(ellipse at 73% 106%, #087f8c 0 30%, transparent 30.5%),
+    radial-gradient(ellipse at 81% 111%, #22b8a8 0 18%, transparent 18.5%),
+    linear-gradient(135deg, rgba(209, 240, 245, 0.03), rgba(209, 240, 245, 0.14));
 }
 
 .art-sun {
@@ -760,7 +765,7 @@ button {
   width: 116px;
   height: 116px;
   border-radius: 50%;
-  background: #d7e991;
+  background: #f5b942;
   opacity: 0.9;
 }
 
@@ -775,23 +780,23 @@ button {
   gap: 13px;
   padding: 42px 24px;
   border-radius: 3px 3px 0 0;
-  background: #d6c7a4;
-  box-shadow: -15px 0 #a9b384, 14px 0 #eee4cc;
+  background: #b8d2d8;
+  box-shadow: -15px 0 #087f8c, 14px 0 #e5f3f4;
   transform: skewY(-4deg);
 }
 
 .art-building i {
-  background: #66805e;
+  background: #155e75;
 }
 
 .art-building i:nth-child(2),
 .art-building i:nth-child(4) {
-  background: #9e7354;
+  background: #f5b942;
 }
 
 .art-building i:nth-child(3),
 .art-building i:nth-child(6) {
-  background: #476954;
+  background: #087f8c;
 }
 
 .art-pot {
@@ -803,8 +808,8 @@ button {
   display: grid;
   place-items: center;
   border-radius: 7px 7px 15px 15px;
-  background: #bc8060;
-  color: #e9d7b7;
+  background: #f5b942;
+  color: #132238;
   font-size: 24px;
 }
 
@@ -841,7 +846,7 @@ button {
 
 .site-footer a:hover,
 .back-link:hover {
-  color: #70893d;
+  color: var(--clay);
 }
 
 .drawer-backdrop {
@@ -850,7 +855,7 @@ button {
   inset: 0;
   display: flex;
   justify-content: flex-end;
-  background: rgba(20, 36, 29, 0.38);
+  background: rgba(16, 42, 67, 0.42);
   backdrop-filter: blur(3px);
 }
 
@@ -860,8 +865,8 @@ button {
   display: flex;
   flex-direction: column;
   padding: 27px;
-  background: #fcfcf8;
-  box-shadow: -16px 0 40px rgba(22, 39, 29, 0.14);
+  background: #faf8f3;
+  box-shadow: -16px 0 40px rgba(19, 42, 62, 0.16);
   animation: drawer-in 180ms ease-out;
 }
 
@@ -994,7 +999,7 @@ button {
   min-height: 42px;
   display: block;
   margin-top: 7px;
-  border: 1px solid #e0e4d9;
+  border: 1px solid #d7e3ed;
   border-radius: 6px;
   outline: none;
   background: #fff;
@@ -1016,8 +1021,8 @@ button {
 .product-form input:focus,
 .product-form select:focus,
 .product-form textarea:focus {
-  border-color: #99b85a;
-  box-shadow: 0 0 0 3px rgba(153, 184, 90, 0.15);
+  border-color: #00a896;
+  box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.18);
 }
 
 .cart-total {
@@ -1055,7 +1060,7 @@ button {
 }
 
 .empty-cart > span {
-  color: #91a54b;
+  color: #b16b45;
   font-size: 32px;
 }
 
@@ -1088,9 +1093,232 @@ button {
 
 .account-page {
   min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background:
+    radial-gradient(ellipse at 12% 15%, rgba(255, 255, 255, 0.72), transparent 36%),
+    radial-gradient(ellipse at 88% 82%, rgba(0, 168, 150, 0.1), transparent 34%),
+    var(--surface-gradient);
+}
+
+.account-card.signup-card,
+.account-card.login-card {
+  width: min(500px, 100%);
+  margin: 0;
+  padding: 42px 46px 34px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 22px 65px rgba(19, 42, 62, 0.14);
+}
+
+.account-card .account-brand {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 21px;
+}
+
+.account-card > .eyebrow {
+  display: flex;
+  justify-content: center;
+  color: #087f8c;
+}
+
+.account-card h1 {
+  margin: 14px 0 8px;
+  color: #132238;
+  font-size: clamp(30px, 7vw, 38px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.account-card .account-intro {
+  max-width: 360px;
+  margin: 0 auto;
+  color: #66758a;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.account-card .account-form {
+  gap: 17px;
+  margin-top: 27px;
+}
+
+.account-card .account-form label {
+  color: #273b54;
+  font-size: 12px;
+  font-weight: 620;
+}
+
+.account-card .account-form input,
+.account-card .account-form select {
+  min-height: 50px;
+  margin-top: 7px;
+  border: 1px solid #d7e3ed;
+  border-radius: 10px;
+  background: #f5f9fc;
+  color: #132238;
+  font-size: 13px;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.account-card .account-form input {
+  padding: 0 14px;
+}
+
+.account-card .account-form select {
+  padding: 0 14px;
+}
+
+.account-card .account-form input::placeholder {
+  color: #8998a9;
+}
+
+.account-card .account-form input:focus,
+.account-card .account-form select:focus {
+  border-color: #00a896;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.18);
+}
+
+.account-card .password-visibility-button {
+  right: 9px;
+  color: #5e7287;
+}
+
+.account-card .account-submit {
+  min-height: 54px;
+  margin-top: 2px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent-gradient);
+  box-shadow: 0 8px 20px rgba(0, 128, 137, 0.24);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+
+.account-card .account-submit:hover:not(:disabled) {
+  background: linear-gradient(120deg, #066773 0%, #078d83 58%, #16aa9c 100%);
+  box-shadow: 0 10px 24px rgba(0, 128, 137, 0.3);
+  transform: translateY(-1px);
+}
+
+.account-card .account-submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.optional-label {
+  margin-left: 5px;
+  color: #8291a2;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.account-card .account-security {
+  margin: 19px 0 0;
+  color: #7f8da0;
+  font-size: 10px;
+  text-align: center;
+}
+
+.account-switch-prompt {
+  margin: 21px 0 0;
+  color: #5e6f83;
+  font-size: 12px;
+  text-align: center;
+}
+
+.account-switch-prompt a {
+  color: var(--clay);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.account-switch-prompt a:hover {
+  color: var(--clay-deep);
+}
+
+.forgot-password-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -7px;
+}
+
+.forgot-password-row button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--clay);
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.forgot-password-row a {
+  color: var(--clay);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.forgot-password-row a:hover {
+  color: var(--clay-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.forgot-password-row button:hover {
+  color: var(--clay-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.forgot-password-row button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.account-card .form-error,
+.account-card .success-message {
+  margin: 0;
+  font-size: 12px;
+}
+
+.password-recovery-notice {
   display: grid;
-  grid-template-columns: 1fr 0.78fr;
-  background: #fcfcf8;
+  gap: 14px;
+  margin-top: 24px;
+  padding: 17px;
+  border: 1px solid #d5e5ed;
+  border-radius: 10px;
+  background: #f3f9fc;
+  color: #35465d;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.password-recovery-notice p {
+  margin: 0;
+}
+
+.password-recovery-notice a {
+  color: var(--clay);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .account-card {
@@ -1123,28 +1351,27 @@ button {
   border-bottom: 1px solid var(--line);
 }
 
-.account-tabs button {
+.account-tabs a {
   position: relative;
+  display: inline-block;
   padding: 0 0 11px;
-  border: 0;
-  background: transparent;
   color: #8a968e;
   font-size: 10px;
   cursor: pointer;
 }
 
-.account-tabs button.active {
+.account-tabs a.active {
   color: var(--ink);
   font-weight: 650;
 }
 
-.account-tabs button.active::after {
+.account-tabs a.active::after {
   position: absolute;
   right: 0;
   bottom: -1px;
   left: 0;
   height: 2px;
-  background: #819d46;
+  background: var(--clay);
   content: "";
 }
 
@@ -1161,6 +1388,51 @@ button {
   min-height: 42px;
   margin-top: 7px;
   padding: 0 11px;
+}
+
+.password-input-wrap {
+  position: relative;
+  display: block;
+}
+
+.password-input-wrap input {
+  padding-right: 46px;
+}
+
+.account-card .password-input-wrap input {
+  padding-right: 46px;
+}
+
+.password-visibility-button {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #77877d;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.password-visibility-button:hover {
+  background: #f0e6d7;
+  color: var(--ink);
+}
+
+.password-visibility-button:focus-visible {
+  outline: 2px solid #00a896;
+  outline-offset: 1px;
+}
+
+.password-visibility-button svg {
+  width: 18px;
+  height: 18px;
 }
 
 .account-form small,
@@ -1185,7 +1457,7 @@ button {
 
 .account-security span {
   margin-right: 5px;
-  color: #819b49;
+  color: #087f8c;
 }
 
 .back-link {
@@ -1204,14 +1476,14 @@ button {
   justify-content: center;
   padding: 60px 12%;
   background:
-    radial-gradient(ellipse at 87% 98%, #456a4e 0 27%, transparent 27.5%),
-    radial-gradient(ellipse at 109% 104%, #829a60 0 37%, transparent 37.5%),
-    linear-gradient(140deg, #1d3e31, #18362b 70%);
+    radial-gradient(ellipse at 87% 98%, rgba(0, 168, 150, 0.6) 0 27%, transparent 27.5%),
+    radial-gradient(ellipse at 109% 104%, rgba(245, 185, 66, 0.4) 0 37%, transparent 37.5%),
+    var(--brand-gradient);
   color: white;
 }
 
 .account-aside .eyebrow {
-  color: #c8dd8c;
+  color: #69e3d6;
 }
 
 .account-aside h2 {
@@ -1226,7 +1498,7 @@ button {
 
 .account-aside p {
   max-width: 320px;
-  color: #b0c2b7;
+  color: #c2d2e1;
   font-size: 11px;
   line-height: 1.8;
 }
@@ -1235,7 +1507,7 @@ button {
   position: absolute;
   right: 35px;
   bottom: -100px;
-  color: rgba(217, 235, 178, 0.08);
+  color: rgba(105, 227, 214, 0.09);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 350px;
   line-height: 1;
@@ -1249,7 +1521,7 @@ button {
 .dashboard-shell {
   min-height: 100vh;
   padding: 0 max(30px, calc((100% - 1220px) / 2)) 60px;
-  background: #f8f8f2;
+  background: linear-gradient(135deg, #f7fbff 0%, #edf3f8 55%, #e1f3f1 100%);
 }
 
 .dashboard-header {
@@ -1282,8 +1554,8 @@ button {
   display: inline-grid;
   place-items: center;
   border-radius: 50%;
-  background: #e4ebcf;
-  color: #58713a;
+  background: #eadbc6;
+  color: #85543b;
   font-size: 10px;
   font-weight: 700;
 }
@@ -1397,7 +1669,7 @@ button {
   align-items: center;
   gap: 10px;
   padding: 10px 0;
-  border-top: 1px solid #eff0e9;
+  border-top: 1px solid #eee8de;
 }
 
 .seller-product-image {
@@ -1458,8 +1730,8 @@ button {
 }
 
 .small-action:hover {
-  border-color: #a4bb76;
-  color: #527037;
+  border-color: #bd8866;
+  color: #8f4b31;
 }
 
 .product-form {
@@ -1506,7 +1778,7 @@ button {
 
 .orders-table th {
   padding: 9px 11px;
-  background: #f8f9f4;
+  background: #f6f2e9;
   color: #89958d;
   font-size: 8px;
   font-weight: 600;
@@ -1517,7 +1789,7 @@ button {
   max-width: 240px;
   overflow: hidden;
   padding: 11px;
-  border-bottom: 1px solid #eff0e9;
+  border-bottom: 1px solid #eee8de;
   color: #516359;
   font-size: 9px;
   text-overflow: ellipsis;
@@ -1567,15 +1839,15 @@ button {
 .dashboard-empty a {
   display: inline-block;
   margin-top: 10px;
-  color: #68843b;
+  color: var(--clay);
   font-size: 10px;
 }
 
 .admin-label {
   padding: 6px 8px;
   border-radius: 4px;
-  background: #eaf0dc;
-  color: #647e3a;
+  background: #f0e6d7;
+  color: #8f4b31;
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1595,7 +1867,7 @@ button {
   align-items: center;
   gap: 10px;
   padding: 10px 0;
-  border-top: 1px solid #eff0e9;
+  border-top: 1px solid #eee8de;
 }
 
 .admin-product-controls {
@@ -1657,15 +1929,15 @@ button {
   display: block;
   margin-top: 5px;
   padding: 0 8px;
-  border: 1px solid #e0e4d9;
+  border: 1px solid #d7e3ed;
   border-radius: 5px;
   outline: none;
   font-size: 9px;
 }
 
 .payout-form input:focus {
-  border-color: #99b85a;
-  box-shadow: 0 0 0 3px rgba(153, 184, 90, 0.15);
+  border-color: #00a896;
+  box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.18);
 }
 
 .payout-form button:disabled {
@@ -1738,8 +2010,8 @@ button {
   place-items: center;
   margin-bottom: 21px;
   border-radius: 50%;
-  background: #e9f0d6;
-  color: #66803d;
+  background: #dff4f1;
+  color: #087f8c;
   font-size: 24px;
 }
 
@@ -2005,6 +2277,12 @@ button {
   .account-card {
     width: min(440px, calc(100% - 42px));
     padding: 34px 0 43px;
+  }
+
+  .account-card.signup-card,
+  .account-card.login-card {
+    width: min(500px, 100%);
+    padding: 32px 24px 28px;
   }
 
   .account-brand {
