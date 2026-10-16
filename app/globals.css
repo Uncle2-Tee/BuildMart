@@ -231,6 +231,35 @@ button {
   gap: 23px;
 }
 
+.seller-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #f3fbfd;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.seller-cta:hover {
+  border-color: rgba(122, 233, 220, 0.54);
+  background: rgba(122, 233, 220, 0.12);
+  color: #bffaf1;
+}
+
+.desktop-seller-cta {
+  display: inline-flex;
+}
+
+.mobile-seller-cta {
+  display: none;
+}
+
 .header-search-button {
   width: 40px;
   height: 40px;
@@ -322,16 +351,22 @@ button {
 }
 
 .cart-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 9px;
-  padding: 9px 11px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   background: transparent;
   cursor: pointer;
   font-size: 12px;
   font-weight: 650;
+  appearance: none;
+}
+
+.cart-button svg {
+  width: 20px;
+  height: 20px;
 }
 
 .cart-count {
@@ -3223,6 +3258,14 @@ button {
 
   .header-actions {
     gap: 12px;
+  }
+
+  .desktop-seller-cta {
+    display: none;
+  }
+
+  .mobile-seller-cta {
+    display: inline-flex;
   }
 
   .buyer-site-header .header-actions {

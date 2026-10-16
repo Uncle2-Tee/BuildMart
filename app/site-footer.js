@@ -23,7 +23,7 @@ export default function SiteFooter() {
         </div>
         <p className="footer-tagline">Better projects start close to home.</p>
         <div className="footer-meta">
-          <Link href="/login">Seller portal</Link>
+          <Link href="/">Shop</Link>
           <span>© {new Date().getFullYear()} BuildMart Ghana</span>
         </div>
       </div>

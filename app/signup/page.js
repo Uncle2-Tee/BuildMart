@@ -1,10 +1,9 @@
-import AccountLayout from "../account-layout";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Sign up | BuildMart Ghana",
 };
 
-export default async function SignupPage({ searchParams }) {
-  const params = await searchParams;
-  return <AccountLayout mode="signup" initialRole={params.role === "seller" ? "seller" : ""} />;
+export default async function SignupPage() {
+  redirect("/");
 }

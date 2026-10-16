@@ -15,7 +15,7 @@ export default function SignOutButton() {
     try {
       const { error } = await createSupabaseBrowserClient().auth.signOut();
       if (error) throw error;
-      router.replace("/login");
+      router.replace("/");
       router.refresh();
     } catch (error) {
       setMessage(`Sign out failed: ${error.message || "Please try again."}`);

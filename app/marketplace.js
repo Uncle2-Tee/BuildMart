@@ -19,15 +19,6 @@ function Mark({ children, className = "" }) {
   return <span className={`mark ${className}`}>{children}</span>;
 }
 
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-      <circle cx="10.8" cy="10.8" r="6.3" />
-      <path d="m15.5 15.5 4.2 4.2" />
-    </svg>
-  );
-}
-
 export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "shop", buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, children }) {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
@@ -92,11 +83,6 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
     );
   }
 
-  function focusSearch() {
-    searchInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    searchInputRef.current?.focus({ preventScroll: true });
-  }
-
   async function checkout(event) {
     event.preventDefault();
     setCheckoutState("loading");
@@ -150,39 +136,28 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             {buyerMode ? (
               <>
                 <Link href="/dashboard/buyer/shop" aria-current={buyerPage === "shop" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+                <Link href="/dashboard/buyer/orders" aria-current={buyerPage === "orders" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>My orders</Link>
               </>
             ) : (
               <>
-                <a href="#top" onClick={() => setMobileMenuOpen(false)}>Home</a>
                 {!hideMarketplaceContent ? <a href="#shop" onClick={() => setMobileMenuOpen(false)}>Shop</a> : null}
+                {!hideMarketplaceContent ? <Link href="/dashboard/buyer/orders" onClick={() => setMobileMenuOpen(false)}>My orders</Link> : null}
               </>
             )}
-            {buyerMode ? (
-              <Link href="/dashboard/buyer/orders" aria-current={buyerPage === "orders" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>My orders</Link>
-            ) : !hideMarketplaceContent ? (
-              <>
-                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>How it works</a>
-                <a href="#for-sellers" onClick={() => setMobileMenuOpen(false)}>For sellers</a>
-              </>
-            ) : null}
             {dashboardHref ? (
               <Link href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
-            ) : !buyerMode ? (
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Seller portal</Link>
             ) : null}
             {buyerMode || dashboardHref ? (
               <div className="mobile-navigation-signout"><SignOutButton /></div>
             ) : null}
               </nav>
               <div className="header-actions">
-            {hideMarketplaceContent ? null : (
-              <button className="header-search-button" type="button" aria-label="Search products" onClick={focusSearch}>
-                <SearchIcon />
-              </button>
-            )}
             {buyerMode || dashboardHref
               ? <span className="desktop-signout"><SignOutButton /></span>
-              : <Link className="login-link" href="/login">Log in</Link>}
+              : null}
+            {!buyerMode && !dashboardHref ? (
+              <Link className="seller-cta desktop-seller-cta" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller</Link>
+            ) : null}
             {buyerMode || !dashboardHref ? (
               <button
                 className="cart-button"
@@ -190,11 +165,18 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                 onClick={() => setCartOpen(true)}
                 aria-label={`Open cart, ${cart.reduce((sum, item) => sum + item.quantity, 0)} items`}
               >
-                <span aria-hidden="true">Bag</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="9" cy="18" r="1.5" />
+                  <circle cx="17" cy="18" r="1.5" />
+                  <path d="M3 4h2l2.2 9.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.76L20 7H6" />
+                </svg>
                 <span className="cart-count">
                   {cart.reduce((sum, item) => sum + item.quantity, 0)}
                 </span>
               </button>
+            ) : null}
+            {!buyerMode && !dashboardHref ? (
+              <Link className="seller-cta mobile-seller-cta" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller</Link>
             ) : null}
             <button
               className="mobile-menu-button"

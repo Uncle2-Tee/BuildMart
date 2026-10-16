@@ -1,14 +1,7 @@
-import { redirect } from "next/navigation";
 import Marketplace from "./marketplace";
-import { requireRole } from "../lib/auth";
-import { isSupabaseConfigured } from "../lib/supabase/server";
 import { getApprovedProductCatalog } from "../lib/buyer-dashboard-data";
 
 export default async function Home() {
-  if (!isSupabaseConfigured()) redirect("/login");
-  const { profile } = await requireRole(["buyer", "seller", "admin"]);
-  if (profile.role === "buyer") redirect("/dashboard/buyer/shop");
-  if (profile.role === "seller") redirect("/dashboard/seller/market");
   const products = await getApprovedProductCatalog();
 
   return (
@@ -16,7 +9,6 @@ export default async function Home() {
       products={products}
       isConfigured
       catalogError={false}
-      dashboardHref="/admin"
     />
   );
 }
