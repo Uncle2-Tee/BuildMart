@@ -19,7 +19,7 @@ function Mark({ children, className = "" }) {
   return <span className={`mark ${className}`}>{children}</span>;
 }
 
-export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "shop", buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, children }) {
+export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "shop", buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, shopFirst = false, children }) {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
   const [category, setCategory] = useState("All products");
@@ -135,17 +135,24 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               <nav id="site-navigation" className="main-nav" aria-label="Main navigation">
             {buyerMode ? (
               <>
-                <Link href="/dashboard/buyer/shop" aria-current={buyerPage === "shop" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>Shop</Link>
-                <Link href="/dashboard/buyer/orders" aria-current={buyerPage === "orders" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>My orders</Link>
+                <div className="mobile-menu-group">
+                  <Link href="/dashboard/buyer/shop" aria-current={buyerPage === "shop" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+                  <Link href="/dashboard/buyer/orders" aria-current={buyerPage === "orders" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>My orders</Link>
+                </div>
               </>
             ) : (
               <>
-                {!hideMarketplaceContent ? <a href="#shop" onClick={() => setMobileMenuOpen(false)}>Shop</a> : null}
-                {!hideMarketplaceContent ? <Link href="/dashboard/buyer/orders" onClick={() => setMobileMenuOpen(false)}>My orders</Link> : null}
+                <div className="mobile-menu-group">
+                  {!hideMarketplaceContent ? <a href="#shop" onClick={() => setMobileMenuOpen(false)}>Shop</a> : null}
+                  {!hideMarketplaceContent ? <Link href="/dashboard/buyer/orders" onClick={() => setMobileMenuOpen(false)}>My orders</Link> : null}
+                </div>
               </>
             )}
             {dashboardHref ? (
               <Link href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+            ) : null}
+            {!buyerMode && !dashboardHref ? (
+              <Link className="seller-menu-link" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller</Link>
             ) : null}
             {buyerMode || dashboardHref ? (
               <div className="mobile-navigation-signout"><SignOutButton /></div>
@@ -175,9 +182,6 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                 </span>
               </button>
             ) : null}
-            {!buyerMode && !dashboardHref ? (
-              <Link className="seller-cta mobile-seller-cta" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller</Link>
-            ) : null}
             <button
               className="mobile-menu-button"
               type="button"
@@ -199,7 +203,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
       <main className={`marketplace-main${buyerMode ? " buyer-marketplace" : ""}`}>
         {!hideMarketplaceContent ? (
           <>
-        {!buyerMode ? <section className="hero">
+        {!buyerMode && !shopFirst ? <section className="hero">
           <div className="hero-content">
             <span className="eyebrow"><span className="eyebrow-dot" /> GHANA&apos;S HOME & BUILD MARKETPLACE</span>
             <h1>Good things<br />are built <em>together.</em></h1>
@@ -224,7 +228,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
           </div>
         </section> : null}
 
-        {!buyerMode ? <section className="benefits" id="how-it-works">
+        {!buyerMode && !shopFirst ? <section className="benefits" id="how-it-works">
           <div className="benefit"><span className="benefit-icon">✳</span><span><strong>Local first</strong><small>Shop Ghanaian sellers</small></span></div>
           <div className="benefit"><span className="benefit-icon">⌂</span><span><strong>Made for your project</strong><small>From first brick to final touch</small></span></div>
           <div className="benefit"><span className="benefit-icon">✓</span><span><strong>Simple & secure</strong><small>Pay safely with Paystack</small></span></div>

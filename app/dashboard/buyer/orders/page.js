@@ -12,12 +12,18 @@ export default async function BuyerOrdersPage() {
   if (!isSupabaseConfigured()) {
     return (
       <main className="dashboard-shell">
-        <div className="dashboard-empty"><h1>Buyer account setup needed</h1><p>Connect Supabase and apply the database migration to sign in securely.</p><Link href="/login">Return to log in</Link></div>
+        <div className="dashboard-empty">
+          <h1>Buyer account setup needed</h1>
+          <p>Connect Supabase and apply the database migration to sign in securely.</p>
+          <Link href="/login">Return to log in</Link>
+        </div>
       </main>
     );
   }
 
-  const { supabase, user, profile } = await requireRole(["buyer"]);
+  const { supabase, user, profile } = await requireRole(["buyer"], {
+    loginRedirect: "/login?next=%2Fdashboard%2Fbuyer%2Forders",
+  });
   const orders = await getBuyerOrderHistory(supabase, user.id);
 
   return (

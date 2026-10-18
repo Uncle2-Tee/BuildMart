@@ -9,6 +9,7 @@ export default async function Home() {
       products={products}
       isConfigured
       catalogError={false}
+      shopFirst
     />
   );
 }
