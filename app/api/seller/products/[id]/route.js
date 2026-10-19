@@ -1,4 +1,5 @@
 import { getApiRole } from "../../../../../lib/auth";
+import { invalidateApprovedProductCatalog } from "../../../../../lib/buyer-dashboard-data";
 import { isSameOriginRequest } from "../../../../../lib/request-origin";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -22,25 +23,50 @@ export async function PATCH(request, { params }) {
   } catch {
     return Response.json({ error: "Product update must contain valid JSON." }, { status: 400 });
   }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return Response.json({ error: "Product update must contain a JSON object." }, { status: 400 });
+  }
 
-  if (typeof body.active !== "boolean") {
-    return Response.json({ error: "Product visibility must be enabled or disabled." }, { status: 400 });
+  const updates = {};
+  if (typeof body.active === "boolean") updates.active = body.active;
+
+  if (body.title !== undefined) {
+    const title = typeof body.title === "string" ? body.title.trim() : "";
+    if (title.length < 3 || title.length > 120) {
+      return Response.json({ error: "Product names must be between 3 and 120 characters." }, { status: 400 });
+    }
+    updates.title = title;
+  }
+
+  if (body.price !== undefined) {
+    const price = typeof body.price === "string" ? body.price.trim() : "";
+    const priceMatch = /^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/.exec(price);
+    const priceKobo = priceMatch ? Math.round(Number(price) * 100) : 0;
+    if (!priceMatch || priceKobo < 1 || priceKobo > 1000000000) {
+      return Response.json({ error: "Enter a valid product price in Ghana cedis." }, { status: 400 });
+    }
+    updates.price_kobo = priceKobo;
+  }
+
+  if (!Object.keys(updates).length) {
+    return Response.json({ error: "Choose a product name, price, or visibility change." }, { status: 400 });
   }
 
   const { data: product, error } = await auth.supabase
     .from("products")
-    .update({ active: body.active })
+    .update(updates)
     .eq("id", id)
     .eq("seller_id", auth.user.id)
-    .select("id, active")
+    .select("id, title, price_kobo, active")
     .maybeSingle();
 
   if (error) {
-    console.error("Seller product visibility update failed", error);
+    console.error("Seller product update failed", error);
     return Response.json({ error: "We couldn't update that product." }, { status: 500 });
   }
   if (!product) return Response.json({ error: "Product not found." }, { status: 404 });
 
+  invalidateApprovedProductCatalog();
   return Response.json({ product });
 }
 
@@ -80,6 +106,8 @@ export async function DELETE(request, { params }) {
     console.error("Seller product deletion failed", deleteError);
     return Response.json({ error: "We couldn't remove that product." }, { status: 500 });
   }
+
+  invalidateApprovedProductCatalog();
 
   const storageMarker = "/storage/v1/object/public/products/";
   const imagePath = product.image_url.includes(storageMarker)

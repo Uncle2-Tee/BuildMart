@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DashboardHeader from "./dashboard-header";
 
 function formatPrice(priceKobo) {
   return new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(priceKobo / 100);
 }
 
-export default function SellerDashboard({ displayName, shop: initialShop, shopStatus, products: initialProducts, orders }) {
+export default function SellerDashboard({ displayName, shop: initialShop, shopStatus, products: initialProducts, orders, publicApplication = false }) {
   const router = useRouter();
   const [shop, setShop] = useState(initialShop);
   const [currentShopStatus, setCurrentShopStatus] = useState(shopStatus);
@@ -19,6 +19,67 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [removingId, setRemovingId] = useState("");
+  const [editingProductId, setEditingProductId] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
+  const [approvalNotice, setApprovalNotice] = useState("");
+  const previousShopStatus = useRef(shopStatus);
+
+  useEffect(() => {
+    if (previousShopStatus.current !== "approved" && shopStatus === "approved") {
+      setShop(initialShop);
+      setCurrentShopStatus("approved");
+      setProducts(initialProducts);
+      setApprovalNotice("Your shop is approved. Add your first product below to make it available in the marketplace.");
+      window.setTimeout(() => {
+        const productPanel = document.getElementById("seller-add-product");
+        productPanel?.scrollIntoView({ behavior: "smooth", block: "center" });
+        productPanel?.querySelector('input[name="title"]')?.focus({ preventScroll: true });
+      }, 100);
+    } else if (previousShopStatus.current !== shopStatus) {
+      setCurrentShopStatus(shopStatus);
+    }
+
+    previousShopStatus.current = shopStatus;
+  }, [initialProducts, initialShop, shopStatus]);
+
+  useEffect(() => {
+    if (shopStatus !== "pending" || !initialShop) return undefined;
+
+    const refreshApprovalStatus = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+    const intervalId = window.setInterval(refreshApprovalStatus, 3000);
+    return () => window.clearInterval(intervalId);
+  }, [initialShop, router, shopStatus]);
+
+  useEffect(() => {
+    if (!publicApplication || currentShopStatus !== "pending" || !shop) return undefined;
+
+    let active = true;
+    async function checkApplicationStatus() {
+      try {
+        const response = await fetch("/api/shop-applications/status", { cache: "no-store" });
+        if (!response.ok) return;
+        const result = await response.json();
+        if (active && result.status === "approved") {
+          setShop(result.shop);
+          setCurrentShopStatus("approved");
+          setShopMessage("Your shop is approved. Opening your product dashboard…");
+          router.refresh();
+        }
+      } catch {
+        if (active) setShopMessage("We couldn't check your application status. This page will keep trying.");
+      }
+    }
+
+    const intervalId = window.setInterval(checkApplicationStatus, 3000);
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, [currentShopStatus, publicApplication, router, shop]);
 
   async function registerShop(event) {
     event.preventDefault();
@@ -27,7 +88,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
 
     try {
       const form = new FormData(event.currentTarget);
-      const response = await fetch("/api/seller/shop", {
+      const response = await fetch(publicApplication ? "/api/shop-applications" : "/api/seller/shop", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,12 +132,47 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
 
       setProducts((current) => [result.product, ...current]);
       event.currentTarget.reset();
-      setMessage("Product saved. Review it in View market before publishing.");
+      setMessage("Product added to your shop and is now visible to buyers.");
       router.refresh();
     } catch {
       setMessage("We couldn't connect to the product service. Please try again.");
     } finally {
       setBusy(false);
+    }
+  }
+
+  function startEditingProduct(product) {
+    setEditingProductId(product.id);
+    setEditTitle(product.title);
+    setEditPrice((product.price_kobo / 100).toFixed(2));
+    setMessage("");
+  }
+
+  async function saveProductDetails(event, product) {
+    event.preventDefault();
+    setEditBusy(true);
+    setMessage("");
+
+    try {
+      const response = await fetch(`/api/seller/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: editTitle, price: editPrice }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setMessage(result.error || "We couldn't update that product.");
+        return;
+      }
+
+      setProducts((current) => current.map((item) => item.id === product.id ? { ...item, ...result.product } : item));
+      setEditingProductId("");
+      setMessage("Product name and price updated.");
+      router.refresh();
+    } catch {
+      setMessage("We couldn't connect to the product service. Please try again.");
+    } finally {
+      setEditBusy(false);
     }
   }
 
@@ -148,6 +244,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
               <p>{shop.description}</p>
               <small>{shop.location}{shop.phone ? ` · ${shop.phone}` : ""}</small>
               <p>An administrator will review your shop. You can manage products once it is approved.</p>
+              <button className="shop-approval-button pending" type="button" disabled>Pending approval</button>
             </div>
           ) : (
             <>
@@ -184,28 +281,45 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
               {products.map((product) => (
                 <article className="seller-product" key={product.id}>
                   <div className="seller-product-image" style={{ backgroundImage: `url("${product.image_url}")` }} />
-                  <div className="seller-product-copy"><strong>{product.title}</strong><span>{product.category} · {formatPrice(product.price_kobo)}</span></div>
-                  <span className={product.active ? "status-pill live" : "status-pill paused"}>{product.active ? "Live" : "Not published"}</span>
-                  {product.active ? (
-                    <button className="small-action" type="button" onClick={() => toggleProduct(product)}>Hide</button>
-                  ) : (
-                    <Link className="small-action" href="/dashboard/seller/market">Preview &amp; publish</Link>
-                  )}
-                  <button className="small-action" type="button" onClick={() => removeProduct(product)} disabled={removingId === product.id}>{removingId === product.id ? "Removing…" : "Remove"}</button>
+                  <div className="seller-product-main">
+                    <div className="seller-product-copy"><strong>{product.title}</strong><span>{product.category} · {formatPrice(product.price_kobo)}</span></div>
+                    <div className="seller-product-actions">
+                      <span className={product.active ? "status-pill live" : "status-pill paused"}>{product.active ? "Live" : "Not published"}</span>
+                      <button className="small-action" type="button" onClick={() => startEditingProduct(product)}>Edit details</button>
+                      {product.active ? (
+                        <button className="small-action" type="button" onClick={() => toggleProduct(product)}>Hide</button>
+                      ) : (
+                        <Link className="small-action" href="/dashboard/seller/market">Preview &amp; publish</Link>
+                      )}
+                      <button className="small-action" type="button" onClick={() => removeProduct(product)} disabled={removingId === product.id}>{removingId === product.id ? "Removing…" : "Remove"}</button>
+                    </div>
+                    {editingProductId === product.id ? (
+                      <form className="product-form product-edit-form" onSubmit={(event) => saveProductDetails(event, product)}>
+                        <label>Product name<input value={editTitle} onChange={(event) => setEditTitle(event.target.value)} required minLength={3} maxLength={120} /></label>
+                        <label>Price (GHS)<input value={editPrice} onChange={(event) => setEditPrice(event.target.value)} type="number" required min="0.01" max="10000000" step="0.01" /></label>
+                        <button className="button button-dark account-submit" type="submit" disabled={editBusy}>{editBusy ? "Saving…" : "Save changes"}</button>
+                        <button className="small-action" type="button" onClick={() => setEditingProductId("")} disabled={editBusy}>Cancel</button>
+                      </form>
+                    ) : null}
+                  </div>
                 </article>
               ))}
             </div>
           ) : <div className="dashboard-empty"><h3>Your shop is ready for its first product.</h3><p>Start with a clear title, a helpful description and a bright photo.</p></div>}
         </section>
-        <section className="dashboard-panel add-product-panel">
-          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">ADD TO YOUR SHOP</span><h2>New product</h2></div></div>
+        <section className="dashboard-panel add-product-panel" id="seller-add-product" tabIndex={-1}>
+          <div className="panel-heading">
+            <div><span className="eyebrow muted-eyebrow">ADD TO YOUR SHOP</span><h2>New product</h2></div>
+            <button className="shop-approval-button approved" type="button" disabled>Approved</button>
+          </div>
+          {approvalNotice ? <p className="success-message" role="status">{approvalNotice}</p> : null}
           <form className="product-form" onSubmit={addProduct}>
             <label>Product name<input name="title" required minLength={3} maxLength={120} placeholder="e.g. Solid teak dining table" /></label>
             <label>Category<select name="category" required defaultValue=""><option value="" disabled>Choose a category</option><option>Building materials</option><option>Tools</option><option>Lighting</option><option>Furniture</option><option>Home & decor</option><option>Other</option></select></label>
             <label>Price (GHS)<input name="price" type="number" required min="0.01" max="10000000" step="0.01" placeholder="0.00" /></label>
             <label>Description<textarea name="description" rows="3" maxLength={2000} placeholder="Tell customers what makes this product useful." /></label>
             <label className="photo-input">Product photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required /><small>JPG, PNG or WebP · maximum 5 MB</small></label>
-            <button className="button button-dark account-submit" type="submit" disabled={busy}>{busy ? "Saving…" : "Save for preview"}<span aria-hidden="true">↗</span></button>
+            <button className="button button-dark account-submit" type="submit" disabled={busy}>{busy ? "Adding…" : "Add product to shop"}<span aria-hidden="true">↗</span></button>
           </form>
         </section>
       </div>

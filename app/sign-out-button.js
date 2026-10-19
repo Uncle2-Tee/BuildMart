@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser";
 
-export default function SignOutButton() {
+export default function SignOutButton({ admin = false }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -13,9 +13,11 @@ export default function SignOutButton() {
     setBusy(true);
     setMessage("");
     try {
+      const adminLogout = await fetch("/api/admin/logout", { method: "POST" });
+      if (!adminLogout.ok) throw new Error("We couldn't end the administrator session.");
       const { error } = await createSupabaseBrowserClient().auth.signOut();
       if (error) throw error;
-      router.replace("/");
+      router.replace(admin ? "/admin/login" : "/");
       router.refresh();
     } catch (error) {
       setMessage(`Sign out failed: ${error.message || "Please try again."}`);

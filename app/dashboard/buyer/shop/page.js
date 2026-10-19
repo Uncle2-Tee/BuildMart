@@ -12,25 +12,22 @@ export default async function BuyerShopPage() {
   if (!isSupabaseConfigured()) {
     return (
       <main className="dashboard-shell">
-        <div className="dashboard-empty"><h1>Buyer account setup needed</h1><p>Connect Supabase and apply the database migration to sign in securely.</p><Link href="/login">Return to log in</Link></div>
+        <div className="dashboard-empty"><h1>Buyer account setup needed</h1><p>Connect Supabase and apply the database migration to access buyer accounts.</p><Link href="/">Return to marketplace</Link></div>
       </main>
     );
   }
 
-  const [{ user, profile }, products] = await Promise.all([
+  const [{ user }, catalog] = await Promise.all([
     requireRole(["buyer"]),
     getApprovedProductCatalog(),
   ]);
 
   return (
     <BuyerDashboard
-      displayName={profile.display_name}
       email={user.email ?? ""}
-      products={products}
-      orders={[]}
+      products={catalog.products}
       isConfigured
-      catalogError={false}
-      page="shop"
+      catalogError={catalog.catalogError}
     />
   );
 }

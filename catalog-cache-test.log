@@ -1,0 +1,11 @@
+
+> my-next-app@0.1.0 start
+> next start -p 3017
+
+▲ Next.js 16.4.1
+- Local:         http://localhost:3017
+- Network:       http://169.254.232.85:3017
+✓ Ready in 365ms
+✓ Running next.config.mjs took 55ms
+Approved product catalogue cache miss
+Approved product catalogue cache miss

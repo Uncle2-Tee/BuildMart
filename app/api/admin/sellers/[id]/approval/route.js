@@ -1,4 +1,5 @@
 import { getApiRole } from "../../../../../../lib/auth";
+import { invalidateApprovedProductCatalog } from "../../../../../../lib/buyer-dashboard-data";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../../../lib/request-origin";
 
@@ -55,5 +56,6 @@ export async function PATCH(request, { params }) {
   }
   if (!seller) return Response.json({ error: "Seller not found." }, { status: 404 });
 
+  invalidateApprovedProductCatalog();
   return Response.json({ status: seller.seller_status });
 }

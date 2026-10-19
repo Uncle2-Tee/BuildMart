@@ -1,4 +1,5 @@
 import { getApiRole } from "../../../../../lib/auth";
+import { invalidateApprovedProductCatalog } from "../../../../../lib/buyer-dashboard-data";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../../lib/request-origin";
 
@@ -48,6 +49,7 @@ export async function PATCH(request, { params }) {
   }
   if (!product) return Response.json({ error: "Product not found." }, { status: 404 });
 
+  invalidateApprovedProductCatalog();
   return Response.json({ product });
 }
 
@@ -75,6 +77,8 @@ export async function DELETE(request, { params }) {
     console.error("Administrator product deletion failed", deleteError);
     return Response.json({ error: "We couldn't remove this product." }, { status: 500 });
   }
+
+  invalidateApprovedProductCatalog();
 
   const marker = "/storage/v1/object/public/products/";
   let imagePath = null;

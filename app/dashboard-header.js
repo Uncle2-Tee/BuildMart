@@ -31,12 +31,12 @@ export default function DashboardHeader({
         {sellerDashboard ? (
           <>
             <Link className="dashboard-seller-market-link" href="/dashboard/seller/market">View market</Link>
-            <SignOutButton />
+            <SignOutButton admin={admin} />
           </>
         ) : (
           <>
             {admin ? <span className="admin-label">ADMINISTRATOR</span> : null}
-            {showMarketplaceLinks ? <Link className="dashboard-home-link" href="/">Home</Link> : null}
+            {showMarketplaceLinks && !admin ? <Link className="dashboard-home-link" href="/">Home</Link> : null}
             {showMarketplaceLinks ? <Link className="dashboard-marketplace-link" href="/">View marketplace ↗</Link> : null}
             {displayName ? <span className="user-avatar">{displayName.slice(0, 1).toUpperCase()}</span> : null}
             <SignOutButton />
@@ -58,9 +58,13 @@ export default function DashboardHeader({
             <span />
           </button>
           <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
-            {showMarketplaceLinks ? <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link> : null}
-            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
-            <div className="dashboard-mobile-signout"><SignOutButton /></div>
+            {showMarketplaceLinks && !admin ? <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link> : null}
+            {admin ? (
+              <Link href="/" onClick={() => setMenuOpen(false)}>View market</Link>
+            ) : (
+              <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
+            )}
+            <div className="dashboard-mobile-signout"><SignOutButton admin={admin} /></div>
           </nav>
         </>
       ) : null}

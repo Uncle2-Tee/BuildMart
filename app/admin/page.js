@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import AdminPayoutForm from "../admin-payout-form";
 import AdminProductControls from "../admin-product-controls";
+import AdminShopApplicationApproval from "../admin-shop-application-approval";
 import AdminSellerApproval from "../admin-seller-approval";
 import DashboardHeader from "../dashboard-header";
-import { requireRole } from "../../lib/auth";
-import { createSupabaseAdminClient } from "../../lib/supabase/admin";
+import { getAdminSession } from "../../lib/admin-session";
+import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../lib/supabase/admin";
 import { isSupabaseConfigured } from "../../lib/supabase/server";
 
 export const metadata = {
@@ -12,32 +14,45 @@ export const metadata = {
 };
 
 export default async function AdminPage() {
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseConfigured() || !isSupabaseAdminConfigured()) {
     return <main className="dashboard-shell"><div className="dashboard-empty"><h1>Admin setup needed</h1><p>Connect Supabase and configure a trusted administrator account to continue.</p><Link href="/">Return to marketplace</Link></div></main>;
   }
 
-  const { supabase, profile } = await requireRole(["admin"]);
+  const adminSession = await getAdminSession();
+  if (!adminSession) redirect("/admin/login");
+
+  const admin = createSupabaseAdminClient();
   const [
     { data: profiles, error: profilesError },
     { data: products, error: productsError },
     { data: orders, error: ordersError },
+    { data: applications, error: applicationsError },
   ] = await Promise.all([
-    supabase.from("profiles").select("id, display_name, role, seller_status, created_at, paystack_subaccount_code").order("created_at", { ascending: false }).limit(100),
-    supabase.from("products").select("id, title, category, price_kobo, active, created_at").order("created_at", { ascending: false }).limit(100),
-    supabase.from("orders").select("id, buyer_email, status, total_kobo, currency, created_at").order("created_at", { ascending: false }).limit(100),
+    admin.from("profiles").select("id, display_name, role, seller_status, created_at, paystack_subaccount_code").order("created_at", { ascending: false }).limit(100),
+    admin.from("products").select("id, title, category, price_kobo, active, created_at").order("created_at", { ascending: false }).limit(100),
+    admin.from("orders").select("id, buyer_email, status, total_kobo, currency, created_at").order("created_at", { ascending: false }).limit(100),
+    admin.from("seller_shop_applications").select("id, shop_name, shop_description, shop_location, shop_phone, status, created_at").order("created_at", { ascending: false }).limit(100),
   ]);
 
   if (profilesError) throw new Error(`Unable to load marketplace users: ${profilesError.message}`);
   if (productsError) throw new Error(`Unable to load marketplace products: ${productsError.message}`);
   if (ordersError) throw new Error(`Unable to load marketplace orders: ${ordersError.message}`);
+  const applicationTableMissing = applicationsError?.code === "PGRST205" ||
+    applicationsError?.message.includes("seller_shop_applications");
+  if (applicationsError && !applicationTableMissing) {
+    throw new Error(`Unable to load seller shop applications: ${applicationsError.message}`);
+  }
+  if (applicationTableMissing) {
+    console.error("Seller shop applications table is not available in Supabase", applicationsError);
+  }
+  const shopApplications = applications ?? [];
 
   const sellers = (profiles ?? []).filter((item) => item.role === "seller");
   const paidOrders = (orders ?? []).filter((order) => order.status === "paid");
-  const adminClient = createSupabaseAdminClient();
   const sellerIds = new Set(sellers.map((seller) => seller.id));
   const authUsersById = new Map();
   for (let page = 1; ; page += 1) {
-    const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 });
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
     if (error) throw new Error(`Unable to load shop registration details: ${error.message}`);
     for (const authUser of data.users) {
       if (sellerIds.has(authUser.id)) authUsersById.set(authUser.id, authUser);
@@ -60,16 +75,38 @@ export default async function AdminPage() {
     <main className="dashboard-shell">
       <DashboardHeader admin />
       <section className="dashboard-welcome">
-        <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><h1>Good morning, <em>{profile.display_name || "admin"}.</em></h1><p>Marketplace activity, accounts and catalogue at a glance.</p></div>
+        <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><h1>Good morning, <em>{adminSession.username}.</em></h1><p>Marketplace activity, accounts and catalogue at a glance.</p></div>
         <span className="dashboard-date">Admin control centre</span>
       </section>
       <section className="stat-grid admin-stat-grid" aria-label="Marketplace summary">
         <div className="stat-card"><span>Seller accounts</span><strong>{sellers.length}</strong><small>Registered local businesses</small></div>
-        <div className="stat-card"><span>Shops pending review</span><strong>{sellerShops.filter((seller) => seller.shopName && seller.seller_status === "pending").length}</strong><small>Awaiting your approval</small></div>
+        <div className="stat-card"><span>Shops pending review</span><strong>{sellerShops.filter((seller) => seller.shopName && seller.seller_status === "pending").length + shopApplications.filter((application) => application.status === "pending").length}</strong><small>Awaiting your approval</small></div>
         <div className="stat-card"><span>Products</span><strong>{products?.length ?? 0}</strong><small>Most recently listed</small></div>
         <div className="stat-card"><span>Paid orders</span><strong>{paidOrders.length}</strong><small>From the latest 100 orders</small></div>
       </section>
+      {applicationTableMissing ? (
+        <section className="dashboard-panel shop-application-setup" role="alert">
+          <h2>Shop applications need database setup</h2>
+          <p>Run the SQL in <code>prisma/migrations/20261018235000_create_seller_shop_applications/migration.sql</code> once in the Supabase SQL Editor, then refresh this page. Public applications will appear here after the table is created.</p>
+        </section>
+      ) : null}
       <div className="admin-grid">
+        <section className="dashboard-panel">
+          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">NEW SELLER REQUESTS</span><h2>Shop applications <span>{applications?.length ?? 0}</span></h2></div></div>
+          <div className="admin-list">
+            {shopApplications.length ? shopApplications.map((application) => (
+              <div className="admin-list-row seller-application-row" key={application.id}>
+                <span className="user-avatar">{application.shop_name.slice(0, 1).toUpperCase()}</span>
+                <span className="seller-application-details">
+                  <strong>{application.shop_name}</strong>
+                  <small>{application.shop_location} · {application.shop_phone} · Submitted {new Date(application.created_at).toLocaleDateString("en-GH")}</small>
+                  <small className="seller-shop-description">{application.shop_description}</small>
+                </span>
+                <AdminShopApplicationApproval applicationId={application.id} initialStatus={application.status} />
+              </div>
+            )) : <p className="table-empty">Submitted shop applications will appear here.</p>}
+          </div>
+        </section>
         <section className="dashboard-panel">
           <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">ACCOUNT ACCESS</span><h2>Seller accounts <span>{sellers.length}</span></h2></div></div>
           <div className="admin-list">
@@ -86,7 +123,6 @@ export default async function AdminPage() {
           <div className="admin-product-list">{products?.slice(0, 12).map((product) => <div className="admin-product-row" key={product.id}><span><strong>{product.title}</strong><small>{product.category} · {new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(product.price_kobo / 100)}</small></span><span className={`status-pill ${product.active ? "live" : "paused"}`}>{product.active ? "Live" : "Hidden"}</span><AdminProductControls productId={product.id} initialActive={product.active} /></div>)}</div>
         </section>
       </div>
-      <p className="admin-security-note">Administrator access is assigned manually in Supabase. Public registration cannot create administrator accounts. Approve shops before sellers can publish products; suspend an approved shop to remove its products from the marketplace. Enter each verified Paystack subaccount code below; checkout pays sellers 90% of their line-item sales and retains a 10% BuildMart commission.</p>
     </main>
   );
 }

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { getApiRole } from "../../../../lib/auth";
+import { invalidateApprovedProductCatalog } from "../../../../lib/buyer-dashboard-data";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 
 const acceptedTypes = new Map([
@@ -92,7 +93,7 @@ export async function POST(request) {
       category,
       price_kobo: priceKobo,
       image_url: imageData.publicUrl,
-      active: false,
+      active: true,
     })
     .select("id, title, description, category, price_kobo, image_url, active, created_at")
     .single();
@@ -106,5 +107,6 @@ export async function POST(request) {
     return Response.json({ error: "We couldn't save that product. Please try again." }, { status: 500 });
   }
 
+  invalidateApprovedProductCatalog();
   return Response.json({ product }, { status: 201 });
 }

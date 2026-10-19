@@ -1,0 +1,10 @@
+⨯ Error: Unable to load approved shops: TypeError: fetch failed
+    at f (C:\Users\Elliot\BuildMart_Gh\buildmart\.next\server\chunks\ssr\_0cblaqm9elbdq._.js:1:1510)
+    at async f (C:\Users\Elliot\BuildMart_Gh\buildmart\.next\server\chunks\ssr\_03zjs8o9je1m0._.js:1:133) {
+  digest: '1710697712'
+}
+⨯ Error: Unable to load approved shops: TypeError: fetch failed
+    at f (C:\Users\Elliot\BuildMart_Gh\buildmart\.next\server\chunks\ssr\_0cblaqm9elbdq._.js:1:1510)
+    at async f (C:\Users\Elliot\BuildMart_Gh\buildmart\.next\server\chunks\ssr\_03zjs8o9je1m0._.js:1:133) {
+  digest: '1710697712'
+}

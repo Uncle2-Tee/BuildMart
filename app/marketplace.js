@@ -19,7 +19,7 @@ function Mark({ children, className = "" }) {
   return <span className={`mark ${className}`}>{children}</span>;
 }
 
-export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerPage = "shop", buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, shopFirst = false, children }) {
+export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, shopFirst = false }) {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
   const [category, setCategory] = useState("All products");
@@ -52,7 +52,6 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
       return matchesCategory && matchesSearch;
     });
   }, [category, products, search]);
-
   const cartTotal = cart.reduce(
     (total, item) => total + item.price_kobo * item.quantity,
     0,
@@ -134,17 +133,13 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               </Link>
               <nav id="site-navigation" className="main-nav" aria-label="Main navigation">
             {buyerMode ? (
-              <>
-                <div className="mobile-menu-group">
-                  <Link href="/dashboard/buyer/shop" aria-current={buyerPage === "shop" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>Shop</Link>
-                  <Link href="/dashboard/buyer/orders" aria-current={buyerPage === "orders" ? "page" : undefined} onClick={() => setMobileMenuOpen(false)}>My orders</Link>
-                </div>
-              </>
+              <div className="mobile-menu-group">
+                <Link href="/dashboard/buyer/shop" aria-current="page" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+              </div>
             ) : (
               <>
                 <div className="mobile-menu-group">
                   {!hideMarketplaceContent ? <a href="#shop" onClick={() => setMobileMenuOpen(false)}>Shop</a> : null}
-                  {!hideMarketplaceContent ? <Link href="/dashboard/buyer/orders" onClick={() => setMobileMenuOpen(false)}>My orders</Link> : null}
                 </div>
               </>
             )}
@@ -152,7 +147,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               <Link href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             ) : null}
             {!buyerMode && !dashboardHref ? (
-              <Link className="seller-menu-link" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller</Link>
+                <Link className="seller-menu-link" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller?</Link>
             ) : null}
             {buyerMode || dashboardHref ? (
               <div className="mobile-navigation-signout"><SignOutButton /></div>
@@ -163,7 +158,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               ? <span className="desktop-signout"><SignOutButton /></span>
               : null}
             {!buyerMode && !dashboardHref ? (
-              <Link className="seller-cta desktop-seller-cta" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller</Link>
+                <Link className="seller-cta desktop-seller-cta" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller?</Link>
             ) : null}
             {buyerMode || !dashboardHref ? (
               <button
@@ -235,7 +230,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
           <div className="benefit"><span className="benefit-icon">♡</span><span><strong>People behind products</strong><small>Real businesses, real craft</small></span></div>
         </section> : null}
 
-        {(!buyerMode || buyerPage === "shop") ? <section className="shop-section" id="shop">
+        <section className="shop-section" id="shop">
           <div className="section-heading">
             <div>
               {!buyerMode ? <span className="eyebrow muted-eyebrow">THE MARKETPLACE</span> : null}
@@ -313,24 +308,8 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               ) : null}
             </div>
           )}
-        </section> : null}
+        </section>
 
-        {!buyerMode ? <section className="seller-banner" id="for-sellers">
-          <div className="seller-banner-text">
-            <span className="eyebrow">FOR GHANAIAN SELLERS</span>
-            <h2>Your work deserves<br />a wider <em>market.</em></h2>
-            <p>Set up your shop, list your products and reach people building a home they love.</p>
-            <Link className="button button-light" href={dashboardHref || "/signup?role=seller"}>
-              {dashboardHref ? "Open your dashboard" : "Open your seller shop"} <span aria-hidden="true">↗</span>
-            </Link>
-          </div>
-          <div className="seller-banner-art" aria-hidden="true">
-            <div className="art-sun" />
-            <div className="art-building"><i /><i /><i /><i /><i /><i /></div>
-            <div className="art-pot">✳</div>
-          </div>
-        </section> : null}
-        {children}
           </>
         ) : null}
       </main>
