@@ -5,6 +5,7 @@ import { hasPaystackConfig } from "../../../lib/paystack";
 import { isSameOriginRequest } from "../../../lib/request-origin";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SHIPPING_FEE_KOBO = 600;
 
 export async function POST(request) {
   if (!hasPaystackConfig()) {
@@ -30,51 +31,64 @@ export async function POST(request) {
     return Response.json({ error: "Checkout request must contain valid JSON." }, { status: 400 });
   }
 
-  let email = body && typeof body.email === "string" ? body.email.trim() : "";
   const items = body && body.items;
+  const rawDelivery = body?.delivery;
 
   if (
-    email.length > 254 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+    !rawDelivery ||
+    typeof rawDelivery !== "object" ||
+    Array.isArray(rawDelivery) ||
     !Array.isArray(items) ||
     items.length < 1 ||
     items.length > 20
   ) {
-    return Response.json({ error: "Enter a valid email and select up to 20 products." }, { status: 400 });
+    return Response.json({ error: "Enter delivery details and select between 1 and 20 products to check out." }, { status: 400 });
+  }
+
+  const delivery = {
+    name: typeof rawDelivery.name === "string" ? rawDelivery.name.trim() : "",
+    phone: typeof rawDelivery.phone === "string" ? rawDelivery.phone.trim() : "",
+    region: typeof rawDelivery.region === "string" ? rawDelivery.region.trim() : "",
+    city: typeof rawDelivery.city === "string" ? rawDelivery.city.trim() : "",
+    address: typeof rawDelivery.address === "string" ? rawDelivery.address.trim() : "",
+    digitalAddress: typeof rawDelivery.digitalAddress === "string" ? rawDelivery.digitalAddress.trim() : "",
+    instructions: typeof rawDelivery.instructions === "string" ? rawDelivery.instructions.trim() : "",
+  };
+  const phoneDigits = delivery.phone.replace(/\D/g, "");
+  if (
+    delivery.name.length < 2 || delivery.name.length > 100 ||
+    phoneDigits.length < 7 || phoneDigits.length > 15 || delivery.phone.length > 24 ||
+    delivery.region.length < 2 || delivery.region.length > 60 ||
+    delivery.city.length < 2 || delivery.city.length > 100 ||
+    delivery.address.length < 5 || delivery.address.length > 500 ||
+    delivery.digitalAddress.length > 20 ||
+    delivery.instructions.length > 500
+  ) {
+    return Response.json({ error: "Check the recipient name, phone number and delivery address. Optional fields must also be within their character limits." }, { status: 400 });
   }
 
   let buyerId = null;
   const userClient = await createSupabaseServerClient();
-  if (!userClient) {
-    return Response.json({ error: "Buyer sign-in is required for checkout." }, { status: 503 });
-  }
+  if (userClient) {
+    const { data: { user }, error: userError } = await userClient.auth.getUser();
+    if (userError && userError.status !== 400 && userError.status !== 401) {
+      console.error("Unable to verify optional checkout account", userError);
+      return Response.json({ error: "We couldn't verify your account. Please try again." }, { status: 500 });
+    }
 
-  const { data: { user }, error: userError } = await userClient.auth.getUser();
-  if (userError) {
-    console.error("Unable to verify checkout account", userError);
-    return Response.json({ error: "Unable to verify your account." }, { status: 401 });
+    if (user && !userError) {
+      const { data: profile, error: profileError } = await userClient
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      if (profileError) {
+        console.error("Unable to verify checkout role", profileError);
+        return Response.json({ error: "We couldn't verify your account permissions." }, { status: 500 });
+      }
+      if (profile?.role === "buyer") buyerId = user.id;
+    }
   }
-  if (!user) {
-    return Response.json({ error: "Sign in with a buyer account to check out." }, { status: 401 });
-  }
-
-  const { data: profile, error: profileError } = await userClient
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profileError) {
-    console.error("Unable to verify checkout role", profileError);
-    return Response.json({ error: "Unable to verify your account permissions." }, { status: 500 });
-  }
-  if (profile.role !== "buyer") {
-    return Response.json({ error: "Only buyer accounts can place marketplace orders." }, { status: 403 });
-  }
-  if (!user.email) {
-    return Response.json({ error: "Your buyer account needs an email address to check out." }, { status: 400 });
-  }
-  buyerId = user.id;
-  email = user.email;
 
   const uniqueIds = new Set();
   for (const item of items) {
@@ -164,12 +178,13 @@ export async function POST(request) {
     unit_price_kobo: product.price_kobo,
     quantity: quantityById.get(product.id),
   }));
-  const totalKobo = products.reduce(
+  const productSubtotalKobo = products.reduce(
     (sum, product) => sum + product.price_kobo * quantityById.get(product.id),
     0,
   );
+  const totalKobo = productSubtotalKobo + SHIPPING_FEE_KOBO;
 
-  if (!Number.isSafeInteger(totalKobo) || totalKobo <= 0) {
+  if (!Number.isSafeInteger(productSubtotalKobo) || productSubtotalKobo <= 0 || !Number.isSafeInteger(totalKobo)) {
     return Response.json({ error: "The cart total is not valid." }, { status: 400 });
   }
 
@@ -178,6 +193,14 @@ export async function POST(request) {
     id: orderId,
     buyer_id: buyerId,
     buyer_email: email,
+    delivery_name: delivery.name,
+    delivery_phone: delivery.phone,
+    delivery_region: delivery.region,
+    delivery_city: delivery.city,
+    delivery_address: delivery.address,
+    delivery_digital_address: delivery.digitalAddress || null,
+    delivery_instructions: delivery.instructions || null,
+    shipping_fee_kobo: SHIPPING_FEE_KOBO,
     status: "pending",
     total_kobo: totalKobo,
     currency: "GHS",

@@ -17,14 +17,13 @@ export default async function BuyerShopPage() {
     );
   }
 
-  const [{ user }, catalog] = await Promise.all([
+  const [, catalog] = await Promise.all([
     requireRole(["buyer"]),
     getApprovedProductCatalog(),
   ]);
 
   return (
     <BuyerDashboard
-      email={user.email ?? ""}
       products={catalog.products}
       isConfigured
       catalogError={catalog.catalogError}

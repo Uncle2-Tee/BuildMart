@@ -72,7 +72,7 @@ export default async function SellerDashboardPage() {
         .eq("seller_id", application.seller_id)
         .order("created_at", { ascending: false }),
       admin.from("orders")
-        .select("id, buyer_email, status, created_at, order_items!inner(product_title, quantity, unit_price_kobo, seller_id)")
+        .select("id, buyer_email, status, created_at, delivery_name, delivery_phone, delivery_region, delivery_city, delivery_address, delivery_digital_address, delivery_instructions, order_items!inner(product_title, quantity, unit_price_kobo, seller_id)")
         .eq("order_items.seller_id", application.seller_id)
         .order("created_at", { ascending: false })
         .limit(8),
@@ -133,7 +133,8 @@ export default async function SellerDashboardPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("orders")
-      .select("id, buyer_email, status, created_at, order_items(product_title, quantity, unit_price_kobo)")
+      .select("id, buyer_email, status, created_at, delivery_name, delivery_phone, delivery_region, delivery_city, delivery_address, delivery_digital_address, delivery_instructions, order_items!inner(product_title, quantity, unit_price_kobo, seller_id)")
+      .eq("order_items.seller_id", user.id)
       .order("created_at", { ascending: false })
       .limit(8),
   ]);

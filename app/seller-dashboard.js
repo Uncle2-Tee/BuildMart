@@ -323,16 +323,68 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
           </form>
         </section>
       </div>
-      <section className="dashboard-panel orders-panel">
-        <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">RECENT ACTIVITY</span><h2>Orders <span>{orders.length}</span></h2></div></div>
+      <section className="dashboard-panel seller-orders-panel" aria-labelledby="seller-orders-heading">
+        <div className="panel-heading">
+          <div>
+            <span className="eyebrow muted-eyebrow">ORDER FULFILMENT</span>
+            <h2 id="seller-orders-heading">Orders <span>{orders.length}</span></h2>
+          </div>
+          <span className="seller-orders-caption">Orders containing your products</span>
+        </div>
         {orders.length ? (
-          <div className="orders-table-wrap"><table className="orders-table"><thead><tr><th>Order</th><th>Buyer</th><th>Products</th><th>Total</th><th>Status</th></tr></thead><tbody>
-            {orders.map((order) => (
-              <tr key={order.id}><td>#{order.id.slice(0, 8).toUpperCase()}</td><td>{order.buyer_email}</td><td>{order.order_items?.map((item) => `${item.product_title} × ${item.quantity}`).join(", ") || "—"}</td><td>{formatPrice((order.order_items ?? []).reduce((sum, item) => sum + item.unit_price_kobo * item.quantity, 0))}</td><td><span className={`status-pill ${order.status === "paid" ? "live" : "paused"}`}>{order.status}</span></td></tr>
-            ))}
-          </tbody></table></div>
-        ) : <p className="table-empty">Your orders will show here after customers check out.</p>}
-        <p className="seller-order-note">Orders only include your products. Paystack sends 90% of your product sales to your verified seller account; BuildMart retains a 10% platform commission and covers Paystack fees.</p>
+          <div className="seller-order-list">
+            {orders.map((order) => {
+              const orderItems = order.order_items ?? [];
+              const sellerSubtotal = orderItems.reduce((sum, item) => sum + item.unit_price_kobo * item.quantity, 0);
+              return (
+                <article className="seller-order-card" key={order.id}>
+                  <div className="seller-order-header">
+                    <div>
+                      <span className="seller-order-reference">Order #{order.id.slice(0, 8).toUpperCase()}</span>
+                      <time dateTime={order.created_at}>{new Intl.DateTimeFormat("en-GH", { dateStyle: "medium", timeStyle: "short" }).format(new Date(order.created_at))}</time>
+                    </div>
+                    <span className={`status-pill ${order.status === "paid" ? "live" : "paused"}`}>{order.status.replaceAll("_", " ")}</span>
+                  </div>
+                  <div className="seller-order-content">
+                    <div className="seller-order-products">
+                      <h3>Your products in this order</h3>
+                      <ul>
+                        {orderItems.map((item, index) => (
+                          <li key={`${order.id}-${item.product_title}-${index}`}>
+                            <span>{item.product_title} <small>× {item.quantity}</small></span>
+                            <strong>{formatPrice(item.unit_price_kobo * item.quantity)}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="seller-order-subtotal"><span>Your item subtotal</span><strong>{formatPrice(sellerSubtotal)}</strong></p>
+                    </div>
+                    <div className="seller-delivery-details">
+                      <h3>Delivery details</h3>
+                      {order.delivery_name ? (
+                        <>
+                          <strong>{order.delivery_name}</strong>
+                          <a href={`tel:${order.delivery_phone}`}>{order.delivery_phone}</a>
+                          <p>{[order.delivery_address, order.delivery_city, order.delivery_region].filter(Boolean).join(", ")}</p>
+                          {order.delivery_digital_address ? <p><span>GhanaPost GPS</span> {order.delivery_digital_address}</p> : null}
+                          {order.delivery_instructions ? <p className="seller-delivery-instructions"><span>Instructions</span>{order.delivery_instructions}</p> : null}
+                        </>
+                      ) : (
+                        <p className="seller-delivery-pending">Delivery details are not available for this order.</p>
+                      )}
+                      {order.buyer_email ? <a className="seller-order-email" href={`mailto:${order.buyer_email}`}>{order.buyer_email}</a> : null}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="seller-orders-empty">
+            <span aria-hidden="true">↗</span>
+            <strong>No orders for your products yet</strong>
+            <p>When a customer checks out with one of your products, the order and delivery details will appear here.</p>
+          </div>
+        )}
       </section>
         </>
       )}

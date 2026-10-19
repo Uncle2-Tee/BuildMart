@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBuyerCart } from "./buyer-cart-provider";
 import SignOutButton from "./sign-out-button";
 
 const categories = ["All products", "Building materials", "Tools", "Lighting", "Furniture", "Home & decor", "Other"];
+const SHIPPING_FEE_KOBO = 600;
 
 function formatPrice(priceKobo) {
   return new Intl.NumberFormat("en-GH", {
@@ -19,14 +21,14 @@ function Mark({ children, className = "" }) {
   return <span className={`mark ${className}`}>{children}</span>;
 }
 
-export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, buyerEmail = "", dashboardHref = "", hideMarketplaceContent = false, shopFirst = false }) {
+export default function Marketplace({ products, isConfigured, catalogError, buyerMode = false, dashboardHref = "", hideMarketplaceContent = false, shopFirst = false }) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
   const [category, setCategory] = useState("All products");
   const { cart, setCart } = useBuyerCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [email, setEmail] = useState(buyerEmail);
   const [checkoutState, setCheckoutState] = useState("");
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
     (total, item) => total + item.price_kobo * item.quantity,
     0,
   );
+  const checkoutTotal = cartTotal + (cart.length ? SHIPPING_FEE_KOBO : 0);
 
   function addToCart(product) {
     setCart((current) => {
@@ -82,35 +85,14 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
     );
   }
 
-  async function checkout(event) {
-    event.preventDefault();
-    setCheckoutState("loading");
+  function removeFromCart(id) {
+    setCart((current) => current.filter((item) => item.id !== id));
+  }
 
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          items: cart.map(({ id, quantity }) => ({ productId: id, quantity })),
-        }),
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        setCheckoutState(result.error || "We couldn't start checkout. Please try again.");
-        return;
-      }
-
-      if (!result.authorizationUrl) {
-        setCheckoutState("The payment provider did not return a checkout link.");
-        return;
-      }
-
-      window.location.assign(result.authorizationUrl);
-    } catch {
-      setCheckoutState("We couldn't connect to checkout. Please try again.");
-    }
+  function beginCheckout() {
+    setCheckoutState("");
+    setCartOpen(false);
+    router.push("/checkout");
   }
 
   return (
@@ -280,18 +262,16 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                   <div
                     className={`product-image product-image-${index % 4}`}
                     style={{ backgroundImage: `url("${product.image_url}")` }}
-                  >
-                    <span className="product-tag">{product.category}</span>
-                    <button
-                      className="quick-add"
-                      type="button"
-                      onClick={() => addToCart(product)}
-                      aria-label={`Add ${product.title} to cart`}
-                    >+</button>
-                  </div>
+                  />
                   <div className="product-info">
-                    <div><h3>{product.title}</h3><span className="product-category">{product.category}</span></div>
-                    <strong>{formatPrice(product.price_kobo)}</strong>
+                    <span className="product-category">{product.category}</span>
+                    <div className="product-title-row">
+                      <h3>{product.title}</h3>
+                      <strong>{formatPrice(product.price_kobo)}</strong>
+                    </div>
+                    <button className="product-add-button" type="button" onClick={() => addToCart(product)}>
+                      Add to cart <span aria-hidden="true">+</span>
+                    </button>
                   </div>
                 </article>
               ))}
@@ -318,7 +298,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
         <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setCartOpen(false); }}>
           <aside className="cart-drawer" aria-label="Shopping cart" role="dialog" aria-modal="true">
             <div className="drawer-heading">
-              <div><span className="eyebrow muted-eyebrow">YOUR SELECTION</span><h2>Your bag <span>({cart.length})</span></h2></div>
+              <div><h2>Your cart <span>({cart.reduce((sum, item) => sum + item.quantity, 0)})</span></h2></div>
               <button className="close-button" type="button" aria-label="Close cart" onClick={() => setCartOpen(false)}>×</button>
             </div>
             {cart.length ? (
@@ -329,27 +309,31 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                       <div className="cart-item-image" style={{ backgroundImage: `url("${item.image_url}")` }} />
                       <div className="cart-item-copy">
                         <strong>{item.title}</strong>
-                        <span>{formatPrice(item.price_kobo)}</span>
-                        <div className="quantity-controls">
-                          <button type="button" aria-label={`Remove one ${item.title}`} onClick={() => setQuantity(item.id, item.quantity - 1)}>−</button>
-                          <span>{item.quantity}</span>
-                          <button type="button" aria-label={`Add one ${item.title}`} onClick={() => setQuantity(item.id, item.quantity + 1)}>+</button>
+                        <span>{formatPrice(item.price_kobo * item.quantity)}</span>
+                        {item.quantity > 1 ? <small className="cart-item-unit-price">{formatPrice(item.price_kobo)} each</small> : null}
+                        <div className="cart-item-controls">
+                          <div className="quantity-controls">
+                            <button type="button" aria-label={`Remove one ${item.title}`} onClick={() => setQuantity(item.id, item.quantity - 1)}>−</button>
+                            <span>{item.quantity}</span>
+                            <button type="button" aria-label={`Add one ${item.title}`} onClick={() => setQuantity(item.id, item.quantity + 1)}>+</button>
+                          </div>
                         </div>
                       </div>
+                      <button className="cart-remove-button" type="button" onClick={() => removeFromCart(item.id)} aria-label={`Remove ${item.title} from cart`}>
+                        Remove
+                      </button>
                     </div>
                   ))}
                 </div>
-                <form className="checkout-form" onSubmit={checkout}>
-                  <label htmlFor="buyer-email">Email for your receipt</label>
-                  <input id="buyer-email" type="email" autoComplete="email" required readOnly={buyerMode} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
-                  <div className="cart-total"><span>Subtotal</span><strong>{formatPrice(cartTotal)}</strong></div>
-                  <p className="checkout-note">Secure checkout powered by Paystack. Delivery details are arranged with the seller.</p>
-                  {checkoutState && checkoutState !== "loading" ? <p className="form-error" role="alert">{checkoutState}</p> : null}
-                  <button className="button button-dark checkout-button" type="submit" disabled={checkoutState === "loading" || !isConfigured}>
-                    {checkoutState === "loading" ? "Opening secure checkout…" : "Continue to payment"}
-                    <span aria-hidden="true">↗</span>
+                <section className="cart-checkout-summary" aria-label="Order summary">
+                  <div className="cart-summary-line"><span>Subtotal</span><strong>{formatPrice(cartTotal)}</strong></div>
+                  <div className="cart-summary-line"><span>Shipping</span><strong>{formatPrice(SHIPPING_FEE_KOBO)}</strong></div>
+                  <div className="cart-summary-total"><span>Total</span><strong>{formatPrice(checkoutTotal)}</strong></div>
+                  {checkoutState ? <p className="form-error" role="alert">{checkoutState}</p> : null}
+                  <button className="button button-dark checkout-button" type="button" onClick={beginCheckout} disabled={!isConfigured}>
+                    Checkout
                   </button>
-                </form>
+                </section>
               </>
             ) : (
               <div className="empty-cart"><span>✳</span><h3>Your bag is taking a breather.</h3><p>Add something lovely from the marketplace.</p><button className="button button-dark" type="button" onClick={() => setCartOpen(false)}>Keep exploring</button></div>
