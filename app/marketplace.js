@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBuyerCart } from "./buyer-cart-provider";
@@ -306,19 +307,16 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                   <span><i aria-hidden="true">✓</i> Guest checkout</span>
                 </div>
               </div>
-              <div className="landing-showcase" role="img" aria-label="A welcoming home with cards highlighting BuildMart categories and secure checkout">
+              <div className="landing-showcase" role="img" aria-label="A home setting with product photos of building supplies, tools and furniture">
                 <div className="landing-showcase-photo" />
                 <div className="landing-category-card">
-                  <span className="landing-card-icon" aria-hidden="true">⌂</span>
-                  <span><strong>For every project</strong><small>Materials · Tools · Home</small></span>
+                  <Image src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
                 </div>
                 <div className="landing-secure-card">
-                  <span className="landing-secure-check" aria-hidden="true">✓</span>
-                  <span><strong>Secure checkout</strong><small>Payments by Paystack</small></span>
+                  <Image src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
                 </div>
                 <div className="landing-count-card">
-                  <strong>6</strong>
-                  <span><b>useful categories</b><small>From building to finishing touches</small></span>
+                  <Image src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
                 </div>
                 <div className="landing-detail-photo" />
                 <span className="landing-showcase-caption">Make room for what&apos;s next.</span>

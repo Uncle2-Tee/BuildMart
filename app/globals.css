@@ -908,89 +908,37 @@ button {
 .landing-category-card {
   top: 18%;
   left: 0;
-  gap: 12px;
-  padding: 14px 17px;
+  width: 176px;
+  height: 116px;
+  overflow: hidden;
   border-radius: 15px;
 }
 
-.landing-card-icon {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: #fff0e1;
-  color: #e97537;
-  font-size: 25px;
-}
-
-.landing-category-card strong,
-.landing-category-card small,
-.landing-secure-card strong,
-.landing-secure-card small,
-.landing-count-card b,
-.landing-count-card small {
+.landing-category-card img,
+.landing-secure-card img,
+.landing-count-card img {
+  width: 100%;
+  height: 100%;
   display: block;
-}
-
-.landing-category-card strong,
-.landing-secure-card strong {
-  color: #33312e;
-  font-size: 11px;
-}
-
-.landing-category-card small,
-.landing-secure-card small {
-  margin-top: 5px;
-  color: #8b8781;
-  font-size: 9px;
+  object-fit: cover;
 }
 
 .landing-secure-card {
   top: 13%;
   right: 0;
-  gap: 10px;
-  padding: 13px 15px;
+  width: 158px;
+  height: 112px;
+  overflow: hidden;
   border-radius: 13px;
-}
-
-.landing-secure-check {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #eaf5ed;
-  color: #458961;
-  font-size: 16px;
-  font-weight: 800;
 }
 
 .landing-count-card {
   bottom: 12%;
   left: 4%;
-  gap: 14px;
-  padding: 15px 19px;
+  width: 170px;
+  height: 122px;
+  overflow: hidden;
   border-radius: 14px;
-}
-
-.landing-count-card > strong {
-  color: #ed793b;
-  font-size: 38px;
-  font-weight: 700;
-  letter-spacing: -0.08em;
-  line-height: 1;
-}
-
-.landing-count-card b {
-  color: #3a3733;
-  font-size: 11px;
-}
-
-.landing-count-card small {
-  margin-top: 5px;
-  color: #89847d;
-  font-size: 9px;
 }
 
 .landing-detail-photo {
@@ -1002,7 +950,7 @@ button {
   height: 36%;
   border: 6px solid #fff;
   border-radius: 17px;
-  background: url("https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80") center / cover, #d3d1c8;
+  background: url("https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80") center / cover, #d3d1c8;
   box-shadow: 0 15px 35px rgba(49, 41, 33, 0.2);
 }
 
@@ -6684,62 +6632,25 @@ button {
   .landing-category-card {
     top: 13%;
     left: 0;
-    gap: 8px;
-    padding: 9px 10px;
+    width: 120px;
+    height: 82px;
     border-radius: 11px;
-  }
-
-  .landing-card-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    font-size: 19px;
-  }
-
-  .landing-category-card strong,
-  .landing-secure-card strong {
-    font-size: 9px;
-  }
-
-  .landing-category-card small,
-  .landing-secure-card small {
-    margin-top: 3px;
-    font-size: 7px;
   }
 
   .landing-secure-card {
     top: 8%;
     right: 0;
-    gap: 6px;
-    padding: 8px;
+    width: 110px;
+    height: 78px;
     border-radius: 10px;
-  }
-
-  .landing-secure-check {
-    width: 25px;
-    height: 25px;
-    font-size: 12px;
   }
 
   .landing-count-card {
     bottom: 12%;
     left: 1%;
-    gap: 9px;
-    padding: 10px 12px;
+    width: 116px;
+    height: 84px;
     border-radius: 10px;
-  }
-
-  .landing-count-card > strong {
-    font-size: 30px;
-  }
-
-  .landing-count-card b {
-    font-size: 9px;
-  }
-
-  .landing-count-card small {
-    max-width: 140px;
-    font-size: 7px;
   }
 
   .landing-detail-photo {
