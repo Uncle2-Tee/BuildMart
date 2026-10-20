@@ -1,17 +1,5 @@
-import { connection } from "next/server";
-import Marketplace from "./marketplace";
-import { getApprovedProductCatalog } from "../lib/buyer-dashboard-data";
+import StorefrontPage from "./storefront-page";
 
-export default async function Home() {
-  await connection();
-  const { products, catalogError } = await getApprovedProductCatalog();
-
-  return (
-    <Marketplace
-      products={products}
-      isConfigured
-      catalogError={catalogError}
-      shopFirst
-    />
-  );
+export default function Home() {
+  return <StorefrontPage page="home" />;
 }

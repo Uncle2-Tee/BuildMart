@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import DashboardHeader from "./dashboard-header";
@@ -280,7 +281,16 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
             <div className="seller-product-list">
               {products.map((product) => (
                 <article className="seller-product" key={product.id}>
-                  <div className="seller-product-image" style={{ backgroundImage: `url("${product.image_url}")` }} />
+                  <Image
+                    className="seller-product-image"
+                    src={product.image_url}
+                    alt=""
+                    width={48}
+                    height={48}
+                    loading="lazy"
+                    decoding="async"
+                    unoptimized
+                  />
                   <div className="seller-product-main">
                     <div className="seller-product-copy"><strong>{product.title}</strong><span>{product.category} · {formatPrice(product.price_kobo)}</span></div>
                     <div className="seller-product-actions">

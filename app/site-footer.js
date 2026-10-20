@@ -21,11 +21,13 @@ export default function SiteFooter() {
           <span className="mark brand-mark">B</span>
           <span>BuildMart<span className="brand-country">GH</span></span>
         </div>
-        <p className="footer-tagline">Better projects start close to home.</p>
-        <div className="footer-meta">
-          <Link href="/">Shop</Link>
+        <nav className="footer-meta" aria-label="Footer navigation">
+          <Link href="/shop">Shop</Link>
+          <Link href="/categories">Categories</Link>
+          <Link href="/how-it-works">How it works</Link>
+          <Link href="/about">About</Link>
           <span>© {new Date().getFullYear()} BuildMart Ghana</span>
-        </div>
+        </nav>
       </div>
     </footer>
   );
