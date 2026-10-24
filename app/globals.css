@@ -227,6 +227,27 @@ button {
   color: #ffad58;
 }
 
+.dashboard-header .brand,
+.dashboard-header .dashboard-marketplace-link,
+.dashboard-header .dashboard-mobile-navigation > a {
+  touch-action: manipulation;
+  transition: color 140ms ease, background-color 140ms ease, transform 140ms ease;
+}
+
+.dashboard-header .brand:active,
+.dashboard-header .dashboard-marketplace-link:active,
+.dashboard-header .dashboard-mobile-navigation > a:active {
+  transform: scale(0.97);
+}
+
+.dashboard-header .brand:focus-visible,
+.dashboard-header .dashboard-marketplace-link:focus-visible,
+.dashboard-header .dashboard-mobile-navigation > a:focus-visible {
+  border-radius: 5px;
+  outline: 3px solid rgba(255, 173, 88, 0.55);
+  outline-offset: 3px;
+}
+
 .main-nav a[aria-current="page"] {
   color: #ffd2b2;
 }

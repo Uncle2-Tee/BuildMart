@@ -23,7 +23,7 @@ export default function DashboardHeader({
 
   return (
     <header id="dashboard-top" className={`dashboard-header${menuOpen ? " mobile-menu-open" : ""}`}>
-      <Link className="brand" href="/" aria-label="BuildMart home">
+      <Link className="brand" href="/" prefetch aria-label="BuildMart home">
         <span className="mark brand-mark">B</span>
         <span>BuildMart<span className="brand-country">GH</span></span>
       </Link>
@@ -37,7 +37,7 @@ export default function DashboardHeader({
           <>
             {admin ? <span className="admin-label">ADMINISTRATOR</span> : null}
             {showMarketplaceLinks && !admin ? <Link className="dashboard-home-link" href="/">Home</Link> : null}
-            {showMarketplaceLinks ? <Link className="dashboard-marketplace-link" href="/">View marketplace ↗</Link> : null}
+            {showMarketplaceLinks ? <Link className="dashboard-marketplace-link" href="/" prefetch>View marketplace ↗</Link> : null}
             {displayName ? <span className="user-avatar">{displayName.slice(0, 1).toUpperCase()}</span> : null}
             <SignOutButton />
           </>
@@ -58,9 +58,9 @@ export default function DashboardHeader({
             <span />
           </button>
           <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
-            {showMarketplaceLinks && !admin ? <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link> : null}
+            {showMarketplaceLinks && !admin ? <Link href="/" prefetch onClick={() => setMenuOpen(false)}>Home</Link> : null}
             {admin ? (
-              <Link href="/" onClick={() => setMenuOpen(false)}>View market</Link>
+              <Link href="/" prefetch onClick={() => setMenuOpen(false)}>View market</Link>
             ) : (
               <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
             )}
