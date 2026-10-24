@@ -247,7 +247,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
         <section className="dashboard-panel" id="seller-products">
           <div className="panel-heading">
             <div><span className="eyebrow muted-eyebrow">YOUR CATALOGUE</span><h2>Products <span>{products.length}</span></h2></div>
-            <Link className="seller-preview-link" href="/dashboard/seller/market">Preview in market</Link>
+            <Link className="seller-preview-button" href="/dashboard/seller/market">Preview in market</Link>
           </div>
           {message ? <p className={message.includes("couldn't") ? "form-error" : "success-message"} role="status">{message}</p> : null}
           {products.length ? (
