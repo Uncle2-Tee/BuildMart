@@ -247,7 +247,9 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
         <section className="dashboard-panel" id="seller-products">
           <div className="panel-heading">
             <div><span className="eyebrow muted-eyebrow">YOUR CATALOGUE</span><h2>Products <span>{products.length}</span></h2></div>
-            <Link className="seller-preview-button" href="/dashboard/seller/market">Preview in market</Link>
+            <Link className="seller-preview-button" href="/dashboard/seller/market" prefetch>
+              Preview in market
+            </Link>
           </div>
           {message ? <p className={message.includes("couldn't") ? "form-error" : "success-message"} role="status">{message}</p> : null}
           {products.length ? (
@@ -272,7 +274,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
                       {product.active ? (
                         <button className="small-action" type="button" onClick={() => toggleProduct(product)}>Hide</button>
                       ) : (
-                        <Link className="small-action" href="/dashboard/seller/market">Preview &amp; publish</Link>
+                        <Link className="small-action" href="/dashboard/seller/market" prefetch>Preview &amp; publish</Link>
                       )}
                       <button className="small-action" type="button" onClick={() => removeProduct(product)} disabled={removingId === product.id}>{removingId === product.id ? "Removing…" : "Remove"}</button>
                     </div>

@@ -38,6 +38,7 @@ export default async function SellerMarketPage() {
           <Link
             className="market-back-button"
             href="/dashboard/seller"
+            prefetch
             aria-label="Back to seller dashboard"
           >
             <span aria-hidden="true">←</span>

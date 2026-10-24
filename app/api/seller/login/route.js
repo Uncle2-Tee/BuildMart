@@ -1,6 +1,6 @@
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../lib/supabase/admin";
-import { createSupabaseServerClient } from "../../../../lib/supabase/server";
+import { createSupabasePublicClient } from "../../../../lib/supabase/server";
 
 const invalidCredentials = () => Response.json(
   { error: "Invalid seller name or password." },
@@ -51,17 +51,22 @@ export async function POST(request) {
   }
   if (!authUser.user?.email) return invalidCredentials();
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   if (!supabase) {
     return Response.json({ error: "Seller login is not configured." }, { status: 503 });
   }
 
-  const { data: session, error: signInError } = await supabase.auth.signInWithPassword({
+  const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
     email: authUser.user.email,
     password,
   });
 
-  if (signInError || session.user?.id !== sellers[0].id) return invalidCredentials();
+  if (signInError || authData.user?.id !== sellers[0].id || !authData.session) return invalidCredentials();
 
-  return Response.json({ ok: true });
+  return Response.json({
+    session: {
+      access_token: authData.session.access_token,
+      refresh_token: authData.session.refresh_token,
+    },
+  });
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser";
 
@@ -18,7 +17,6 @@ async function activateSellerAccount(accessToken) {
 }
 
 export default function SellerAuthForm({ mode }) {
-  const router = useRouter();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -64,8 +62,14 @@ export default function SellerAuthForm({ mode }) {
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "We couldn't log you in. Please try again.");
+        if (!result.session?.access_token || !result.session?.refresh_token) {
+          throw new Error("Login did not return an active session. Please try again.");
+        }
 
-        const { data, error } = await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.setSession({
+          access_token: result.session.access_token,
+          refresh_token: result.session.refresh_token,
+        });
         if (error) throw error;
         session = data.session;
       }
@@ -74,9 +78,13 @@ export default function SellerAuthForm({ mode }) {
         throw new Error("Sign-in completed without an active session. Please sign in again.");
       }
 
+      const { data: userData, error: userError } = await supabase.auth.getUser(session.access_token);
+      if (userError || !userData.user || userData.user.id !== session.user.id) {
+        throw new Error("Your login session could not be verified. Please try again.");
+      }
+
       await activateSellerAccount(session.access_token);
-      router.replace("/dashboard/seller");
-      router.refresh();
+      window.location.replace("/dashboard/seller");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "We couldn't complete your request. Please try again.");
     } finally {
