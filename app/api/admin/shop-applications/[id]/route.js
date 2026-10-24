@@ -1,6 +1,7 @@
 import { getApiRole } from "../../../../../lib/auth";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../../lib/request-origin";
+import { notifyAdminShopBySms, sendArkeselSmsSafely } from "../../../../../lib/arkesel";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -109,6 +110,19 @@ export async function PATCH(request, { params }) {
       return Response.json({ error: "The application was approved, but its seller profile needs administrator attention." }, { status: 500 });
     }
   }
+
+  await sendArkeselSmsSafely(
+    `seller-shop-${application.status}`,
+    existingApplication.shop_phone,
+    application.status === "approved"
+      ? `BuildMart: Your shop ${existingApplication.shop_name} has been approved. You can now manage it from your seller dashboard.`
+      : `BuildMart: Your shop ${existingApplication.shop_name} was not approved. Contact BuildMart support if you have questions.`,
+  );
+
+  await notifyAdminShopBySms(
+    `shop-application-${application.status}`,
+    `BuildMart: Shop application ${existingApplication.shop_name} was ${application.status} by an admin.`,
+  );
 
   return Response.json({ status: application.status });
 }

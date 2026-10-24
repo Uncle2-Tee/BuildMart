@@ -10,7 +10,7 @@ function formatPrice(priceKobo) {
   return new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(priceKobo / 100);
 }
 
-export default function SellerDashboard({ displayName, shop: initialShop, shopStatus, products: initialProducts, orders, publicApplication = false }) {
+export default function SellerDashboard({ displayName, shop: initialShop, shopStatus, products: initialProducts, orders }) {
   const router = useRouter();
   const [shop, setShop] = useState(initialShop);
   const [currentShopStatus, setCurrentShopStatus] = useState(shopStatus);
@@ -55,33 +55,6 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
     return () => window.clearInterval(intervalId);
   }, [initialShop, router, shopStatus]);
 
-  useEffect(() => {
-    if (!publicApplication || currentShopStatus !== "pending" || !shop) return undefined;
-
-    let active = true;
-    async function checkApplicationStatus() {
-      try {
-        const response = await fetch("/api/shop-applications/status", { cache: "no-store" });
-        if (!response.ok) return;
-        const result = await response.json();
-        if (active && result.status === "approved") {
-          setShop(result.shop);
-          setCurrentShopStatus("approved");
-          setShopMessage("Your shop is approved. Opening your product dashboard…");
-          router.refresh();
-        }
-      } catch {
-        if (active) setShopMessage("We couldn't check your application status. This page will keep trying.");
-      }
-    }
-
-    const intervalId = window.setInterval(checkApplicationStatus, 3000);
-    return () => {
-      active = false;
-      window.clearInterval(intervalId);
-    };
-  }, [currentShopStatus, publicApplication, router, shop]);
-
   async function registerShop(event) {
     event.preventDefault();
     setShopBusy(true);
@@ -89,7 +62,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
 
     try {
       const form = new FormData(event.currentTarget);
-      const response = await fetch(publicApplication ? "/api/shop-applications" : "/api/seller/shop", {
+      const response = await fetch("/api/seller/shop", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

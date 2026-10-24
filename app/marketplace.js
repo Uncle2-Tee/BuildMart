@@ -33,8 +33,8 @@ function SellerDashboardLink({ className = "", onClick, compact = false }) {
   return (
     <Link
       className={`landing-seller-button${className ? ` ${className}` : ""}`}
-      href="/dashboard/seller"
-      aria-label="Go to the seller dashboard"
+      href="/seller/signup"
+      aria-label="Create a seller account"
       onClick={onClick}
     >
       <svg className="landing-seller-icon" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -236,7 +236,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               ? <span className="desktop-signout"><SignOutButton /></span>
               : null}
             {!buyerMode && !dashboardHref && !isStorefrontPage ? (
-                <Link className="seller-cta desktop-seller-cta" href="/dashboard/seller" onClick={() => setMobileMenuOpen(false)}>Become a seller?</Link>
+                <Link className="seller-cta desktop-seller-cta" href="/seller/signup" onClick={() => setMobileMenuOpen(false)}>Become a seller?</Link>
             ) : null}
             {isStorefrontPage ? (
               <SellerDashboardLink compact />
@@ -282,10 +282,9 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
         {page === "home" && !buyerMode ? (
             <section className="landing-hero">
               <div className="landing-hero-copy">
-                <span className="landing-pill"><span aria-hidden="true" /> GHANA&apos;S HOME &amp; BUILD MARKETPLACE</span>
                 <h1>Build better.<br />Live <em>beautifully.</em></h1>
                 <p className="landing-hero-description">
-                  Find the materials, tools and home essentials you need from local businesses — all in one place.
+                  Find the materials, tools and home essentials you need from local businesses all in one place.
                 </p>
                 <div className="landing-hero-actions">
                   <Link className="landing-button landing-button-primary" href="/shop">
@@ -300,11 +299,6 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                     <span className="landing-play-icon" aria-hidden="true">▶</span> How it works
                   </Link>
                   <Link className="landing-text-link" href="/about">About BuildMart <span aria-hidden="true">↗</span></Link>
-                </div>
-                <div className="landing-trust-points">
-                  <span><i aria-hidden="true">✓</i> Ghanaian sellers</span>
-                  <span><i aria-hidden="true">✓</i> Secure Paystack checkout</span>
-                  <span><i aria-hidden="true">✓</i> Guest checkout</span>
                 </div>
               </div>
               <div className="landing-showcase" role="img" aria-label="A home setting with product photos of building supplies, tools and furniture">
@@ -504,7 +498,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             </div>
             <div className="storefront-editorial-cta">
               <div><h2>Are you a local seller?</h2><p>Apply to bring your shop and products to BuildMart.</p></div>
-              <Link className="landing-button landing-button-primary" href="/dashboard/seller">Become a seller <span aria-hidden="true">↗</span></Link>
+              <Link className="landing-button landing-button-primary" href="/seller/signup">Become a seller <span aria-hidden="true">↗</span></Link>
             </div>
           </section>
         ) : null}

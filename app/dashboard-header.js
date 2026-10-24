@@ -30,7 +30,7 @@ export default function DashboardHeader({
       <div className={`dashboard-user${sellerDashboard ? " seller-dashboard-actions" : ""}`}>
         {sellerDashboard ? (
           <>
-            <Link className="dashboard-seller-market-link" href="/dashboard/seller/market">View market</Link>
+            <Link className="dashboard-seller-market-link" href="/shop">View market</Link>
             <SignOutButton admin={admin} />
           </>
         ) : (

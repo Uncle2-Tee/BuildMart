@@ -12,7 +12,9 @@ export default async function SellerMarketPage() {
     return null;
   }
 
-  const { supabase, user, profile } = await requireRole(["seller"]);
+  const { supabase, user, profile } = await requireRole(["seller"], {
+    loginRedirect: "/seller/login",
+  });
   const shopName = typeof user.user_metadata?.shop_name === "string"
     ? user.user_metadata.shop_name
     : "";

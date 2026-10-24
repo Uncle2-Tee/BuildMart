@@ -1,4 +1,5 @@
 import { getApiRole } from "../../../../lib/auth";
+import { notifyAdminShopBySms } from "../../../../lib/arkesel";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 
@@ -85,6 +86,11 @@ export async function POST(request) {
       { status: 500 },
     );
   }
+
+  await notifyAdminShopBySms(
+    "seller-shop-submitted",
+    `BuildMart: Seller ${shopName} submitted shop details for approval. Review it in the admin dashboard.`,
+  );
 
   return Response.json({
     shop: {

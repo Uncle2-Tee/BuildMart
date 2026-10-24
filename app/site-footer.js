@@ -7,6 +7,8 @@ export default function SiteFooter() {
   const pathname = usePathname();
   if (
     pathname === "/dashboard/seller/market" ||
+    pathname === "/seller/login" ||
+    pathname === "/seller/signup" ||
     pathname === "/login" ||
     pathname === "/signup" ||
     pathname === "/forgot-password"

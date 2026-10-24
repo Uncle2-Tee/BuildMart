@@ -733,7 +733,7 @@ button {
   min-height: clamp(700px, calc(100svh - 82px), 980px);
   display: grid;
   grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
-  align-items: center;
+  align-items: start;
   gap: clamp(28px, 4vw, 66px);
   overflow: hidden;
   padding: 48px max(42px, calc((100% - 1380px) / 2));
@@ -745,7 +745,7 @@ button {
 .landing-hero-copy {
   position: relative;
   z-index: 1;
-  padding: 8px 0 0 5px;
+  padding: 36px 0 0 5px;
 }
 
 .landing-pill {
@@ -772,7 +772,7 @@ button {
 }
 
 .landing-hero h1 {
-  margin: 40px 0 20px;
+  margin: 0 0 20px;
   color: #252322;
   font-size: clamp(62px, 6.6vw, 98px);
   font-weight: 720;
@@ -957,7 +957,7 @@ button {
 .landing-showcase-caption {
   position: absolute;
   right: 11%;
-  bottom: 1%;
+  bottom: -7%;
   z-index: 2;
   color: #fff;
   font-family: Georgia, "Times New Roman", serif;
@@ -3080,6 +3080,51 @@ button {
     radial-gradient(ellipse at 12% 15%, rgba(255, 255, 255, 0.72), transparent 36%),
     radial-gradient(ellipse at 88% 82%, rgba(233, 121, 59, 0.1), transparent 34%),
     var(--surface-gradient);
+}
+
+.seller-auth-page {
+  flex: 1;
+  min-height: calc(100vh - 80px);
+  padding: 48px 20px;
+}
+
+.seller-auth-card {
+  width: min(480px, 100%);
+  padding: 38px 42px 32px;
+}
+
+.seller-auth-card .account-brand {
+  margin-bottom: 20px;
+}
+
+.seller-auth-card h1 {
+  font-size: clamp(28px, 5vw, 35px);
+}
+
+.seller-auth-form {
+  text-align: left;
+}
+
+.seller-auth-form .form-error {
+  margin: 0;
+}
+
+.seller-auth-form .password-input-wrap {
+  margin-top: 7px;
+}
+
+.seller-auth-form .password-input-wrap input {
+  width: 100%;
+  margin-top: 0;
+  padding-right: 48px;
+}
+
+.seller-auth-form .seller-password-hint {
+  margin-top: 2px;
+}
+
+.seller-auth-card .account-switch-prompt {
+  line-height: 1.6;
 }
 
 .account-card.signup-card,
@@ -6388,6 +6433,7 @@ button {
 
   .landing-hero-copy {
     max-width: 680px;
+    padding: 0 0 0 5px;
   }
 
   .landing-hero h1 {
@@ -6582,7 +6628,7 @@ button {
   }
 
   .landing-hero h1 {
-    margin: 25px 0 13px;
+    margin: 0 0 13px;
     font-size: clamp(48px, 12vw, 68px);
     line-height: 1.02;
   }
@@ -6664,7 +6710,7 @@ button {
 
   .landing-showcase-caption {
     right: 10%;
-    bottom: -1%;
+    bottom: -6%;
     font-size: 11px;
   }
 

@@ -3,6 +3,7 @@ import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../l
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 import { hasPaystackConfig } from "../../../lib/paystack";
 import { isSameOriginRequest } from "../../../lib/request-origin";
+import { notifyNewOrderBySms } from "../../../lib/arkesel";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SHIPPING_FEE_KOBO = 600;
@@ -273,6 +274,13 @@ export async function POST(request) {
       { status: 502 },
     );
   }
+
+  await notifyNewOrderBySms(admin, {
+    orderId,
+    authorizationUrl: paystackResponse.data.authorization_url,
+    buyerPhone: delivery.phone,
+    sellerIds,
+  });
 
   return Response.json({ authorizationUrl: paystackResponse.data.authorization_url });
 }
