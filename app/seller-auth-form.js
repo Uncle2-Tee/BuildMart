@@ -32,6 +32,7 @@ export default function SellerAuthForm({ mode }) {
     try {
       const form = new FormData(event.currentTarget);
       const email = String(form.get("email") || "").trim();
+      const name = String(form.get("name") || "").trim();
       const password = String(form.get("password") || "");
       const supabase = createSupabaseBrowserClient();
       let session;
@@ -56,7 +57,15 @@ export default function SellerAuthForm({ mode }) {
           return;
         }
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const response = await fetch("/api/seller/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, password }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "We couldn't log you in. Please try again.");
+
+        const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
         session = data.session;
       }
@@ -101,10 +110,17 @@ export default function SellerAuthForm({ mode }) {
             <input name="name" autoComplete="name" minLength={2} maxLength={100} placeholder="e.g. Ama Mensah" required />
           </label>
         ) : null}
-        <label>
-          Email address
-          <input name="email" type="email" autoComplete="email" maxLength={254} placeholder="e.g. ama@example.com" required />
-        </label>
+        {isSignup ? (
+          <label>
+            Email address
+            <input name="email" type="email" autoComplete="email" maxLength={254} placeholder="e.g. ama@example.com" required />
+          </label>
+        ) : (
+          <label>
+            Name
+            <input name="name" autoComplete="username" maxLength={100} placeholder="e.g. Uncle T" required />
+          </label>
+        )}
         <label>
           Password
           <span className="password-input-wrap">

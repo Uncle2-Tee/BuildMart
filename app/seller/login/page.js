@@ -1,7 +1,7 @@
 import SellerAuthForm from "../../seller-auth-form";
 
 export const metadata = {
-  title: "Seller sign in | BuildMart Ghana",
+  title: "Seller log in | BuildMart Ghana",
 };
 
 export default function SellerLoginPage() {
