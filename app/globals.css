@@ -2062,10 +2062,10 @@ button {
   align-items: center;
   justify-content: center;
   padding: 6px 10px;
-  border: 1px solid var(--line);
+  border: 1px solid #c35422;
   border-radius: 5px;
-  background: #fff;
-  color: #5c7180;
+  background: #c35422;
+  color: #fff;
   font-size: 10px;
   font-weight: 600;
   line-height: 1.2;
@@ -2075,9 +2075,9 @@ button {
 }
 
 .seller-preview-button:hover {
-  border-color: #bd8866;
-  background: #fffaf7;
-  color: #8f4b31;
+  border-color: #963d19;
+  background: #963d19;
+  color: #fff;
 }
 
 .seller-preview-button:focus-visible {
