@@ -33,8 +33,8 @@ function SellerDashboardLink({ className = "", onClick, compact = false }) {
   return (
     <Link
       className={`landing-seller-button${className ? ` ${className}` : ""}`}
-      href="/seller/signup"
-      aria-label="Create a seller account"
+      href="/seller/login"
+      aria-label="Log in to the seller account"
       onClick={onClick}
     >
       <svg className="landing-seller-icon" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -45,8 +45,8 @@ function SellerDashboardLink({ className = "", onClick, compact = false }) {
         <path d="m14 21 4 2" />
         <path d="m7 4 1.2-1M16 3V1M25 4l-1.2-1" stroke="#ffd166" />
       </svg>
-      <span className="landing-seller-label">Become a seller</span>
-      {compact ? <span className="landing-seller-label-mobile">Sell</span> : null}
+      <span className="landing-seller-label">Seller log in</span>
+      {compact ? <span className="landing-seller-label-mobile">Log in</span> : null}
       <span className="landing-seller-arrow" aria-hidden="true">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3.5 10h13M10 3.5 16.5 10 10 16.5" />
@@ -236,7 +236,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               ? <span className="desktop-signout"><SignOutButton /></span>
               : null}
             {!buyerMode && !dashboardHref && !isStorefrontPage ? (
-                <Link className="seller-cta desktop-seller-cta" href="/seller/signup" onClick={() => setMobileMenuOpen(false)}>Become a seller?</Link>
+                <Link className="seller-cta desktop-seller-cta" href="/seller/login" onClick={() => setMobileMenuOpen(false)}>Seller log in</Link>
             ) : null}
             {isStorefrontPage ? (
               <SellerDashboardLink compact />
@@ -498,7 +498,7 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             </div>
             <div className="storefront-editorial-cta">
               <div><h2>Are you a local seller?</h2><p>Apply to bring your shop and products to BuildMart.</p></div>
-              <Link className="landing-button landing-button-primary" href="/seller/signup">Become a seller <span aria-hidden="true">↗</span></Link>
+              <Link className="landing-button landing-button-primary" href="/seller/login">Seller log in <span aria-hidden="true">↗</span></Link>
             </div>
           </section>
         ) : null}

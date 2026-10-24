@@ -87,11 +87,11 @@ export default function SellerAuthForm({ mode }) {
         <span>BuildMart<span className="brand-country">GH</span></span>
       </Link>
       <span className="eyebrow">SELLER ACCOUNT</span>
-      <h1>{isSignup ? "Create your seller account" : "Welcome back"}</h1>
+      <h1>{isSignup ? "Create your seller account" : "Log in to your seller account"}</h1>
       <p className="account-intro">
         {isSignup
           ? "Sign up to register your shop and manage it after administrator approval."
-          : "Sign in to register or manage your BuildMart shop."}
+          : "Log in to register or manage your BuildMart shop."}
       </p>
       <form className="account-form seller-auth-form" onSubmit={submit}>
         {message ? <p className="form-error" role="alert">{message}</p> : null}
@@ -144,13 +144,13 @@ export default function SellerAuthForm({ mode }) {
           {isSignup ? <small className="seller-password-hint">Use at least 8 characters for your password.</small> : null}
         </label>
         <button className="button button-dark account-submit" type="submit" disabled={busy}>
-          {busy ? "Please wait…" : isSignup ? "Create seller account" : "Sign in"}
+          {busy ? "Please wait…" : isSignup ? "Create seller account" : "Log in"}
         </button>
       </form>
       <p className="account-switch-prompt">
         {isSignup ? "Already have a seller account? " : "New to selling on BuildMart? "}
         <Link href={isSignup ? "/seller/login" : "/seller/signup"}>
-          {isSignup ? "Sign in" : "Create an account"}
+          {isSignup ? "Log in" : "Create an account"}
         </Link>
       </p>
     </section>
