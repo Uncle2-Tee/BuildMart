@@ -56,7 +56,7 @@ export default function AdminShopApplicationApproval({ applicationId, initialSta
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
               <path d="m5 10 3.2 3.2L15.5 6" />
             </svg>
-            {busy ? "Saving…" : "Approve shop"}
+            {busy ? "Saving…" : "Accept"}
           </button>
           <button
             className="application-action application-action-reject"

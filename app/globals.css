@@ -5263,23 +5263,27 @@ button {
 }
 
 .seller-approval-pending {
-  grid-template-columns: auto auto;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: stretch;
 }
 
 .seller-approval-actions {
-  justify-content: stretch;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
 }
 
 .application-approval {
   grid-template-columns: 1fr;
+  width: 100%;
   justify-items: end;
   gap: 9px;
 }
 
 .application-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
   gap: 8px;
 }
 
@@ -6923,11 +6927,6 @@ button {
   .admin-list-row .application-approval {
     grid-template-columns: minmax(0, 1fr);
     justify-items: stretch;
-  }
-
-  .application-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
   }
 
   .application-action {
