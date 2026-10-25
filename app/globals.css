@@ -4234,7 +4234,13 @@ button {
 }
 
 .seller-dashboard-shell > .dashboard-columns > .add-product-panel {
+  grid-column: 1 / -1;
   border-top-color: #d77948;
+}
+
+.seller-dashboard-shell > .dashboard-columns > .seller-orders-panel {
+  margin-top: 0;
+  border-top-color: #7088b3;
 }
 
 .seller-dashboard-shell .seller-catalogue-intro {
