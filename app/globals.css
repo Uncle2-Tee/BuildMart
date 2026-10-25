@@ -228,6 +228,7 @@ button {
 }
 
 .dashboard-header .brand,
+.dashboard-header .dashboard-home-link,
 .dashboard-header .dashboard-marketplace-link,
 .dashboard-header .dashboard-mobile-navigation > a {
   touch-action: manipulation;
@@ -235,12 +236,14 @@ button {
 }
 
 .dashboard-header .brand:active,
+.dashboard-header .dashboard-home-link:active,
 .dashboard-header .dashboard-marketplace-link:active,
 .dashboard-header .dashboard-mobile-navigation > a:active {
   transform: scale(0.97);
 }
 
 .dashboard-header .brand:focus-visible,
+.dashboard-header .dashboard-home-link:focus-visible,
 .dashboard-header .dashboard-marketplace-link:focus-visible,
 .dashboard-header .dashboard-mobile-navigation > a:focus-visible {
   border-radius: 5px;
@@ -751,13 +754,13 @@ button {
 .landing-hero {
   position: relative;
   width: 100%;
-  min-height: clamp(700px, calc(100svh - 82px), 980px);
+  min-height: clamp(580px, calc(100svh - 210px), 760px);
   display: grid;
   grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
   align-items: start;
-  gap: clamp(28px, 4vw, 66px);
+  gap: clamp(24px, 3.5vw, 56px);
   overflow: hidden;
-  padding: 48px max(42px, calc((100% - 1380px) / 2));
+  padding: 28px max(42px, calc((100% - 1380px) / 2));
   background:
     radial-gradient(ellipse at 18% 40%, rgba(255, 255, 255, 0.83) 0, rgba(255, 255, 255, 0) 50%),
     linear-gradient(115deg, #fff2e4 0%, #fff8ef 48%, #fffaf5 100%);
@@ -766,7 +769,7 @@ button {
 .landing-hero-copy {
   position: relative;
   z-index: 1;
-  padding: 36px 0 0 5px;
+  padding: 20px 0 0 5px;
 }
 
 .landing-pill {
@@ -895,9 +898,17 @@ button {
 .landing-showcase {
   position: relative;
   width: 100%;
-  height: min(680px, calc(100svh - 190px));
-  min-height: 500px;
+  height: min(620px, calc(100svh - 240px));
+  min-height: 450px;
   isolation: isolate;
+}
+
+.landing-showcase-group {
+  min-width: 0;
+}
+
+.landing-mobile-trust {
+  display: none;
 }
 
 .landing-showcase-photo {
@@ -926,6 +937,28 @@ button {
   backdrop-filter: blur(10px);
 }
 
+@keyframes landing-showcase-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, -18px, 0) rotate(2deg) scale(1.04);
+  }
+}
+
+@keyframes landing-showcase-float-reverse {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, 16px, 0) rotate(-2deg) scale(1.04);
+  }
+}
+
 .landing-category-card {
   top: 18%;
   left: 0;
@@ -933,6 +966,8 @@ button {
   height: 116px;
   overflow: hidden;
   border-radius: 15px;
+  animation: landing-showcase-float 4.8s ease-in-out infinite;
+  will-change: transform;
 }
 
 .landing-category-card img,
@@ -951,6 +986,8 @@ button {
   height: 112px;
   overflow: hidden;
   border-radius: 13px;
+  animation: landing-showcase-float-reverse 5.4s ease-in-out -1.2s infinite;
+  will-change: transform;
 }
 
 .landing-count-card {
@@ -960,6 +997,8 @@ button {
   height: 122px;
   overflow: hidden;
   border-radius: 14px;
+  animation: landing-showcase-float 5.1s ease-in-out -2.5s infinite;
+  will-change: transform;
 }
 
 .landing-detail-photo {
@@ -973,18 +1012,20 @@ button {
   border-radius: 17px;
   background: url("https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80") center / cover, #d3d1c8;
   box-shadow: 0 15px 35px rgba(49, 41, 33, 0.2);
+  animation: landing-showcase-float-reverse 5.6s ease-in-out -3s infinite;
+  will-change: transform;
 }
 
 .landing-showcase-caption {
   position: absolute;
   right: 11%;
-  bottom: -7%;
+  bottom: -13%;
   z-index: 2;
-  color: #fff;
+  color: #171717;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 15px;
   font-style: italic;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+  text-shadow: none;
 }
 
 .landing-benefits {
@@ -3746,6 +3787,24 @@ button {
   border-color: #ffad58;
   background: #fff3e8;
   color: #963d19;
+}
+
+.dashboard-header .dashboard-user .dashboard-home-link {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 7px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.dashboard-header .dashboard-user .dashboard-home-link:hover {
+  border-color: #ffad58;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffcfaa;
 }
 
 .dashboard-user .sign-out-control .sign-out-button:focus-visible {
@@ -6812,8 +6871,8 @@ button {
   .landing-hero {
     min-height: 0;
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    padding: 64px 38px 46px;
+    gap: 18px;
+    padding: 44px 38px 34px;
   }
 
   .landing-hero-copy {
@@ -6827,9 +6886,18 @@ button {
 
   .landing-showcase {
     width: min(760px, 100%);
-    height: 500px;
-    min-height: 430px;
+    height: 440px;
+    min-height: 380px;
     justify-self: center;
+  }
+
+  .landing-showcase-group {
+    width: min(760px, 100%);
+    justify-self: center;
+  }
+
+  .landing-showcase-caption {
+    display: none;
   }
 
   .landing-category-card {
@@ -6991,8 +7059,8 @@ button {
   .landing-hero {
     min-height: 0;
     grid-template-columns: minmax(0, 1fr);
-    gap: 25px;
-    padding: 28px 22px 35px;
+    gap: 18px;
+    padding: 20px 22px 26px;
   }
 
   .landing-hero-copy {
@@ -7038,7 +7106,7 @@ button {
 
   .landing-trust-points {
     gap: 9px 13px;
-    margin-top: 22px;
+    margin-top: 16px;
     font-size: 9px;
   }
 
@@ -7050,8 +7118,43 @@ button {
 
   .landing-showcase {
     width: 100%;
-    height: min(100vw, 390px);
-    min-height: 300px;
+    height: min(88vw, 350px);
+    min-height: 270px;
+  }
+
+  .landing-showcase-group {
+    width: 100%;
+  }
+
+  .landing-mobile-trust {
+    width: fit-content;
+    max-width: 100%;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 9px auto 0;
+    padding: 8px 12px;
+    border: 1px solid #f1dfce;
+    border-radius: 999px;
+    background: #fff9f2;
+    color: #65574a;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .landing-mobile-trust > span {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #e9f3eb;
+    color: #35835e;
+    font-size: 11px;
+    font-weight: 800;
   }
 
   .landing-showcase-photo {
@@ -7094,9 +7197,7 @@ button {
   }
 
   .landing-showcase-caption {
-    right: 10%;
-    bottom: -6%;
-    font-size: 11px;
+    display: none;
   }
 
   .landing-benefits {

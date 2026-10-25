@@ -10,6 +10,7 @@ import SignOutButton from "./sign-out-button";
 const productCategories = ["Building materials", "Tools", "Lighting", "Furniture", "Home & decor", "Other"];
 const categories = ["All products", ...productCategories];
 const storefrontPages = [
+  { href: "/", label: "Home", page: "home" },
   { href: "/shop", label: "Shop", page: "shop" },
   { href: "/categories", label: "Categories", page: "categories" },
   { href: "/how-it-works", label: "How it works", page: "how-it-works" },
@@ -301,19 +302,25 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                   <Link className="landing-text-link" href="/about">About BuildMart <span aria-hidden="true">↗</span></Link>
                 </div>
               </div>
-              <div className="landing-showcase" role="img" aria-label="A home setting with product photos of building supplies, tools and furniture">
-                <div className="landing-showcase-photo" />
-                <div className="landing-category-card">
-                  <Image src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
+              <div className="landing-showcase-group">
+                <div className="landing-showcase" role="img" aria-label="A home setting with product photos of building supplies, tools and furniture">
+                  <div className="landing-showcase-photo" />
+                  <div className="landing-category-card">
+                    <Image src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
+                  </div>
+                  <div className="landing-secure-card">
+                    <Image src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
+                  </div>
+                  <div className="landing-count-card">
+                    <Image src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
+                  </div>
+                  <div className="landing-detail-photo" />
+                  <span className="landing-showcase-caption">Make room for what&apos;s next.</span>
                 </div>
-                <div className="landing-secure-card">
-                  <Image src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
-                </div>
-                <div className="landing-count-card">
-                  <Image src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=480&q=80" alt="" width={480} height={360} loading="lazy" unoptimized />
-                </div>
-                <div className="landing-detail-photo" />
-                <span className="landing-showcase-caption">Make room for what&apos;s next.</span>
+                <p className="landing-mobile-trust">
+                  <span aria-hidden="true">✓</span>
+                  Shop approved local sellers. Pay securely online.
+                </p>
               </div>
             </section>
         ) : null}

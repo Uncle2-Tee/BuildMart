@@ -36,7 +36,7 @@ export default function DashboardHeader({
         ) : (
           <>
             {admin ? <span className="admin-label">ADMINISTRATOR</span> : null}
-            {showMarketplaceLinks && !admin ? <Link className="dashboard-home-link" href="/">Home</Link> : null}
+            {showMarketplaceLinks && !admin ? <Link className="dashboard-home-link" href="/" prefetch>Home</Link> : null}
             {showMarketplaceLinks ? <Link className="dashboard-marketplace-link" href="/" prefetch>View marketplace ↗</Link> : null}
             {displayName ? <span className="user-avatar">{displayName.slice(0, 1).toUpperCase()}</span> : null}
             <SignOutButton />
@@ -59,11 +59,7 @@ export default function DashboardHeader({
           </button>
           <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
             {showMarketplaceLinks && !admin ? <Link href="/" prefetch onClick={() => setMenuOpen(false)}>Home</Link> : null}
-            {admin ? (
-              <Link href="/" prefetch onClick={() => setMenuOpen(false)}>View market</Link>
-            ) : (
-              <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
-            )}
+            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
             <div className="dashboard-mobile-signout"><SignOutButton admin={admin} /></div>
           </nav>
         </>
