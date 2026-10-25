@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function AdminSellerApproval({ sellerId, initialStatus, hasShop }) {
+  const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,6 +25,7 @@ export default function AdminSellerApproval({ sellerId, initialStatus, hasShop }
       }
       setStatus(result.status);
       setMessage(result.status === "approved" ? "Shop approved." : "Shop approval revoked.");
+      router.refresh();
     } catch {
       setMessage("We couldn't connect to the seller service. Please try again.");
     } finally {

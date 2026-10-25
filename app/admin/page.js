@@ -70,12 +70,32 @@ export default async function AdminPage() {
       shopPhone: typeof metadata.shop_phone === "string" ? metadata.shop_phone : "",
     };
   });
+  const approvedSellers = sellerShops.filter(
+    (seller) => seller.seller_status === "approved" && seller.shopName,
+  );
+  const productsBySeller = new Map(approvedSellers.map((seller) => [seller.id, []]));
+  if (approvedSellers.length) {
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await admin
+        .from("products")
+        .select("id, seller_id, title, category, price_kobo, image_url, active, created_at")
+        .in("seller_id", approvedSellers.map((seller) => seller.id))
+        .order("created_at", { ascending: false })
+        .range(offset, offset + 999);
+
+      if (error) throw new Error(`Unable to load approved shop products: ${error.message}`);
+      for (const product of data ?? []) {
+        productsBySeller.get(product.seller_id)?.push(product);
+      }
+      if (!data || data.length < 1000) break;
+    }
+  }
 
   return (
-    <main className="dashboard-shell">
+    <main className="dashboard-shell admin-dashboard">
       <DashboardHeader admin />
       <section className="dashboard-welcome">
-        <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><h1>Good morning, <em>{adminSession.username}.</em></h1><p>Marketplace activity, accounts and catalogue at a glance.</p></div>
+        <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><h1>Good morning, <em>{adminSession.username}.</em></h1><p>Review shop applications, manage sellers, and monitor marketplace orders.</p></div>
         <span className="dashboard-date">Admin control centre</span>
       </section>
       <section className="stat-grid admin-stat-grid" aria-label="Marketplace summary">
@@ -91,36 +111,72 @@ export default async function AdminPage() {
         </section>
       ) : null}
       <div className="admin-grid">
-        <section className="dashboard-panel">
-          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">NEW SELLER REQUESTS</span><h2>Shop applications <span>{applications?.length ?? 0}</span></h2></div></div>
+        <div className="admin-primary-column">
+          <section className="dashboard-panel admin-applications-panel" aria-labelledby="admin-applications-title">
+            <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">REVIEW QUEUE</span><h2 id="admin-applications-title">Shop applications <span>{applications?.length ?? 0}</span></h2></div></div>
+            <div className="admin-list">
+              {shopApplications.length ? shopApplications.map((application) => (
+                <div className="admin-list-row seller-application-row" key={application.id}>
+                  <span className="user-avatar">{application.shop_name.slice(0, 1).toUpperCase()}</span>
+                  <span className="seller-application-details">
+                    <strong>{application.shop_name}</strong>
+                    <small>{application.shop_location} · {application.shop_phone} · Submitted {new Date(application.created_at).toLocaleDateString("en-GH")}</small>
+                    <small className="seller-shop-description">{application.shop_description}</small>
+                  </span>
+                  <AdminShopApplicationApproval applicationId={application.id} initialStatus={application.status} />
+                </div>
+              )) : <p className="table-empty">Submitted shop applications will appear here.</p>}
+            </div>
+          </section>
+          <section className="dashboard-panel admin-orders-panel" aria-labelledby="admin-orders-title">
+            <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">LATEST ACTIVITY</span><h2 id="admin-orders-title">Recent orders <span>{orders?.length ?? 0}</span></h2></div></div>
+            {orders?.length ? <div className="orders-table-wrap"><table className="orders-table"><thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th></tr></thead><tbody>{orders.slice(0, 12).map((order) => <tr key={order.id}><td>#{order.id.slice(0, 8).toUpperCase()}</td><td>{order.buyer_email}</td><td>{new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(order.total_kobo / 100)}</td><td><span className={`status-pill ${order.status === "paid" ? "live" : "paused"}`}>{order.status}</span></td></tr>)}</tbody></table></div> : <p className="table-empty">Customer orders will appear here.</p>}
+          </section>
+        </div>
+        <section className="dashboard-panel admin-sellers-panel" aria-labelledby="admin-sellers-title">
+          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">SELLER MANAGEMENT</span><h2 id="admin-sellers-title">Seller accounts <span>{sellers.length}</span></h2></div></div>
           <div className="admin-list">
-            {shopApplications.length ? shopApplications.map((application) => (
-              <div className="admin-list-row seller-application-row" key={application.id}>
-                <span className="user-avatar">{application.shop_name.slice(0, 1).toUpperCase()}</span>
-                <span className="seller-application-details">
-                  <strong>{application.shop_name}</strong>
-                  <small>{application.shop_location} · {application.shop_phone} · Submitted {new Date(application.created_at).toLocaleDateString("en-GH")}</small>
-                  <small className="seller-shop-description">{application.shop_description}</small>
-                </span>
-                <AdminShopApplicationApproval applicationId={application.id} initialStatus={application.status} />
-              </div>
-            )) : <p className="table-empty">Submitted shop applications will appear here.</p>}
-          </div>
-        </section>
-        <section className="dashboard-panel">
-          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">ACCOUNT ACCESS</span><h2>Seller accounts <span>{sellers.length}</span></h2></div></div>
-          <div className="admin-list">
-            {sellerShops.map((seller) => <div className="admin-list-row" key={seller.id}><span className="user-avatar">{(seller.shopName || seller.display_name || "S").slice(0, 1).toUpperCase()}</span><span><strong>{seller.shopName || "Shop not registered"}</strong><small>{seller.shopName ? `${seller.display_name || "Seller"} · ${seller.shopLocation}${seller.shopPhone ? ` · ${seller.shopPhone}` : ""}` : `Seller account · ${new Date(seller.created_at).toLocaleDateString("en-GH")}`}</small>{seller.shopDescription ? <small className="seller-shop-description">{seller.shopDescription}</small> : null}</span><AdminSellerApproval sellerId={seller.id} initialStatus={seller.seller_status} hasShop={Boolean(seller.shopName)} /><AdminPayoutForm sellerId={seller.id} initialCode={seller.paystack_subaccount_code} /></div>)}
+            {sellerShops.map((seller) => {
+              const shopProducts = productsBySeller.get(seller.id);
+              return (
+                <div className="admin-seller-entry" key={seller.id}>
+                  <div className="admin-list-row">
+                    <span className="user-avatar">{(seller.shopName || seller.display_name || "S").slice(0, 1).toUpperCase()}</span>
+                    <span>
+                      <strong>{seller.shopName || "Shop not registered"}</strong>
+                      <small>{seller.shopName ? `${seller.display_name || "Seller"} · ${seller.shopLocation}${seller.shopPhone ? ` · ${seller.shopPhone}` : ""}` : `Seller account · ${new Date(seller.created_at).toLocaleDateString("en-GH")}`}</small>
+                      {seller.shopDescription ? <small className="seller-shop-description">{seller.shopDescription}</small> : null}
+                    </span>
+                    <AdminSellerApproval sellerId={seller.id} initialStatus={seller.seller_status} hasShop={Boolean(seller.shopName)} />
+                    <AdminPayoutForm sellerId={seller.id} initialCode={seller.paystack_subaccount_code} />
+                  </div>
+                  {shopProducts ? (
+                    <details className="admin-shop-products">
+                      <summary>
+                        <span>Products</span>
+                        <span className="admin-shop-product-count">
+                          {shopProducts.length} {shopProducts.length === 1 ? "product" : "products"}
+                        </span>
+                      </summary>
+                      <div className="admin-shop-product-list admin-product-list">
+                        {shopProducts.length ? shopProducts.map((product) => (
+                          <div className="admin-product-row" key={product.id}>
+                            <span>
+                              <strong>{product.title}</strong>
+                              <small>{product.category} · {new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(product.price_kobo / 100)}</small>
+                            </span>
+                            <span className={`status-pill ${product.active ? "live" : "paused"}`}>{product.active ? "Live" : "Hidden"}</span>
+                            <AdminProductControls productId={product.id} initialActive={product.active} />
+                          </div>
+                        )) : <p className="admin-shop-products-empty">This shop has not uploaded any products yet.</p>}
+                      </div>
+                    </details>
+                  ) : null}
+                </div>
+              );
+            })}
             {!sellers.length ? <p className="table-empty">New seller accounts will appear here.</p> : null}
           </div>
-        </section>
-        <section className="dashboard-panel">
-          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">LATEST ACTIVITY</span><h2>Orders <span>{orders?.length ?? 0}</span></h2></div></div>
-          {orders?.length ? <div className="orders-table-wrap"><table className="orders-table"><thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th></tr></thead><tbody>{orders.slice(0, 12).map((order) => <tr key={order.id}><td>#{order.id.slice(0, 8).toUpperCase()}</td><td>{order.buyer_email}</td><td>{new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(order.total_kobo / 100)}</td><td><span className={`status-pill ${order.status === "paid" ? "live" : "paused"}`}>{order.status}</span></td></tr>)}</tbody></table></div> : <p className="table-empty">Customer orders will appear here.</p>}
-        </section>
-        <section className="dashboard-panel admin-products-panel">
-          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">MARKETPLACE CATALOGUE</span><h2>Recent products <span>{products?.length ?? 0}</span></h2></div></div>
-          <div className="admin-product-list">{products?.slice(0, 12).map((product) => <div className="admin-product-row" key={product.id}><span><strong>{product.title}</strong><small>{product.category} · {new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(product.price_kobo / 100)}</small></span><span className={`status-pill ${product.active ? "live" : "paused"}`}>{product.active ? "Live" : "Hidden"}</span><AdminProductControls productId={product.id} initialActive={product.active} /></div>)}</div>
         </section>
       </div>
     </main>
