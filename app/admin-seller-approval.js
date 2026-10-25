@@ -55,7 +55,7 @@ export default function AdminSellerApproval({ sellerId, initialStatus, hasShop }
             disabled={busy}
             onClick={() => updateStatus("approved")}
           >
-            {busy ? "Saving…" : "Accept"}
+            {busy ? "Saving…" : "Approve"}
           </button>
           <button
             className="application-action application-action-reject"
