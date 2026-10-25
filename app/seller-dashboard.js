@@ -197,7 +197,7 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
   const shopApproved = currentShopStatus === "approved" && Boolean(shop);
 
   return (
-    <main className="dashboard-shell">
+    <main className="dashboard-shell seller-dashboard-shell">
       <DashboardHeader displayName={displayName || "Seller"} sellerDashboard showMarketplaceLinks={false} />
       <section className={`dashboard-welcome${!shopApproved ? " seller-registration-welcome" : ""}`}>
         <div><span className="eyebrow muted-eyebrow">SELLER SPACE</span><h1>Good to have you, <em>{displayName || "seller"}.</em></h1><p>{shopApproved ? `${shop.name} · ${shop.location}` : "Register your shop to submit it for administrator approval."}</p></div>
