@@ -70,10 +70,11 @@ export async function PATCH(request, { params }) {
   }
   if (!seller) return Response.json({ error: "Seller not found." }, { status: 404 });
 
+  let sellerNotified = null;
   if (seller.seller_status !== currentSeller.seller_status) {
     const shopName = authUser.user.user_metadata.shop_name.trim();
     const phone = authUser.user.user_metadata.shop_phone;
-    await sendArkeselSmsSafely(
+    sellerNotified = await sendArkeselSmsSafely(
       `seller-shop-${seller.seller_status}`,
       phone,
       seller.seller_status === "approved"
@@ -91,5 +92,5 @@ export async function PATCH(request, { params }) {
   }
 
   invalidateApprovedProductCatalog();
-  return Response.json({ status: seller.seller_status });
+  return Response.json({ status: seller.seller_status, sellerNotified });
 }

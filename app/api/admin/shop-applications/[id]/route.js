@@ -111,7 +111,7 @@ export async function PATCH(request, { params }) {
     }
   }
 
-  await sendArkeselSmsSafely(
+  const sellerNotified = await sendArkeselSmsSafely(
     `seller-shop-${application.status}`,
     existingApplication.shop_phone,
     application.status === "approved"
@@ -124,5 +124,5 @@ export async function PATCH(request, { params }) {
     `BuildMart: Shop application ${existingApplication.shop_name} was ${application.status} by an admin.`,
   );
 
-  return Response.json({ status: application.status });
+  return Response.json({ status: application.status, sellerNotified });
 }

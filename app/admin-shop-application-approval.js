@@ -24,7 +24,14 @@ export default function AdminShopApplicationApproval({ applicationId, initialSta
       }
 
       setStatus(result.status);
-      setMessage(result.status === "approved" ? "Shop application approved." : "Shop application rejected.");
+      const decision = result.status === "approved" ? "Shop application approved." : "Shop application rejected.";
+      setMessage(
+        result.sellerNotified === true
+          ? `${decision} Seller SMS notification submitted.`
+          : result.sellerNotified === false
+            ? `${decision} Seller SMS could not be sent. Check the seller's phone number and SMS configuration.`
+            : decision,
+      );
     } catch {
       setMessage("We couldn't connect to the application service. Please try again.");
     } finally {
@@ -64,7 +71,7 @@ export default function AdminShopApplicationApproval({ applicationId, initialSta
           </button>
         </div>
       ) : null}
-      {message ? <span className={`payout-message ${message.startsWith("We couldn't") || message.startsWith("Could not") ? "" : "success"}`} role="status">{message}</span> : null}
+      {message ? <span className={`payout-message ${message.includes("could not be sent") || message.startsWith("We couldn't") || message.startsWith("Could not") ? "" : "success"}`} role="status">{message}</span> : null}
     </div>
   );
 }

@@ -24,7 +24,14 @@ export default function AdminSellerApproval({ sellerId, initialStatus, hasShop }
         return;
       }
       setStatus(result.status);
-      setMessage(result.status === "approved" ? "Shop approved." : "Shop approval revoked.");
+      const decision = result.status === "approved" ? "Shop approved." : "Shop approval revoked.";
+      setMessage(
+        result.sellerNotified === true
+          ? `${decision} Seller SMS notification submitted.`
+          : result.sellerNotified === false
+            ? `${decision} Seller SMS could not be sent. Check the seller's phone number and SMS configuration.`
+            : decision,
+      );
       router.refresh();
     } catch {
       setMessage("We couldn't connect to the seller service. Please try again.");
@@ -47,7 +54,7 @@ export default function AdminSellerApproval({ sellerId, initialStatus, hasShop }
       >
         {busy ? "Saving…" : !hasShop && !isApproved ? "Awaiting registration" : isApproved ? "Suspend shop" : "Approve shop"}
       </button>
-      {message ? <span className={message.startsWith("We couldn't") || message.startsWith("Could not") ? "payout-message" : "payout-message success"} role="status">{message}</span> : null}
+      {message ? <span className={message.includes("could not be sent") || message.startsWith("We couldn't") || message.startsWith("Could not") ? "payout-message" : "payout-message success"} role="status">{message}</span> : null}
     </div>
   );
 }
