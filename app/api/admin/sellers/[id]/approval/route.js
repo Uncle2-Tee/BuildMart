@@ -2,7 +2,7 @@ import { getApiRole } from "../../../../../../lib/auth";
 import { invalidateApprovedProductCatalog } from "../../../../../../lib/buyer-dashboard-data";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../../../lib/request-origin";
-import { notifyAdminShopBySms, sendArkeselSmsSafely } from "../../../../../../lib/arkesel";
+import { notifyAdminShopBySms, sendArkeselSmsWithResult } from "../../../../../../lib/arkesel";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -70,11 +70,11 @@ export async function PATCH(request, { params }) {
   }
   if (!seller) return Response.json({ error: "Seller not found." }, { status: 404 });
 
-  let sellerNotified = null;
+  let sellerNotification = null;
   if (seller.seller_status !== currentSeller.seller_status) {
     const shopName = authUser.user.user_metadata.shop_name.trim();
     const phone = authUser.user.user_metadata.shop_phone;
-    sellerNotified = await sendArkeselSmsSafely(
+    sellerNotification = await sendArkeselSmsWithResult(
       `seller-shop-${seller.seller_status}`,
       phone,
       seller.seller_status === "approved"
@@ -92,5 +92,5 @@ export async function PATCH(request, { params }) {
   }
 
   invalidateApprovedProductCatalog();
-  return Response.json({ status: seller.seller_status, sellerNotified });
+  return Response.json({ status: seller.seller_status, sellerNotification });
 }

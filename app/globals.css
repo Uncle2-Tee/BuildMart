@@ -5262,6 +5262,14 @@ button {
   gap: 7px;
 }
 
+.seller-approval-pending {
+  grid-template-columns: auto auto;
+}
+
+.seller-approval-actions {
+  justify-content: stretch;
+}
+
 .application-approval {
   grid-template-columns: 1fr;
   justify-items: end;
@@ -6905,6 +6913,11 @@ button {
     grid-column: 2;
     grid-template-columns: minmax(0, 1fr) auto;
     justify-content: stretch;
+  }
+
+  .admin-list-row .seller-approval.seller-approval-pending {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
   }
 
   .admin-list-row .application-approval {

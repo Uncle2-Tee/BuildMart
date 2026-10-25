@@ -1,7 +1,7 @@
 import { getApiRole } from "../../../../../lib/auth";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../../lib/request-origin";
-import { notifyAdminShopBySms, sendArkeselSmsSafely } from "../../../../../lib/arkesel";
+import { notifyAdminShopBySms, sendArkeselSmsWithResult } from "../../../../../lib/arkesel";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -111,7 +111,7 @@ export async function PATCH(request, { params }) {
     }
   }
 
-  const sellerNotified = await sendArkeselSmsSafely(
+  const sellerNotification = await sendArkeselSmsWithResult(
     `seller-shop-${application.status}`,
     existingApplication.shop_phone,
     application.status === "approved"
@@ -124,5 +124,5 @@ export async function PATCH(request, { params }) {
     `BuildMart: Shop application ${existingApplication.shop_name} was ${application.status} by an admin.`,
   );
 
-  return Response.json({ status: application.status, sellerNotified });
+  return Response.json({ status: application.status, sellerNotification });
 }

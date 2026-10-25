@@ -26,10 +26,10 @@ export default function AdminShopApplicationApproval({ applicationId, initialSta
       setStatus(result.status);
       const decision = result.status === "approved" ? "Shop application approved." : "Shop application rejected.";
       setMessage(
-        result.sellerNotified === true
-          ? `${decision} Seller SMS notification submitted.`
-          : result.sellerNotified === false
-            ? `${decision} Seller SMS could not be sent. Check the seller's phone number and SMS configuration.`
+        result.sellerNotification?.sent === true
+          ? `${decision} Seller SMS accepted by the provider. Delivery is not guaranteed.`
+          : result.sellerNotification?.sent === false
+            ? `${decision} Seller SMS was not sent: ${result.sellerNotification.reason}`
             : decision,
       );
     } catch {
@@ -67,11 +67,11 @@ export default function AdminShopApplicationApproval({ applicationId, initialSta
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
               <path d="m6 6 8 8m0-8-8 8" />
             </svg>
-            Reject
+            Decline
           </button>
         </div>
       ) : null}
-      {message ? <span className={`payout-message ${message.includes("could not be sent") || message.startsWith("We couldn't") || message.startsWith("Could not") ? "" : "success"}`} role="status">{message}</span> : null}
+      {message ? <span className={`payout-message ${message.includes("was not sent:") || message.startsWith("We couldn't") || message.startsWith("Could not") ? "" : "success"}`} role="status">{message}</span> : null}
     </div>
   );
 }

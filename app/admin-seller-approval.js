@@ -26,10 +26,10 @@ export default function AdminSellerApproval({ sellerId, initialStatus, hasShop }
       setStatus(result.status);
       const decision = result.status === "approved" ? "Shop approved." : "Shop approval revoked.";
       setMessage(
-        result.sellerNotified === true
-          ? `${decision} Seller SMS notification submitted.`
-          : result.sellerNotified === false
-            ? `${decision} Seller SMS could not be sent. Check the seller's phone number and SMS configuration.`
+        result.sellerNotification?.sent === true
+          ? `${decision} Seller SMS accepted by the provider. Delivery is not guaranteed.`
+          : result.sellerNotification?.sent === false
+            ? `${decision} Seller SMS was not sent: ${result.sellerNotification.reason}`
             : decision,
       );
       router.refresh();
@@ -41,20 +41,42 @@ export default function AdminSellerApproval({ sellerId, initialStatus, hasShop }
   }
 
   const isApproved = status === "approved";
+  const isPendingShop = hasShop && status === "pending";
   return (
-    <div className="seller-approval">
+    <div className={`seller-approval${isPendingShop ? " seller-approval-pending" : ""}`}>
       <span className={`status-pill ${isApproved ? "live" : "paused"}`}>
         {!hasShop ? "No shop submitted" : isApproved ? "Approved" : status === "rejected" ? "Rejected" : "Pending review"}
       </span>
-      <button
-        className="small-action"
-        type="button"
-        disabled={busy || (!hasShop && status !== "approved")}
-        onClick={() => updateStatus(isApproved ? "rejected" : "approved")}
-      >
-        {busy ? "Saving…" : !hasShop && !isApproved ? "Awaiting registration" : isApproved ? "Suspend shop" : "Approve shop"}
-      </button>
-      {message ? <span className={message.includes("could not be sent") || message.startsWith("We couldn't") || message.startsWith("Could not") ? "payout-message" : "payout-message success"} role="status">{message}</span> : null}
+      {isPendingShop ? (
+        <div className="application-actions seller-approval-actions" aria-label="Shop approval actions">
+          <button
+            className="application-action application-action-approve"
+            type="button"
+            disabled={busy}
+            onClick={() => updateStatus("approved")}
+          >
+            {busy ? "Saving…" : "Approve"}
+          </button>
+          <button
+            className="application-action application-action-reject"
+            type="button"
+            disabled={busy}
+            onClick={() => updateStatus("rejected")}
+          >
+            {busy ? "Saving…" : "Decline"}
+          </button>
+        </div>
+      ) : (
+        <button
+          className="small-action"
+          type="button"
+          disabled={busy || (!hasShop && status !== "approved")}
+          onClick={() => updateStatus(isApproved ? "rejected" : "approved")}
+        >
+          {busy ? "Saving…" : !hasShop && !isApproved ? "Awaiting registration" : isApproved ? "Suspend shop" : "Approve shop"}
+        </button>
+      )}
+      {message ? <span className={message.includes("was not sent:") || message.startsWith("We couldn't") || message.startsWith("Could not") ? "payout-message" : "payout-message success"} role="status">{message}</span> : null}
     </div>
   );
 }
