@@ -244,53 +244,77 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
         <div className="stat-card"><span>Paid orders</span><strong>{paidOrders.length}</strong><small>Orders with confirmed payment</small></div>
       </section>
       <div className="dashboard-columns">
-        <section className="dashboard-panel" id="seller-products">
+        <section className="dashboard-panel seller-catalogue-panel" id="seller-products">
           <div className="panel-heading">
-            <div><span className="eyebrow muted-eyebrow">YOUR CATALOGUE</span><h2>Products <span>{products.length}</span></h2></div>
+            <div><span className="eyebrow muted-eyebrow">YOUR CATALOGUE</span><p className="seller-catalogue-intro">Keep your listings clear and up to date.</p></div>
             <Link className="seller-preview-button" href="/dashboard/seller/market" prefetch>
               Preview in market
             </Link>
           </div>
           {message ? <p className={message.includes("couldn't") ? "form-error" : "success-message"} role="status">{message}</p> : null}
-          {products.length ? (
-            <div className="seller-product-list">
-              {products.map((product) => (
-                <article className="seller-product" key={product.id}>
-                  <Image
-                    className="seller-product-image"
-                    src={product.image_url}
-                    alt=""
-                    width={48}
-                    height={48}
-                    loading="lazy"
-                    decoding="async"
-                    unoptimized
-                  />
-                  <div className="seller-product-main">
-                    <div className="seller-product-copy"><strong>{product.title}</strong><span>{product.category} · {formatPrice(product.price_kobo)}</span></div>
-                    <div className="seller-product-actions">
-                      <span className={product.active ? "status-pill live" : "status-pill paused"}>{product.active ? "Live" : "Not published"}</span>
-                      <button className="small-action" type="button" onClick={() => startEditingProduct(product)}>Edit details</button>
-                      {product.active ? (
-                        <button className="small-action" type="button" onClick={() => toggleProduct(product)}>Hide</button>
-                      ) : (
-                        <Link className="small-action" href="/dashboard/seller/market" prefetch>Preview &amp; publish</Link>
-                      )}
-                      <button className="small-action" type="button" onClick={() => removeProduct(product)} disabled={removingId === product.id}>{removingId === product.id ? "Removing…" : "Remove"}</button>
-                    </div>
-                    {editingProductId === product.id ? (
-                      <form className="product-form product-edit-form" onSubmit={(event) => saveProductDetails(event, product)}>
-                        <label>Product name<input value={editTitle} onChange={(event) => setEditTitle(event.target.value)} required minLength={3} maxLength={120} /></label>
-                        <label>Price (GHS)<input value={editPrice} onChange={(event) => setEditPrice(event.target.value)} type="number" required min="0.01" max="10000000" step="0.01" /></label>
-                        <button className="button button-dark account-submit" type="submit" disabled={editBusy}>{editBusy ? "Saving…" : "Save changes"}</button>
-                        <button className="small-action" type="button" onClick={() => setEditingProductId("")} disabled={editBusy}>Cancel</button>
-                      </form>
-                    ) : null}
-                  </div>
-                </article>
-              ))}
+          <details className="seller-catalogue-dropdown">
+            <summary>
+              <span className="seller-catalogue-summary-copy">
+                <span className="seller-catalogue-summary-title">
+                  <span className="seller-catalogue-product-label">Products</span>
+                  <span className="seller-catalogue-count">{products.length}</span>
+                </span>
+                <span className="seller-catalogue-summary-description">
+                  {products.length ? "View and manage your shop listings" : "Your product list is ready to get started"}
+                </span>
+              </span>
+              <span className="seller-catalogue-toggle">
+                {products.length ? "View products" : "View catalogue"}
+                <span className="seller-catalogue-chevron" aria-hidden="true" />
+              </span>
+            </summary>
+            <div className="seller-catalogue-content">
+              {products.length ? (
+                <div className="seller-product-list">
+                  {products.map((product) => (
+                    <article className="seller-product" key={product.id}>
+                      <Image
+                        className="seller-product-image"
+                        src={product.image_url}
+                        alt=""
+                        width={48}
+                        height={48}
+                        loading="lazy"
+                        decoding="async"
+                        unoptimized
+                      />
+                      <div className="seller-product-main">
+                        <div className="seller-product-copy"><strong>{product.title}</strong><span>{product.category} · {formatPrice(product.price_kobo)}</span></div>
+                        <div className="seller-product-actions">
+                          <span className={product.active ? "status-pill live" : "status-pill paused"}>{product.active ? "Live" : "Not published"}</span>
+                          <button className="small-action" type="button" onClick={() => startEditingProduct(product)}>Edit details</button>
+                          {product.active ? (
+                            <button className="small-action" type="button" onClick={() => toggleProduct(product)}>Hide</button>
+                          ) : (
+                            <Link className="small-action" href="/dashboard/seller/market" prefetch>Preview &amp; publish</Link>
+                          )}
+                          <button className="small-action" type="button" onClick={() => removeProduct(product)} disabled={removingId === product.id}>{removingId === product.id ? "Removing…" : "Remove"}</button>
+                        </div>
+                        {editingProductId === product.id ? (
+                          <form className="product-form product-edit-form" onSubmit={(event) => saveProductDetails(event, product)}>
+                            <label>Product name<input value={editTitle} onChange={(event) => setEditTitle(event.target.value)} required minLength={3} maxLength={120} /></label>
+                            <label>Price (GHS)<input value={editPrice} onChange={(event) => setEditPrice(event.target.value)} type="number" required min="0.01" max="10000000" step="0.01" /></label>
+                            <button className="button button-dark account-submit" type="submit" disabled={editBusy}>{editBusy ? "Saving…" : "Save changes"}</button>
+                            <button className="small-action" type="button" onClick={() => setEditingProductId("")} disabled={editBusy}>Cancel</button>
+                          </form>
+                        ) : null}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="dashboard-empty">
+                  <h3>Your shop is ready for its first product.</h3>
+                  <p>Start with a clear title, a helpful description and a bright photo.</p>
+                </div>
+              )}
             </div>
-          ) : <div className="dashboard-empty"><h3>Your shop is ready for its first product.</h3><p>Start with a clear title, a helpful description and a bright photo.</p></div>}
+          </details>
         </section>
         <section className="dashboard-panel add-product-panel" id="seller-add-product" tabIndex={-1}>
           <div className="panel-heading">
