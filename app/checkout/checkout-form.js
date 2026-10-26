@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import Script from "next/script";
 import { useBuyerCart } from "../buyer-cart-provider";
 
 const SHIPPING_FEE_KOBO = 600;
@@ -33,8 +34,9 @@ function formatPrice(priceKobo) {
 }
 
 export default function CheckoutForm() {
-  const { cart } = useBuyerCart();
+  const { cart, setCart } = useBuyerCart();
   const [checkoutState, setCheckoutState] = useState("");
+  const [paystackReady, setPaystackReady] = useState(false);
   const subtotal = cart.reduce(
     (total, item) => total + item.price_kobo * item.quantity,
     0,
@@ -71,14 +73,47 @@ export default function CheckoutForm() {
         return;
       }
 
-      if (!result.authorizationUrl) {
-        setCheckoutState("The payment provider did not return a checkout link.");
+      if (!result.accessCode) {
+        setCheckoutState("The payment provider did not prepare an in-page checkout.");
         return;
       }
 
-      window.location.assign(result.authorizationUrl);
+      const paystack = new window.PaystackPop();
+      paystack.resumeTransaction(result.accessCode, {
+        onSuccess: async (transaction) => {
+          setCheckoutState("verifying");
+          try {
+            const verifyResponse = await fetch("/api/payments/paystack/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ reference: transaction.reference }),
+            });
+            const verification = await verifyResponse.json();
+            if (!verifyResponse.ok || !verification.paid) {
+              setCheckoutState(
+                verification.error || "Payment is still being confirmed. Please check your order status shortly.",
+              );
+              return;
+            }
+
+            setCart([]);
+            const completionUrl = new URL("/checkout/complete", window.location.origin);
+            completionUrl.searchParams.set("status", "paid");
+            completionUrl.searchParams.set("reference", verification.orderId);
+            window.location.assign(completionUrl.toString());
+          } catch {
+            setCheckoutState("Payment was submitted, but we couldn't confirm it yet. Please check your order status shortly.");
+          }
+        },
+        onCancel: () => {
+          setCheckoutState("Payment was canceled. Your order is still pending.");
+        },
+        onError: (error) => {
+          setCheckoutState(error.message || "Paystack couldn't open the payment form. Please try again.");
+        },
+      });
     } catch {
-      setCheckoutState("We couldn't connect to checkout. Please try again.");
+      setCheckoutState("We couldn't connect to secure checkout. Please try again.");
     }
   }
 
@@ -97,6 +132,12 @@ export default function CheckoutForm() {
 
   return (
     <main className="checkout-page">
+      <Script
+        src="https://js.paystack.co/v2/inline.js"
+        strategy="afterInteractive"
+        onReady={() => setPaystackReady(true)}
+        onError={() => setCheckoutState("Secure payment couldn't be loaded. Please refresh and try again.")}
+      />
       <div className="checkout-page-header">
         <Link className="checkout-back-link" href="/">← Back to shop</Link>
         <span className="checkout-step-label">SECURE CHECKOUT</span>
@@ -170,10 +211,10 @@ export default function CheckoutForm() {
             </div>
 
             {checkoutState && checkoutState !== "loading" ? <p className="form-error" role="alert">{checkoutState}</p> : null}
-            <button className="button button-dark checkout-place-order" type="submit" disabled={checkoutState === "loading"}>
-              {checkoutState === "loading" ? "Preparing your order…" : "Place order"}
+            <button className="button button-dark checkout-place-order" type="submit" disabled={!paystackReady || checkoutState === "loading" || checkoutState === "verifying"}>
+              {!paystackReady ? "Loading secure payment…" : checkoutState === "loading" ? "Preparing secure payment…" : checkoutState === "verifying" ? "Confirming payment…" : "Place order"}
             </button>
-            <p className="checkout-payment-note">No account needed. You&apos;ll continue to secure payment after placing your order.</p>
+            <p className="checkout-payment-note">No account needed. Complete secure payment in the Paystack window without leaving BuildMart.</p>
           </form>
         </section>
 

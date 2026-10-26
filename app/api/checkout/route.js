@@ -17,10 +17,6 @@ export async function POST(request) {
     return Response.json({ error: "Order processing is not configured yet." }, { status: 503 });
   }
 
-  if (!process.env.NEXT_PUBLIC_SITE_URL) {
-    return Response.json({ error: "Checkout site URL is not configured yet." }, { status: 503 });
-  }
-
   if (!isSameOriginRequest(request)) {
     return Response.json({ error: "Checkout request origin is not allowed." }, { status: 403 });
   }
@@ -237,7 +233,6 @@ export async function POST(request) {
         amount: totalKobo,
         currency: "GHS",
         reference: orderId,
-        callback_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/payments/paystack/verify`,
         channels: ["card", "mobile_money"],
         split: {
           type: "flat",
@@ -250,18 +245,9 @@ export async function POST(request) {
     });
 
     paystackResponse = await response.json();
-    if (!response.ok || !paystackResponse.status || !paystackResponse.data?.authorization_url) {
+    if (!response.ok || !paystackResponse.status || !paystackResponse.data?.access_code) {
       throw new Error(paystackResponse.message || "Paystack did not initialize this payment.");
     }
-
-    const authorizationUrl = new URL(paystackResponse.data.authorization_url);
-    if (
-      authorizationUrl.protocol !== "https:" ||
-      authorizationUrl.hostname !== "checkout.paystack.com"
-    ) {
-      throw new Error("Paystack returned an unexpected checkout URL.");
-    }
-    paystackResponse.data.authorization_url = authorizationUrl.toString();
   } catch (error) {
     console.error("Paystack checkout initialization failed", error);
     const { error: updateError } = await admin
@@ -277,10 +263,9 @@ export async function POST(request) {
 
   await notifyNewOrderBySms(admin, {
     orderId,
-    authorizationUrl: paystackResponse.data.authorization_url,
     buyerPhone: delivery.phone,
     sellerIds,
   });
 
-  return Response.json({ authorizationUrl: paystackResponse.data.authorization_url });
+  return Response.json({ accessCode: paystackResponse.data.access_code });
 }
