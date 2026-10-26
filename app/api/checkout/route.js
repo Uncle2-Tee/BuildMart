@@ -3,7 +3,7 @@ import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../l
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 import { hasPaystackConfig } from "../../../lib/paystack";
 import { isSameOriginRequest } from "../../../lib/request-origin";
-import { notifyNewOrderBySms } from "../../../lib/arkesel";
+import { notifyNewOrderBySms, notifyOrderPaymentBySms } from "../../../lib/arkesel";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SHIPPING_FEE_KOBO = 600;
@@ -234,6 +234,11 @@ export async function POST(request) {
       .update({ status: "checkout_failed" })
       .eq("id", orderId);
     if (updateError) console.error("Unable to update failed checkout status", updateError);
+    await notifyOrderPaymentBySms(admin, {
+      orderId,
+      buyerPhone: delivery.phone,
+      status: "failed",
+    });
     return Response.json(
       { error: "Secure checkout could not be opened. Your cart has not been charged; please try again." },
       { status: 502 },
@@ -246,5 +251,5 @@ export async function POST(request) {
     sellerIds,
   });
 
-  return Response.json({ accessCode: paystackResponse.data.access_code });
+  return Response.json({ accessCode: paystackResponse.data.access_code, reference: orderId });
 }

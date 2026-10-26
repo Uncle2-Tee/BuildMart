@@ -76,6 +76,7 @@ export default function CheckoutForm() {
         return;
       }
 
+      const orderReference = result.reference;
       const paystack = new window.PaystackPop();
       paystack.resumeTransaction(result.accessCode, {
         onSuccess: async (transaction) => {
@@ -103,8 +104,28 @@ export default function CheckoutForm() {
             setCheckoutState("Payment was submitted, but we couldn't confirm it yet. Please check your order status shortly.");
           }
         },
-        onCancel: () => {
-          setCheckoutState("Payment was canceled. Your order is still pending.");
+        onCancel: async () => {
+          if (!orderReference) {
+            setCheckoutState("Payment was canceled. Your order is still pending.");
+            return;
+          }
+
+          setCheckoutState("verifying");
+          try {
+            const verificationResponse = await fetch("/api/payments/paystack/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ reference: orderReference }),
+            });
+            const verification = await verificationResponse.json();
+            setCheckoutState(
+              verificationResponse.ok && verification.failed
+                ? "Payment was not completed. Your order has not been charged."
+                : "Payment was canceled. Your order is still pending.",
+            );
+          } catch {
+            setCheckoutState("Payment was canceled. Your order is still pending.");
+          }
         },
         onError: (error) => {
           setCheckoutState(error.message || "Paystack couldn't open the payment form. Please try again.");

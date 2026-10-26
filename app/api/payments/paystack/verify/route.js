@@ -63,7 +63,11 @@ export async function POST(request) {
 
   try {
     const confirmation = await verifyAndConfirm(reference);
-    return Response.json({ paid: confirmation.paid, orderId: confirmation.orderId });
+    return Response.json({
+      paid: confirmation.paid,
+      failed: confirmation.failed ?? false,
+      orderId: confirmation.orderId,
+    });
   } catch (error) {
     console.error("Paystack inline payment verification failed", error);
     return Response.json({ error: "We couldn't confirm the payment yet. Please check your order status shortly." }, { status: 502 });

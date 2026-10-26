@@ -2,7 +2,7 @@ import { getApiRole } from "../../../../../../lib/auth";
 import { invalidateApprovedProductCatalog } from "../../../../../../lib/buyer-dashboard-data";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../../../lib/request-origin";
-import { notifyAdminShopBySms, sendArkeselSmsWithResult } from "../../../../../../lib/arkesel";
+import { notifyAdminBySms, sendArkeselSmsWithResult } from "../../../../../../lib/arkesel";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -78,14 +78,14 @@ export async function PATCH(request, { params }) {
       `seller-shop-${seller.seller_status}`,
       phone,
       seller.seller_status === "approved"
-        ? `BuildMart: Your shop ${shopName} has been approved. You can now manage it from your seller dashboard.`
-        : `BuildMart: Your shop ${shopName} was not approved. Contact BuildMart support if you have questions.`,
+        ? `BuildMart: Shop approved — ${shopName}. You can now manage your shop from your seller dashboard.`
+        : `BuildMart: Shop rejected — ${shopName}. Contact BuildMart support if you have questions.`,
     );
   }
 
   if (seller.seller_status !== currentSeller.seller_status) {
     const shopName = authUser.user.user_metadata.shop_name.trim();
-    await notifyAdminShopBySms(
+    await notifyAdminBySms(
       `seller-shop-${seller.seller_status}`,
       `BuildMart: Shop ${shopName} was ${seller.seller_status} by an admin.`,
     );
