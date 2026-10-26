@@ -131,7 +131,7 @@ export async function POST(request) {
   const sellerIds = [...sellerTotals.keys()];
   const { data: payoutAccounts, error: payoutError } = await admin
     .from("profiles")
-    .select("id, role, seller_status, paystack_subaccount_code")
+    .select("id, role, seller_status")
     .in("id", sellerIds);
 
   if (payoutError) {
@@ -151,22 +151,6 @@ export async function POST(request) {
       { status: 409 },
     );
   }
-  if (sellerIds.some((sellerId) => !accountBySeller.get(sellerId)?.paystack_subaccount_code)) {
-    return Response.json(
-      { error: "A seller is still setting up payouts. Please try again later." },
-      { status: 409 },
-    );
-  }
-
-  const sellerShares = sellerIds.map((sellerId) => ({
-    subaccount: accountBySeller.get(sellerId).paystack_subaccount_code,
-    share: String(Math.floor((sellerTotals.get(sellerId) * 90) / 100)),
-  }));
-
-  if (sellerShares.some((seller) => seller.share < 1)) {
-    return Response.json({ error: "The order total is too small to split between sellers." }, { status: 400 });
-  }
-
   const quantityById = new Map(items.map((item) => [item.productId, item.quantity]));
   const orderItems = products.map((product) => ({
     product_id: product.id,
@@ -234,11 +218,6 @@ export async function POST(request) {
         currency: "GHS",
         reference: orderId,
         channels: ["card", "mobile_money"],
-        split: {
-          type: "flat",
-          bearer_type: "account",
-          subaccounts: sellerShares,
-        },
         metadata: { order_id: orderId },
       }),
       cache: "no-store",

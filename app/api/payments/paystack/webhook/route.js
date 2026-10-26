@@ -2,6 +2,7 @@ import {
   confirmOrderPayment,
   hasPaystackConfig,
   isValidPaystackSignature,
+  syncSellerPayoutTransfer,
   verifyPaystackTransaction,
 } from "../../../../../lib/paystack";
 import { isSupabaseAdminConfigured } from "../../../../../lib/supabase/admin";
@@ -23,6 +24,26 @@ export async function POST(request) {
     event = JSON.parse(rawBody);
   } catch {
     return Response.json({ error: "Webhook body is not valid JSON." }, { status: 400 });
+  }
+
+  if (
+    event.event === "transfer.success" ||
+    event.event === "transfer.failed" ||
+    event.event === "transfer.reversed" ||
+    event.event === "transfer.otp"
+  ) {
+    const reference = event.data?.reference;
+    if (typeof reference !== "string") {
+      return Response.json({ error: "Transfer webhook is missing its reference." }, { status: 400 });
+    }
+
+    try {
+      await syncSellerPayoutTransfer(reference, event.event, event.data?.transfer_code);
+      return Response.json({ received: true });
+    } catch (error) {
+      console.error("Paystack seller transfer webhook processing failed", error);
+      return Response.json({ error: "Seller transfer update failed." }, { status: 500 });
+    }
   }
 
   if (event.event !== "charge.success") {

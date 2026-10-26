@@ -2,12 +2,29 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import AdminPayoutForm from "../admin-payout-form";
 import AdminProductControls from "../admin-product-controls";
+import AdminSellerPayouts from "../admin-seller-payouts";
 import AdminShopApplicationApproval from "../admin-shop-application-approval";
 import AdminSellerApproval from "../admin-seller-approval";
 import DashboardHeader from "../dashboard-header";
 import { getAdminSession } from "../../lib/admin-session";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../lib/supabase/admin";
 import { isSupabaseConfigured } from "../../lib/supabase/server";
+
+async function loadPendingSellerPayouts(admin) {
+  const payouts = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await admin
+      .from("seller_payouts")
+      .select("id, seller_id, order_id, amount_kobo, status, active_transfer_reference, created_at")
+      .neq("status", "paid")
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: true })
+      .range(offset, offset + 999);
+    if (error) throw new Error(`Unable to load seller payouts: ${error.message}`);
+    payouts.push(...(data ?? []));
+    if (!data || data.length < 1000) return payouts;
+  }
+}
 
 export const metadata = {
   title: "Admin dashboard | BuildMart Ghana",
@@ -28,7 +45,7 @@ export default async function AdminPage() {
     { data: orders, error: ordersError },
     { data: applications, error: applicationsError },
   ] = await Promise.all([
-    admin.from("profiles").select("id, display_name, role, seller_status, created_at, paystack_subaccount_code").order("created_at", { ascending: false }).limit(100),
+    admin.from("profiles").select("id, display_name, role, seller_status, created_at, paystack_recipient_code").order("created_at", { ascending: false }).limit(100),
     admin.from("products").select("id, title, category, price_kobo, active, created_at").order("created_at", { ascending: false }).limit(100),
     admin.from("orders").select("id, buyer_email, status, total_kobo, currency, created_at").order("created_at", { ascending: false }).limit(100),
     admin.from("seller_shop_applications").select("id, shop_name, shop_description, shop_location, shop_phone, status, created_at").order("created_at", { ascending: false }).limit(100),
@@ -46,8 +63,15 @@ export default async function AdminPage() {
     console.error("Seller shop applications table is not available in Supabase", applicationsError);
   }
   const shopApplications = applications ?? [];
+  const payoutRows = await loadPendingSellerPayouts(admin);
 
   const sellers = (profiles ?? []).filter((item) => item.role === "seller");
+  const payoutsBySeller = new Map();
+  for (const payout of payoutRows ?? []) {
+    const payouts = payoutsBySeller.get(payout.seller_id) ?? [];
+    payouts.push(payout);
+    payoutsBySeller.set(payout.seller_id, payouts);
+  }
   const paidOrders = (orders ?? []).filter((order) => order.status === "paid");
   const sellerIds = new Set(sellers.map((seller) => seller.id));
   const authUsersById = new Map();
@@ -148,8 +172,13 @@ export default async function AdminPage() {
                       {seller.shopDescription ? <small className="seller-shop-description">{seller.shopDescription}</small> : null}
                     </span>
                     <AdminSellerApproval sellerId={seller.id} initialStatus={seller.seller_status} hasShop={Boolean(seller.shopName)} />
-                    <AdminPayoutForm sellerId={seller.id} initialCode={seller.paystack_subaccount_code} />
+                    <AdminPayoutForm sellerId={seller.id} initialRecipientCode={seller.paystack_recipient_code} />
                   </div>
+                  <AdminSellerPayouts
+                    sellerId={seller.id}
+                    initialPayouts={payoutsBySeller.get(seller.id) ?? []}
+                    hasRecipient={Boolean(seller.paystack_recipient_code)}
+                  />
                   {shopProducts ? (
                     <details className="admin-shop-products">
                       <summary>

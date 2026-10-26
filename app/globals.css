@@ -5412,6 +5412,82 @@ button {
   cursor: not-allowed;
 }
 
+.seller-payouts {
+  margin: 0 0 12px 39px;
+  padding: 12px;
+  border: 1px solid #e9e3d9;
+  border-radius: 9px;
+  background: #fcfbf8;
+}
+
+.seller-payouts h3 {
+  margin: 0 0 8px;
+  color: #405449;
+  font-size: 10px;
+}
+
+.seller-payouts ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seller-payouts li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee8de;
+}
+
+.seller-payouts li > span {
+  display: grid;
+  gap: 3px;
+}
+
+.seller-payouts li strong {
+  color: #20362d;
+  font-size: 11px;
+}
+
+.seller-payouts li small,
+.seller-payouts > small {
+  color: #748078;
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.seller-payout-otp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+
+.seller-payout-otp label {
+  color: #748078;
+  font-size: 9px;
+}
+
+.seller-payout-otp input {
+  width: 130px;
+  min-height: 32px;
+  display: block;
+  margin-top: 4px;
+  padding: 0 8px;
+  border: 1px solid #d7e3ed;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.seller-payouts .payout-message {
+  margin: 6px 0;
+}
+
 .payout-message {
   grid-column: 1 / -1;
   color: var(--red);

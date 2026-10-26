@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-export default function AdminPayoutForm({ sellerId, initialCode }) {
-  const [code, setCode] = useState(initialCode ?? "");
+export default function AdminPayoutForm({ sellerId, initialRecipientCode }) {
+  const [code, setCode] = useState(initialRecipientCode ?? "");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -16,7 +16,7 @@ export default function AdminPayoutForm({ sellerId, initialCode }) {
       const response = await fetch(`/api/admin/sellers/${sellerId}/payout`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subaccountCode: code }),
+        body: JSON.stringify({ recipientCode: code }),
       });
       const result = await response.json();
 
@@ -25,8 +25,8 @@ export default function AdminPayoutForm({ sellerId, initialCode }) {
         return;
       }
 
-      setCode(result.subaccountCode ?? "");
-      setMessage(result.subaccountCode ? "Payout account saved." : "Payout account removed.");
+      setCode(result.recipientCode ?? "");
+      setMessage(result.recipientCode ? "Transfer recipient saved." : "Transfer recipient removed.");
     } catch {
       setMessage("We couldn't connect to the payout service. Please try again.");
     } finally {
@@ -37,18 +37,18 @@ export default function AdminPayoutForm({ sellerId, initialCode }) {
   return (
     <form className="payout-form" onSubmit={save}>
       <label>
-        Verified Paystack subaccount code
+        Paystack transfer recipient code
         <input
-          aria-label={`Paystack subaccount code for seller ${sellerId}`}
+          aria-label={`Paystack transfer recipient code for seller ${sellerId}`}
           autoComplete="off"
           maxLength={65}
-          placeholder="ACCT_..."
+          placeholder="RCP_..."
           value={code}
           onChange={(event) => setCode(event.target.value.trim())}
         />
       </label>
       <button className="small-action" type="submit" disabled={busy}>
-        {busy ? "Saving…" : code ? "Save code" : "Remove code"}
+        {busy ? "Saving…" : code ? "Save recipient" : "Remove recipient"}
       </button>
       {message ? <span className={message.includes("saved") || message.includes("removed") ? "payout-message success" : "payout-message"} role="status">{message}</span> : null}
     </form>

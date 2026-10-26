@@ -3,7 +3,7 @@ import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../.
 import { isSameOriginRequest } from "../../../../../../lib/request-origin";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const subaccountPattern = /^ACCT_[A-Za-z0-9]{5,60}$/;
+const recipientPattern = /^RCP_[A-Za-z0-9]{5,60}$/;
 
 export async function PATCH(request, { params }) {
   if (!isSameOriginRequest(request)) {
@@ -28,30 +28,30 @@ export async function PATCH(request, { params }) {
     return Response.json({ error: "Payout details must contain valid JSON." }, { status: 400 });
   }
 
-  const code = body && typeof body.subaccountCode === "string"
-    ? body.subaccountCode.trim()
+  const code = body && typeof body.recipientCode === "string"
+    ? body.recipientCode.trim()
     : "";
-  if (code && !subaccountPattern.test(code)) {
-    return Response.json({ error: "Enter a valid Paystack subaccount code." }, { status: 400 });
+  if (code && !recipientPattern.test(code)) {
+    return Response.json({ error: "Enter a valid Paystack transfer recipient code." }, { status: 400 });
   }
 
   const admin = createSupabaseAdminClient();
   const { data: seller, error } = await admin
     .from("profiles")
-    .update({ paystack_subaccount_code: code || null })
+    .update({ paystack_recipient_code: code || null })
     .eq("id", id)
     .eq("role", "seller")
-    .select("id, paystack_subaccount_code")
+    .select("id, paystack_recipient_code")
     .maybeSingle();
 
   if (error) {
     if (error.code === "23505") {
-      return Response.json({ error: "That Paystack subaccount is already linked to another seller." }, { status: 409 });
+      return Response.json({ error: "That Paystack transfer recipient is already linked to another seller." }, { status: 409 });
     }
     console.error("Unable to update seller payout account", error);
     return Response.json({ error: "We couldn't save that payout account." }, { status: 500 });
   }
   if (!seller) return Response.json({ error: "Seller not found." }, { status: 404 });
 
-  return Response.json({ subaccountCode: seller.paystack_subaccount_code });
+  return Response.json({ recipientCode: seller.paystack_recipient_code });
 }
