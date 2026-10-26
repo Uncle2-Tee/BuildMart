@@ -60,8 +60,6 @@ export default function CheckoutForm() {
             region: form.get("delivery_region"),
             city: form.get("delivery_city"),
             address: form.get("delivery_address"),
-            digitalAddress: form.get("delivery_digital_address"),
-            instructions: form.get("delivery_instructions"),
           },
           items: cart.map(({ id, quantity }) => ({ productId: id, quantity })),
         }),
@@ -199,14 +197,6 @@ export default function CheckoutForm() {
               <label className="delivery-address-field">
                 Street address and directions
                 <textarea name="delivery_address" autoComplete="street-address" required minLength={5} maxLength={500} rows={3} placeholder="House number, street, landmark and directions for the rider" />
-              </label>
-              <label className="delivery-address-field">
-                GhanaPost GPS address <span className="optional-field">(optional)</span>
-                <input name="delivery_digital_address" autoComplete="off" maxLength={20} placeholder="e.g. GA-123-4567" />
-              </label>
-              <label className="delivery-address-field">
-                Delivery instructions <span className="optional-field">(optional)</span>
-                <textarea name="delivery_instructions" maxLength={500} rows={2} placeholder="Anything the seller or delivery rider should know?" />
               </label>
             </div>
 

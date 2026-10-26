@@ -358,6 +358,8 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
                             <strong>{order.delivery_name}</strong>
                             <a href={`tel:${order.delivery_phone}`}>{order.delivery_phone}</a>
                             <p>{[order.delivery_address, order.delivery_city, order.delivery_region].filter(Boolean).join(", ")}</p>
+                            {order.delivery_digital_address ? <p><span>GhanaPost GPS</span> {order.delivery_digital_address}</p> : null}
+                            {order.delivery_instructions ? <p className="seller-delivery-instructions"><span>Instructions</span>{order.delivery_instructions}</p> : null}
                           </>
                         ) : (
                           <p className="seller-delivery-pending">Delivery details are not available for this order.</p>
