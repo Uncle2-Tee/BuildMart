@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import SignOutButton from "./sign-out-button";
@@ -24,8 +25,16 @@ export default function DashboardHeader({
   return (
     <header id="dashboard-top" className={`dashboard-header${menuOpen ? " mobile-menu-open" : ""}`}>
       <Link className="brand" href="/" prefetch aria-label="BuildMart home">
-        <span className="mark brand-mark">B</span>
-        <span>BuildMart<span className="brand-country">GH</span></span>
+        <span className="brand-logo-card">
+          <Image
+            className="brand-logo"
+            src="/buildmart-logo.png"
+            alt="BuildMart Ghana"
+            width={934}
+            height={198}
+            priority
+          />
+        </span>
       </Link>
       <div className={`dashboard-user${sellerDashboard ? " seller-dashboard-actions" : ""}`}>
         {sellerDashboard ? (

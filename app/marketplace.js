@@ -190,8 +190,16 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
           ) : (
             <>
               <Link className="brand" href="/" aria-label="BuildMart Ghana home">
-                <Mark className="brand-mark">B</Mark>
-                <span>BuildMart<span className="brand-country">GH</span></span>
+                <span className="brand-logo-card">
+                  <Image
+                    className="brand-logo"
+                    src="/buildmart-logo.png"
+                    alt="BuildMart Ghana"
+                    width={934}
+                    height={198}
+                    priority
+                  />
+                </span>
               </Link>
               <nav id="site-navigation" className={`main-nav${isStorefrontPage ? " landing-main-nav" : ""}`} aria-label="Main navigation">
             {isStorefrontPage ? (
