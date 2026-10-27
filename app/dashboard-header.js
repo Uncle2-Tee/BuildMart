@@ -52,27 +52,32 @@ export default function DashboardHeader({
           </>
         )}
       </div>
-      {!sellerDashboard ? (
-        <>
-          <button
-            className="mobile-menu-button dashboard-menu-button"
-            type="button"
-            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-controls="dashboard-mobile-navigation"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-          <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
+      <button
+        className="mobile-menu-button dashboard-menu-button"
+        type="button"
+        aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+        aria-controls="dashboard-mobile-navigation"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((open) => !open)}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+      <nav id="dashboard-mobile-navigation" className="dashboard-mobile-navigation" aria-label="Dashboard navigation">
+        {sellerDashboard ? (
+          <>
+            <Link className="dashboard-seller-market-link" href="/shop" onClick={() => setMenuOpen(false)}>View market</Link>
+            <div className="dashboard-mobile-signout"><SignOutButton admin={admin} /></div>
+          </>
+        ) : (
+          <>
             {showMarketplaceLinks && !admin ? <Link href="/" prefetch onClick={() => setMenuOpen(false)}>Home</Link> : null}
             <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
             <div className="dashboard-mobile-signout"><SignOutButton admin={admin} /></div>
-          </nav>
-        </>
-      ) : null}
+          </>
+        )}
+      </nav>
     </header>
   );
 }

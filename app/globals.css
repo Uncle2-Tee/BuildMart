@@ -6272,9 +6272,7 @@ button {
   }
 
   .dashboard-seller-actions {
-    display: flex;
-    gap: 6px;
-    margin-left: auto;
+    display: none;
   }
 
   .dashboard-seller-actions .dashboard-seller-market-link {
@@ -6333,6 +6331,22 @@ button {
   .dashboard-mobile-navigation > a:hover,
   .dashboard-mobile-navigation > a:focus-visible {
     outline: none;
+    background: #fff3e9;
+    color: #963d19;
+  }
+
+  .dashboard-mobile-navigation .dashboard-seller-market-link {
+    width: 100%;
+    justify-content: flex-start;
+    border-color: transparent;
+    color: #35465d;
+    font-size: 13px;
+  }
+
+  .dashboard-mobile-navigation .dashboard-seller-market-link:hover,
+  .dashboard-mobile-navigation .dashboard-seller-market-link:focus-visible {
+    outline: none;
+    border-color: transparent;
     background: #fff3e9;
     color: #963d19;
   }
