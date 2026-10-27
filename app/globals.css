@@ -8121,6 +8121,10 @@ button,
     display: none;
   }
 
+  .dashboard-header > .dashboard-user.seller-dashboard-actions {
+    display: none;
+  }
+
   .account-page {
     min-height: 100svh;
     padding-bottom: env(safe-area-inset-bottom);
