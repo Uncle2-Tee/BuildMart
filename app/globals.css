@@ -6455,6 +6455,7 @@ button {
   }
 
   .brand-logo-card {
+    margin-left: -5px;
     padding: 4px 6px;
   }
 

@@ -325,10 +325,6 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
                   <div className="landing-detail-photo" />
                   <span className="landing-showcase-caption">Make room for what&apos;s next.</span>
                 </div>
-                <p className="landing-mobile-trust">
-                  <span aria-hidden="true">✓</span>
-                  Shop approved local sellers. Pay securely online.
-                </p>
               </div>
             </section>
         ) : null}
