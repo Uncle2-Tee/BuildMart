@@ -1,6 +1,8 @@
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../lib/supabase/admin";
-import { createSupabasePublicClient } from "../../../../lib/supabase/server";
+import { isSupabaseConfigured } from "../../../../lib/supabase/server";
 
 const invalidCredentials = () => Response.json(
   { error: "Invalid seller name or password." },
@@ -51,10 +53,25 @@ export async function POST(request) {
   }
   if (!authUser.user?.email) return invalidCredentials();
 
-  const supabase = createSupabasePublicClient();
-  if (!supabase) {
+  if (!isSupabaseConfigured()) {
     return Response.json({ error: "Seller login is not configured." }, { status: 503 });
   }
+
+  const authCookies = [];
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          authCookies.push(...cookiesToSet);
+        },
+      },
+    },
+  );
 
   const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
     email: authUser.user.email,
@@ -63,10 +80,19 @@ export async function POST(request) {
 
   if (signInError || authData.user?.id !== sellers[0].id || !authData.session) return invalidCredentials();
 
-  return Response.json({
-    session: {
-      access_token: authData.session.access_token,
-      refresh_token: authData.session.refresh_token,
+  const response = NextResponse.json(
+    {
+      session: {
+        access_token: authData.session.access_token,
+        refresh_token: authData.session.refresh_token,
+      },
     },
-  });
+    {
+      headers: { "Cache-Control": "no-store" },
+    },
+  );
+  for (const { name: cookieName, value, options } of authCookies) {
+    response.cookies.set(cookieName, value, options);
+  }
+  return response;
 }

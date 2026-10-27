@@ -8118,8 +8118,7 @@ button,
   }
 
   .dashboard-seller-actions {
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    display: none;
   }
 
   .account-page {
@@ -8216,18 +8215,6 @@ button,
 @media (max-width: 380px) {
   .dashboard-header {
     gap: 6px;
-  }
-
-  .dashboard-seller-actions {
-    gap: 4px;
-  }
-
-  .dashboard-seller-actions .dashboard-seller-market-link,
-  .dashboard-seller-actions .sign-out-control .sign-out-button {
-    min-height: 38px;
-    padding-right: 7px;
-    padding-left: 7px;
-    font-size: 9px;
   }
 
   .account-card.signup-card,
