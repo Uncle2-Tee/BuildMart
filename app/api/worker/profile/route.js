@@ -2,6 +2,7 @@ import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../.
 import { createSupabaseServerClient } from "../../../../lib/supabase/server";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 import { notifyAdminBySms } from "../../../../lib/arkesel";
+import { clearWorkerDirectoryCache } from "../../../../lib/worker-directory-cache";
 
 export async function PATCH(request) {
   if (!isSameOriginRequest(request)) return Response.json({ error: "Request origin is not allowed." }, { status: 403 });
@@ -16,12 +17,35 @@ export async function PATCH(request) {
   const trades = ["Mason", "Painter", "Labourer", "Tiler", "Carpenter", "Electrician", "Plumber", "Welder", "Other"];
   if (!trades.includes(body.trade)) return Response.json({ error: "Choose a valid trade." }, { status: 400 });
   const admin = createSupabaseAdminClient();
-  const { data: savedProfile, error: saveError } = await admin.from("worker_profiles").update({ name: body.name.trim(), trade: body.trade, location: body.location.trim(), phone: body.phone.trim(), bio: body.bio.trim(), years_experience: years, hourly_rate_kobo: null, approval_status: "pending", is_active: false }).eq("profile_id", data.claims.sub).select("id, name, trade").maybeSingle();
+  const { data: currentProfile, error: currentProfileError } = await admin
+    .from("worker_profiles")
+    .select("approval_status, is_active")
+    .eq("profile_id", data.claims.sub)
+    .maybeSingle();
+  if (currentProfileError) {
+    console.error("Unable to check worker approval status", currentProfileError);
+    return Response.json({ error: "We couldn't verify your worker profile status." }, { status: 500 });
+  }
+  const remainsApproved = currentProfile?.approval_status === "approved";
+  const { data: savedProfile, error: saveError } = await admin.from("worker_profiles").update({
+    name: body.name.trim(),
+    trade: body.trade,
+    location: body.location.trim(),
+    phone: body.phone.trim(),
+    bio: body.bio.trim(),
+    years_experience: years,
+    hourly_rate_kobo: null,
+    approval_status: remainsApproved ? "approved" : "pending",
+    is_active: remainsApproved ? currentProfile.is_active : false,
+  }).eq("profile_id", data.claims.sub).select("id, name, trade, approval_status").maybeSingle();
   if (saveError) { console.error("Unable to save worker profile", saveError); return Response.json({ error: "We couldn't save your worker profile." }, { status: 500 }); }
   if (!savedProfile) return Response.json({ error: "Worker profile not found. Please sign in again." }, { status: 404 });
-  await notifyAdminBySms(
-    "worker-profile-submitted",
-    `BuildMart: Pending worker approval — ${savedProfile.name} (${savedProfile.trade}) submitted a profile for review.`,
-  );
-  return Response.json({ ok: true });
+  clearWorkerDirectoryCache();
+  if (savedProfile.approval_status === "pending") {
+    await notifyAdminBySms(
+      "worker-profile-submitted",
+      `BuildMart: Pending worker approval — ${savedProfile.name} (${savedProfile.trade}) submitted a profile for review.`,
+    );
+  }
+  return Response.json({ ok: true, approvalStatus: savedProfile.approval_status });
 }

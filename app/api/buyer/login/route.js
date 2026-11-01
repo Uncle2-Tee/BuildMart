@@ -10,7 +10,7 @@ import {
 } from "../../../../lib/login-protection";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../lib/supabase/admin";
-import { isSupabaseConfigured } from "../../../../lib/supabase/server";
+import { AUTH_SESSION_COOKIE_MAX_AGE, isSupabaseConfigured } from "../../../../lib/supabase/server";
 
 const invalidCredentials = () => Response.json(
   { error: "Invalid buyer name or password." },
@@ -116,7 +116,7 @@ export async function POST(request) {
     },
   );
   for (const { name: cookieName, value, options } of authCookies) {
-    response.cookies.set(cookieName, value, options);
+    response.cookies.set(cookieName, value, { ...options, maxAge: AUTH_SESSION_COOKIE_MAX_AGE });
   }
   return response;
 }

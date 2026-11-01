@@ -1,24 +1,22 @@
 import Link from "next/link";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../lib/supabase/admin";
+import { getWorkerDirectoryCache } from "../../lib/worker-directory-cache";
 import WorkerMarketplace from "../worker-marketplace";
 
 const WORKER_CACHE_MS = 60 * 1000;
 const WORKER_TIMEOUT_MS = 8 * 1000;
-let workerCache = null;
-let workerCacheExpiresAt = 0;
-let workerRequest = null;
-
 export const metadata = {
   title: "Find skilled workers | BuildMart Ghana",
   description: "Find trusted masons, painters, tilers, carpenters and other skilled workers for your next project.",
 };
 
 function loadWorkers() {
-  if (workerCache && workerCacheExpiresAt > Date.now()) {
-    return Promise.resolve(workerCache);
+  const cache = getWorkerDirectoryCache();
+  if (cache.data && cache.expiresAt > Date.now()) {
+    return Promise.resolve(cache.data);
   }
 
-  if (workerRequest) return workerRequest;
+  if (cache.request) return cache.request;
 
   const admin = createSupabaseAdminClient();
   const request = admin
@@ -30,7 +28,7 @@ function loadWorkers() {
     .order("created_at", { ascending: false })
     .limit(100);
 
-  workerRequest = Promise.race([
+  cache.request = Promise.race([
     request,
     new Promise((resolve) => setTimeout(() => resolve({
       data: null,
@@ -38,15 +36,15 @@ function loadWorkers() {
     }), WORKER_TIMEOUT_MS)),
   ]).then((result) => {
     if (!result.error) {
-      workerCache = result.data ?? [];
-      workerCacheExpiresAt = Date.now() + WORKER_CACHE_MS;
+      cache.data = result.data ?? [];
+      cache.expiresAt = Date.now() + WORKER_CACHE_MS;
     }
     return result;
   }).finally(() => {
-    workerRequest = null;
+    cache.request = null;
   });
 
-  return workerRequest;
+  return cache.request;
 }
 
 export default async function WorkersPage() {

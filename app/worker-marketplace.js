@@ -59,7 +59,14 @@ export default function WorkerMarketplace({ workers }) {
   const [search, setSearch] = useState("");
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const filteredWorkers = useMemo(() => workers.filter((worker) => (trade === "All trades" || worker.trade === trade) && `${worker.name} ${worker.trade} ${worker.location} ${worker.bio}`.toLowerCase().includes(search.toLowerCase().trim())), [search, trade, workers]);
+  const filteredWorkers = useMemo(() => {
+    const searchTerms = search.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    return workers.filter((worker) => {
+      if (trade !== "All trades" && worker.trade !== trade) return false;
+      const searchableText = `${worker.name} ${worker.trade} ${worker.location} ${worker.phone} ${worker.bio}`.toLowerCase();
+      return searchTerms.every((term) => searchableText.includes(term));
+    });
+  }, [search, trade, workers]);
 
   return <main className="worker-page">
     <header className={`worker-header${mobileMenuOpen ? " worker-mobile-menu-open" : ""}`}>
@@ -85,7 +92,7 @@ export default function WorkerMarketplace({ workers }) {
       </nav>
     </header>
     <section className="worker-hero"><div><h1>Find trusted people<br /><em>for the work ahead.</em></h1></div></section>
-    <section className="worker-directory" aria-labelledby="worker-directory-title"><div className="worker-directory-head"><div><span className="worker-kicker">THE WORKER DIRECTORY</span><h2 id="worker-directory-title">Who do you need today?</h2><Link className="worker-rate-button" href="/workers/rate">Rate a worker <span aria-hidden="true">★</span></Link></div><div className="worker-filters"><input aria-label="Search workers" placeholder="Search name or location" value={search} onChange={(event) => setSearch(event.target.value)} /><div className="worker-trade-filters" aria-label="Filter by trade" role="group">{trades.map((item) => <button className={trade === item ? "active" : ""} type="button" aria-pressed={trade === item} key={item} onClick={() => setTrade(item)}>{item}</button>)}</div></div></div>
+    <section className="worker-directory" aria-labelledby="worker-directory-title"><div className="worker-directory-head"><div><span className="worker-kicker">THE WORKER DIRECTORY</span><h2 id="worker-directory-title">Who do you need today?</h2><Link className="worker-rate-button" href="/workers/rate">Rate a worker <span aria-hidden="true">★</span></Link></div><div className="worker-filters"><label className="worker-search-field"><span className="visually-hidden">Search workers</span><input aria-label="Search workers by name, location, trade or phone" placeholder="Search name, location or trade" value={search} onChange={(event) => setSearch(event.target.value)} /></label><label className="worker-trade-select"><span className="visually-hidden">Filter by trade</span><select aria-label="Filter by trade" value={trade} onChange={(event) => setTrade(event.target.value)}>{trades.map((item) => <option key={item}>{item}</option>)}</select></label></div></div>
       {filteredWorkers.length ? <div className="worker-grid">{filteredWorkers.map((worker) => <article className="worker-card" key={worker.id}>
         <div className="worker-card-top">
           <div className="worker-avatar-wrap">
