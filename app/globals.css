@@ -1178,19 +1178,6 @@ body {
   transform: translateY(-1px);
 }
 
-.mobile-account-icon-link {
-  display: none;
-  gap: 9px;
-}
-
-.mobile-account-icon-link svg {
-  padding: 3px;
-  border-radius: 50%;
-  background: #fff0e4;
-  color: #c35422;
-  stroke-width: 2.2;
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -4502,6 +4489,14 @@ button {
   text-align: center;
 }
 
+.buyer-auth-card h1 {
+  font-size: clamp(23px, 5vw, 28px);
+}
+
+.account-card.buyer-auth-card h1 {
+  font-size: clamp(20px, 4vw, 24px);
+}
+
 .account-card .login-heading {
   font-size: 31px;
 }
@@ -7634,6 +7629,10 @@ button {
     gap: 12px;
   }
 
+  .landing-site-header .header-actions .buyer-account-link {
+    margin-left: 8px;
+  }
+
   .desktop-seller-cta {
     display: none;
   }
@@ -9816,10 +9815,6 @@ button,
 @media (max-width: 900px) {
   .dashboard-shell {
     --dashboard-gutter: clamp(18px, 3vw, 26px);
-  }
-
-  .mobile-account-icon-link {
-    display: flex;
   }
 
   .dashboard-header {
