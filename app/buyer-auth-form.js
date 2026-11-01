@@ -32,8 +32,8 @@ export default function BuyerAuthForm({ mode }) {
 
     try {
       const form = new FormData(event.currentTarget);
-      const email = String(form.get("email") || "").trim();
       const name = String(form.get("name") || "").trim();
+      const email = String(form.get("email") || "").trim();
       const password = String(form.get("password") || "");
       const supabase = createSupabaseBrowserClient();
       let session;
@@ -57,9 +57,20 @@ export default function BuyerAuthForm({ mode }) {
           return;
         }
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        const response = await fetch("/api/buyer/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, password }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "We couldn't log you in. Please try again.");
+        if (!result.session?.access_token || !result.session?.refresh_token) {
+          throw new Error("Login did not return an active session. Please try again.");
+        }
+
+        const { data, error } = await supabase.auth.setSession({
+          access_token: result.session.access_token,
+          refresh_token: result.session.refresh_token,
         });
         if (error) throw error;
         session = data.session;
@@ -105,10 +116,17 @@ export default function BuyerAuthForm({ mode }) {
             <input name="name" autoComplete="name" minLength={2} maxLength={100} placeholder="e.g. Ama Mensah" required />
           </label>
         ) : null}
-        <label>
-          Email address
-          <input name="email" type="email" autoComplete="email" maxLength={254} placeholder="e.g. ama@example.com" required />
-        </label>
+        {isSignup ? (
+          <label>
+            Email address
+            <input name="email" type="email" autoComplete="email" maxLength={254} placeholder="e.g. ama@example.com" required />
+          </label>
+        ) : (
+          <label>
+            Name
+            <input name="name" autoComplete="username" maxLength={100} placeholder="e.g. Ama Mensah" required />
+          </label>
+        )}
         <label>
           Password
           <span className="password-input-wrap">

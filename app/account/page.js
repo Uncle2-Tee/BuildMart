@@ -1,6 +1,5 @@
 import Link from "next/link";
 import DashboardHeader from "../dashboard-header";
-import SignOutButton from "../sign-out-button";
 import { requireRole } from "../../lib/auth";
 
 export const metadata = {
@@ -57,7 +56,6 @@ export default async function AccountPage() {
               <div><dt>Email</dt><dd>{user.email || "Not available"}</dd></div>
               <div><dt>Account type</dt><dd>Buyer</dd></div>
             </dl>
-            <SignOutButton />
           </section>
           <section className="dashboard-panel buyer-orders-panel">
             <div className="buyer-orders-heading">
