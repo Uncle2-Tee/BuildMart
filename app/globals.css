@@ -547,6 +547,10 @@
   letter-spacing: -.06em;
 }
 
+.worker-dashboard-card h1.worker-profile-live-heading {
+  font-size: clamp(24px, 4vw, 36px);
+}
+
 .worker-dashboard-card > p {
   margin: 0 0 24px;
   color: #748078;
