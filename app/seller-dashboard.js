@@ -325,7 +325,18 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
             <span className="seller-orders-caption">Orders containing your products</span>
           </div>
           {orders.length ? (
-            <div className="seller-order-list">
+            <details className="seller-orders-dropdown">
+              <summary>
+                <span className="seller-orders-dropdown-copy">
+                  <strong>View orders</strong>
+                  <span>Review products and delivery details for each order</span>
+                </span>
+                <span className="seller-orders-dropdown-toggle">
+                  {orders.length} {orders.length === 1 ? "order" : "orders"}
+                  <span className="seller-catalogue-chevron" aria-hidden="true" />
+                </span>
+              </summary>
+              <div className="seller-order-list">
               {orders.map((order) => {
                 const orderItems = order.order_items ?? [];
                 const sellerSubtotal = orderItems.reduce((sum, item) => sum + item.unit_price_kobo * item.quantity, 0);
@@ -370,7 +381,8 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
                   </article>
                 );
               })}
-            </div>
+              </div>
+            </details>
           ) : (
             <div className="seller-orders-empty">
               <span aria-hidden="true">↗</span>
@@ -380,19 +392,29 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
           )}
         </section>
         <section className="dashboard-panel add-product-panel" id="seller-add-product" tabIndex={-1}>
-          <div className="panel-heading">
-            <div><span className="eyebrow muted-eyebrow">ADD TO YOUR SHOP</span><h2>New product</h2></div>
-            <button className="shop-approval-button approved" type="button" disabled>Approved</button>
-          </div>
-          {approvalNotice ? <p className="success-message" role="status">{approvalNotice}</p> : null}
-          <form className="product-form" onSubmit={addProduct}>
-            <label>Product name<input name="title" required minLength={3} maxLength={120} placeholder="e.g. Solid teak dining table" /></label>
-            <label>Category<select name="category" required defaultValue=""><option value="" disabled>Choose a category</option><option>Building materials</option><option>Tools</option><option>Lighting</option><option>Furniture</option><option>Home & decor</option><option>Other</option></select></label>
-            <label>Price (GHS)<input name="price" type="number" required min="0.01" max="10000000" step="0.01" placeholder="0.00" /></label>
-            <label>Description<textarea name="description" rows="3" maxLength={2000} placeholder="Tell customers what makes this product useful." /></label>
-            <label className="photo-input">Product photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required /><small>JPG, PNG or WebP · maximum 5 MB</small></label>
-            <button className="button button-dark account-submit" type="submit" disabled={busy}>{busy ? "Adding…" : "Add product to shop"}<span aria-hidden="true">↗</span></button>
-          </form>
+          <details className="add-product-dropdown" open={Boolean(approvalNotice)}>
+            <summary>
+              <span className="add-product-dropdown-copy">
+                <span className="eyebrow muted-eyebrow">ADD TO YOUR SHOP</span>
+                <strong>New product</strong>
+              </span>
+              <span className="add-product-dropdown-toggle">
+                Add product
+                <span className="seller-catalogue-chevron" aria-hidden="true" />
+              </span>
+            </summary>
+            <div className="add-product-dropdown-content">
+              {approvalNotice ? <p className="success-message" role="status">{approvalNotice}</p> : null}
+              <form className="product-form" onSubmit={addProduct}>
+                <label>Product name<input name="title" required minLength={3} maxLength={120} placeholder="e.g. Solid teak dining table" /></label>
+                <label>Category<select name="category" required defaultValue=""><option value="" disabled>Choose a category</option><option>Building materials</option><option>Tools</option><option>Lighting</option><option>Furniture</option><option>Home & decor</option><option>Other</option></select></label>
+                <label>Price (GHS)<input name="price" type="number" required min="0.01" max="10000000" step="0.01" placeholder="0.00" /></label>
+                <label>Description<textarea name="description" rows="3" maxLength={2000} placeholder="Tell customers what makes this product useful." /></label>
+                <label className="photo-input">Product photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required /><small>JPG, PNG or WebP · maximum 5 MB</small></label>
+                <button className="button button-dark account-submit" type="submit" disabled={busy}>{busy ? "Adding…" : "Add product to shop"}<span aria-hidden="true">↗</span></button>
+              </form>
+            </div>
+          </details>
         </section>
       </div>
         </>

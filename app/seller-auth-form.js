@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser";
 
@@ -100,8 +101,7 @@ export default function SellerAuthForm({ mode }) {
         </svg>
       </Link>
       <Link className="brand account-brand" href="/" aria-label="BuildMart home">
-        <span className="mark brand-mark">B</span>
-        <span>BuildMart<span className="brand-country">GH</span></span>
+        <span className="brand-logo-card"><Image className="brand-logo" src="/buildmart-logo.png" alt="BuildMart Ghana" width={928} height={192} priority /></span>
       </Link>
       <span className="eyebrow">SELLER ACCOUNT</span>
       <h1>{isSignup ? "Create your seller account" : "Log in to your seller account"}</h1>

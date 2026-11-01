@@ -28,6 +28,7 @@ export async function POST(request) {
     return Response.json({ error: "Checkout request must contain valid JSON." }, { status: 400 });
   }
 
+  const email = "checkout@buildmartgh.com";
   const items = body && body.items;
   const rawDelivery = body?.delivery;
 

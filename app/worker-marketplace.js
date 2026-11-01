@@ -1,0 +1,71 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useMemo, useState } from "react";
+
+const trades = ["All trades", "Mason", "Painter", "Labourer", "Tiler", "Carpenter", "Electrician", "Plumber", "Welder", "Other"];
+
+function formatRate(rateKobo) {
+  if (!rateKobo) return "Rate agreed after brief";
+  return `${new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(rateKobo / 100)} / hour`;
+}
+
+function Stars({ value = 0 }) {
+  return <span className="worker-stars" aria-label={`${value.toFixed(1)} out of 5 stars`}>{"★".repeat(Math.round(value))}<span>{"★".repeat(5 - Math.round(value))}</span></span>;
+}
+
+function BookingForm({ worker, onClose }) {
+  const [form, setForm] = useState({ customerName: "", customerEmail: "", customerPhone: "", serviceDate: "", address: "", requestDetails: "", budget: "" });
+  const [state, setState] = useState({ busy: false, message: "", success: false, bookingId: "" });
+
+  function update(event) {
+    setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    setState({ busy: true, message: "", success: false });
+    try {
+      const response = await fetch("/api/workers/bookings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId: worker.id, ...form }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "We could not send your booking request.");
+      setState({ busy: false, message: "Your booking request has been sent. The worker will contact you to confirm availability.", success: true, bookingId: result.bookingId });
+    } catch (error) {
+      setState({ busy: false, message: error.message, success: false });
+    }
+  }
+
+  if (state.success) return <div className="worker-modal-success"><span className="worker-success-mark">✓</span><h3>Request sent</h3><p>{state.message}</p><small className="worker-booking-reference">Save your booking ID: <strong>{state.bookingId}</strong></small><button className="worker-primary-button" type="button" onClick={onClose}>Done</button></div>;
+
+  return <form className="worker-booking-form" onSubmit={submit}>
+    <div className="worker-modal-heading"><div><span className="worker-kicker">BOOK A PROFESSIONAL</span><h2>{worker.name}</h2><p>{worker.trade} · {worker.location}</p></div><button className="worker-close" type="button" onClick={onClose} aria-label="Close booking form">×</button></div>
+    <div className="worker-form-grid">
+      <label>Name<input name="customerName" required value={form.customerName} onChange={update} /></label>
+      <label>Email<input name="customerEmail" type="email" required value={form.customerEmail} onChange={update} /></label>
+      <label>Phone<input name="customerPhone" required value={form.customerPhone} onChange={update} /></label>
+      <label>Preferred date<input name="serviceDate" type="date" required min={new Date().toISOString().slice(0, 10)} value={form.serviceDate} onChange={update} /></label>
+      <label className="worker-form-full">Work address<input name="address" required value={form.address} onChange={update} /></label>
+      <label className="worker-form-full">Tell them about the job<textarea name="requestDetails" required minLength={10} rows={4} value={form.requestDetails} onChange={update} placeholder="What needs to be done? Include useful measurements or materials." /></label>
+      <label>Budget (optional)<input name="budget" inputMode="numeric" value={form.budget} onChange={update} placeholder="GHS" /></label>
+    </div>
+    {state.message ? <p className="worker-form-message" role="alert">{state.message}</p> : null}
+    <button className="worker-primary-button" type="submit" disabled={state.busy}>{state.busy ? "Sending request…" : "Send booking request"}</button>
+  </form>;
+}
+
+export default function WorkerMarketplace({ workers }) {
+  const [trade, setTrade] = useState("All trades");
+  const [search, setSearch] = useState("");
+  const [selectedWorker, setSelectedWorker] = useState(null);
+  const filteredWorkers = useMemo(() => workers.filter((worker) => (trade === "All trades" || worker.trade === trade) && `${worker.name} ${worker.trade} ${worker.location} ${worker.bio}`.toLowerCase().includes(search.toLowerCase().trim())), [search, trade, workers]);
+
+  return <main className="worker-page">
+    <header className="worker-header"><Link className="worker-brand" href="/" aria-label="BuildMart Ghana home"><Image className="worker-brand-logo" src="/buildmart-logo.png" alt="BuildMart Ghana" width={934} height={198} priority /></Link><span className="worker-header-actions"><Link className="worker-join-link" href="/worker/signup">Join as a worker</Link><Link className="worker-back-link" href="/">Back to marketplace <span>↗</span></Link></span></header>
+    <section className="worker-hero"><div><h1>Find trusted people<br /><em>for the work ahead.</em></h1></div><div className="worker-hero-stat"><strong>{workers.length}</strong><span>professionals<br />ready to help</span></div></section>
+    <section className="worker-directory" aria-labelledby="worker-directory-title"><div className="worker-directory-head"><div><span className="worker-kicker">THE WORKER DIRECTORY</span><h2 id="worker-directory-title">Who do you need today?</h2></div><div className="worker-filters"><input aria-label="Search workers" placeholder="Search name or location" value={search} onChange={(event) => setSearch(event.target.value)} /><select aria-label="Filter by trade" value={trade} onChange={(event) => setTrade(event.target.value)}>{trades.map((item) => <option key={item}>{item}</option>)}</select></div></div>
+      {filteredWorkers.length ? <div className="worker-grid">{filteredWorkers.map((worker) => <article className="worker-card" key={worker.id}><div className="worker-card-top"><div className="worker-avatar" style={worker.avatar_url ? { backgroundImage: `url("${worker.avatar_url}")`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>{worker.avatar_url ? null : worker.name.slice(0, 1).toUpperCase()}</div><div><span className="worker-trade">{worker.trade}</span><h3>{worker.name}</h3><p>{worker.location}</p></div></div><div className="worker-rating"><Stars value={Number(worker.rating_average)} /><strong>{Number(worker.rating_average).toFixed(1)}</strong><span>({worker.rating_count} reviews)</span></div><p className="worker-bio">{worker.bio || "A skilled professional ready to help with your project."}</p><div className="worker-card-meta"><span>{worker.years_experience} years experience</span><strong>{formatRate(worker.hourly_rate_kobo)}</strong></div><button className="worker-primary-button" type="button" onClick={() => setSelectedWorker(worker)}>Book this professional <span>→</span></button></article>)}</div> : <div className="worker-empty"><h3>No professionals match that search</h3><p>Try another trade, name or location.</p></div>}
+    </section>
+    {selectedWorker ? <div className="worker-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedWorker(null); }}><section className="worker-modal" role="dialog" aria-modal="true" aria-label={`Book ${selectedWorker.name}`}><BookingForm worker={selectedWorker} onClose={() => setSelectedWorker(null)} /></section></div> : null}
+  </main>;
+}

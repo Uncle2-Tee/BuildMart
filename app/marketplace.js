@@ -13,6 +13,7 @@ const storefrontPages = [
   { href: "/", label: "Home", page: "home" },
   { href: "/shop", label: "Shop", page: "shop" },
   { href: "/categories", label: "Categories", page: "categories" },
+  { href: "/workers", label: "Find workers", page: "workers" },
   { href: "/how-it-works", label: "How it works", page: "how-it-works" },
   { href: "/about", label: "About", page: "about" },
 ];
@@ -230,6 +231,21 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             {dashboardHref ? (
               <Link href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             ) : null}
+            {!dashboardHref ? (
+              <Link
+                className="mobile-account-icon-link"
+                href="/account"
+                aria-label="Buyer account"
+                title="Buyer account"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="8" r="3.25" />
+                  <path d="M5.5 20c.7-3.1 3.1-5 6.5-5s5.8 1.9 6.5 5" />
+                </svg>
+                <span className="visually-hidden">Buyer account</span>
+              </Link>
+            ) : null}
             {!buyerMode && !dashboardHref ? (
               <SellerDashboardLink
                 className="seller-menu-link"
@@ -244,6 +260,21 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             {buyerMode || dashboardHref
               ? <span className="desktop-signout"><SignOutButton /></span>
               : null}
+            {!buyerMode && !dashboardHref ? (
+              <Link
+                className="buyer-account-link"
+                href="/account"
+                aria-label="Buyer account"
+                title="Buyer account"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="8" r="3.25" />
+                  <path d="M5.5 20c.7-3.1 3.1-5 6.5-5s5.8 1.9 6.5 5" />
+                </svg>
+                <span className="visually-hidden">Buyer account</span>
+              </Link>
+            ) : null}
             {!buyerMode && !dashboardHref && !isStorefrontPage ? (
                 <Link className="seller-cta desktop-seller-cta" href="/seller/login" onClick={() => setMobileMenuOpen(false)}>Seller log in</Link>
             ) : null}

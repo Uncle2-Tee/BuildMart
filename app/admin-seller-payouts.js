@@ -20,12 +20,13 @@ const payoutStatusLabels = {
   review: "Manual review required",
 };
 
-export default function AdminSellerPayouts({ sellerId, initialPayouts, hasRecipient }) {
+export default function AdminSellerPayouts({ sellerId, sellerName, initialPayouts, hasRecipient }) {
   const router = useRouter();
   const [payouts, setPayouts] = useState(initialPayouts);
   const [otpByPayout, setOtpByPayout] = useState({});
   const [busyPayoutId, setBusyPayoutId] = useState("");
   const [message, setMessage] = useState("");
+  const [selectedPayout, setSelectedPayout] = useState(null);
 
   async function runPayoutAction(payout, action) {
     setBusyPayoutId(payout.id);
@@ -76,6 +77,7 @@ export default function AdminSellerPayouts({ sellerId, initialPayouts, hasRecipi
               ? "Paystack reports that the transfer failed."
               : "Transfer status updated. Refresh to see the latest payout state.",
       );
+      if (action === "send") setSelectedPayout(null);
       router.refresh();
     } catch {
       setMessage("We couldn't connect to the payout service. Check Paystack before retrying.");
@@ -128,12 +130,12 @@ export default function AdminSellerPayouts({ sellerId, initialPayouts, hasRecipi
             ) : null}
             {["pending", "failed"].includes(payout.status) ? (
               <button
-                className="small-action"
+                className="small-action seller-pay-button"
                 type="button"
-                disabled={busyPayoutId === payout.id || !hasRecipient}
-                onClick={() => runPayoutAction(payout, "send")}
+                disabled={busyPayoutId === payout.id}
+                onClick={() => setSelectedPayout(payout)}
               >
-                {busyPayoutId === payout.id ? "Sending…" : payout.status === "failed" ? "Retry transfer" : "Pay seller"}
+                {payout.status === "failed" ? "Review & retry" : "Pay seller"}
               </button>
             ) : null}
             {["processing", "needs_otp", "review"].includes(payout.status) ? (
@@ -149,7 +151,39 @@ export default function AdminSellerPayouts({ sellerId, initialPayouts, hasRecipi
           </li>
         ))}
       </ul>
-      {!hasRecipient ? <small>Save a verified Paystack transfer recipient code to enable payouts.</small> : null}
+      {selectedPayout ? (
+        <div className="seller-payment-modal-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget && busyPayoutId !== selectedPayout.id) setSelectedPayout(null);
+        }}>
+          <section className="seller-payment-modal" role="dialog" aria-modal="true" aria-labelledby={`seller-payment-title-${selectedPayout.id}`}>
+            <div className="seller-payment-modal-header">
+              <span className="payment-modal-icon" aria-hidden="true">₵</span>
+              <div>
+                <span className="eyebrow muted-eyebrow">PAYSTACK TRANSFER</span>
+                <h4 id={`seller-payment-title-${selectedPayout.id}`}>Pay seller securely</h4>
+              </div>
+              <button className="seller-payment-close" type="button" aria-label="Close payment panel" disabled={busyPayoutId === selectedPayout.id} onClick={() => setSelectedPayout(null)}>×</button>
+            </div>
+            <div className="seller-payment-summary">
+              <div><span>Shop</span><strong>{sellerName || "Seller shop"}</strong></div>
+              <div><span>Order</span><strong>#{selectedPayout.order_id.slice(0, 8).toUpperCase()}</strong></div>
+              <div><span>Seller payout</span><strong>{formatPayout(selectedPayout.amount_kobo)}</strong></div>
+            </div>
+            <p className={`seller-payment-note${hasRecipient ? "" : " seller-payment-warning"}`}>
+              {hasRecipient
+                ? "This payment will be sent to the shop’s verified Paystack recipient. Review the details before confirming."
+                : "This seller does not have a verified Paystack recipient yet. Add the recipient in the seller payout settings before confirming payment."}
+            </p>
+            {message ? <p className="payout-message" role="alert">{message}</p> : null}
+            <div className="seller-payment-actions">
+              <button className="seller-payment-cancel" type="button" disabled={busyPayoutId === selectedPayout.id} onClick={() => setSelectedPayout(null)}>Cancel</button>
+              <button className="seller-payment-confirm" type="button" disabled={busyPayoutId === selectedPayout.id || !hasRecipient} onClick={() => runPayoutAction(selectedPayout, "send")}>
+                {busyPayoutId === selectedPayout.id ? "Processing payment…" : "Confirm payment"}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </section>
   );
 }

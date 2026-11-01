@@ -35,9 +35,10 @@ export default function AdminPayoutForm({ sellerId, initialRecipientCode }) {
   }
 
   return (
-    <form className="payout-form" onSubmit={save}>
+    <form className="payout-form admin-recipient-form" onSubmit={save}>
       <label>
-        Paystack transfer recipient code
+        <span>Paystack transfer recipient</span>
+        <small>Enter the seller&apos;s verified RCP code from Paystack.</small>
         <input
           aria-label={`Paystack transfer recipient code for seller ${sellerId}`}
           autoComplete="off"

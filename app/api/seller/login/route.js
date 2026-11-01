@@ -1,5 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
+import {
+  checkLoginProtection,
+  clearLoginFailures,
+  getLoginAccountKey,
+  loginProtectionUnavailableResponse,
+  recordLoginFailure,
+  tooManyLoginAttemptsResponse,
+} from "../../../../lib/login-protection";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../lib/supabase/admin";
 import { isSupabaseConfigured } from "../../../../lib/supabase/server";
@@ -27,6 +35,11 @@ export async function POST(request) {
     return Response.json({ error: "Enter your seller name and password." }, { status: 400 });
   }
 
+  const accountKey = getLoginAccountKey("seller", name);
+  const protection = await checkLoginProtection(request, accountKey);
+  if (protection.error) return loginProtectionUnavailableResponse();
+  if (protection.blocked) return tooManyLoginAttemptsResponse(protection.retryAfter);
+
   if (!isSupabaseAdminConfigured()) {
     return Response.json({ error: "Seller login is not configured." }, { status: 503 });
   }
@@ -44,14 +57,22 @@ export async function POST(request) {
     return Response.json({ error: "We couldn't verify your seller account. Please try again." }, { status: 500 });
   }
 
-  if (sellers?.length !== 1) return invalidCredentials();
+  if (sellers?.length !== 1) {
+    const failure = await recordLoginFailure(accountKey);
+    if (failure.error) return loginProtectionUnavailableResponse();
+    return invalidCredentials();
+  }
 
   const { data: authUser, error: authUserError } = await admin.auth.admin.getUserById(sellers[0].id);
   if (authUserError) {
     console.error("Unable to load seller login identity", authUserError);
     return Response.json({ error: "We couldn't verify your seller account. Please try again." }, { status: 500 });
   }
-  if (!authUser.user?.email) return invalidCredentials();
+  if (!authUser.user?.email) {
+    const failure = await recordLoginFailure(accountKey);
+    if (failure.error) return loginProtectionUnavailableResponse();
+    return invalidCredentials();
+  }
 
   if (!isSupabaseConfigured()) {
     return Response.json({ error: "Seller login is not configured." }, { status: 503 });
@@ -78,7 +99,14 @@ export async function POST(request) {
     password,
   });
 
-  if (signInError || authData.user?.id !== sellers[0].id || !authData.session) return invalidCredentials();
+  if (signInError || authData.user?.id !== sellers[0].id || !authData.session) {
+    const failure = await recordLoginFailure(accountKey);
+    if (failure.error) return loginProtectionUnavailableResponse();
+    return invalidCredentials();
+  }
+
+  const cleared = await clearLoginFailures(accountKey);
+  if (cleared.error) return loginProtectionUnavailableResponse();
 
   const response = NextResponse.json(
     {

@@ -72,8 +72,8 @@ export default function DashboardHeader({
           </>
         ) : (
           <>
+            <Link href="/" prefetch onClick={() => setMenuOpen(false)}>View market</Link>
             {showMarketplaceLinks && !admin ? <Link href="/" prefetch onClick={() => setMenuOpen(false)}>Home</Link> : null}
-            <a href="#dashboard-top" onClick={() => setMenuOpen(false)}>Dashboard</a>
             <div className="dashboard-mobile-signout"><SignOutButton admin={admin} /></div>
           </>
         )}

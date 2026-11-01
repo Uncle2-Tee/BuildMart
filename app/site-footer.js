@@ -26,6 +26,7 @@ export default function SiteFooter() {
         <nav className="footer-meta" aria-label="Footer navigation">
           <Link href="/shop">Shop</Link>
           <Link href="/categories">Categories</Link>
+          <Link href="/workers">Find workers</Link>
           <Link href="/how-it-works">How it works</Link>
           <Link href="/about">About</Link>
           <span>© {new Date().getFullYear()} BuildMart Ghana</span>

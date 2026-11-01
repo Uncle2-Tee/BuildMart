@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import AdminPayoutForm from "../admin-payout-form";
 import AdminProductControls from "../admin-product-controls";
 import AdminSellerPayouts from "../admin-seller-payouts";
-import AdminShopApplicationApproval from "../admin-shop-application-approval";
 import AdminSellerApproval from "../admin-seller-approval";
+import AdminCopyPhone from "../admin-copy-phone";
+import AdminLiveTime from "../admin-live-time";
+import AdminPayoutForm from "../admin-payout-form";
+import AdminWorkerApproval from "../admin-worker-approval";
 import DashboardHeader from "../dashboard-header";
 import { getAdminSession } from "../../lib/admin-session";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../lib/supabase/admin";
@@ -44,16 +46,20 @@ export default async function AdminPage() {
     { data: products, error: productsError },
     { data: orders, error: ordersError },
     { data: applications, error: applicationsError },
+    { data: workerProfiles, error: workerProfilesError },
   ] = await Promise.all([
     admin.from("profiles").select("id, display_name, role, seller_status, created_at, paystack_recipient_code").order("created_at", { ascending: false }).limit(100),
     admin.from("products").select("id, title, category, price_kobo, active, created_at").order("created_at", { ascending: false }).limit(100),
-    admin.from("orders").select("id, buyer_email, status, total_kobo, currency, created_at").order("created_at", { ascending: false }).limit(100),
+    admin.from("orders").select("id, buyer_email, status, total_kobo, currency, created_at, order_items(seller_id, product_title)").order("created_at", { ascending: false }).limit(100),
     admin.from("seller_shop_applications").select("id, shop_name, shop_description, shop_location, shop_phone, status, created_at").order("created_at", { ascending: false }).limit(100),
+    admin.from("worker_profiles").select("id, name, trade, location, phone, years_experience, bio, approval_status, rating_average, rating_count, created_at").order("created_at", { ascending: false }).limit(100),
   ]);
 
   if (profilesError) throw new Error(`Unable to load marketplace users: ${profilesError.message}`);
   if (productsError) throw new Error(`Unable to load marketplace products: ${productsError.message}`);
   if (ordersError) throw new Error(`Unable to load marketplace orders: ${ordersError.message}`);
+  const workerTableMissing = workerProfilesError?.code === "PGRST205" || workerProfilesError?.message?.includes("worker_profiles");
+  if (workerProfilesError && !workerTableMissing) throw new Error(`Unable to load worker profiles: ${workerProfilesError.message}`);
   const applicationTableMissing = applicationsError?.code === "PGRST205" ||
     applicationsError?.message.includes("seller_shop_applications");
   if (applicationsError && !applicationTableMissing) {
@@ -94,6 +100,10 @@ export default async function AdminPage() {
       shopPhone: typeof metadata.shop_phone === "string" ? metadata.shop_phone : "",
     };
   });
+  const shopNameBySellerId = new Map(sellerShops.map((seller) => [seller.id, seller.shopName]));
+  const visibleSellerShops = sellerShops.filter(
+    (seller) => seller.seller_status !== "rejected",
+  );
   const approvedSellers = sellerShops.filter(
     (seller) => seller.seller_status === "approved" && seller.shopName,
   );
@@ -119,8 +129,7 @@ export default async function AdminPage() {
     <main className="dashboard-shell admin-dashboard">
       <DashboardHeader admin />
       <section className="dashboard-welcome">
-        <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><h1>Good morning, <em>{adminSession.username}.</em></h1><p>Review shop applications, manage sellers, and monitor marketplace orders.</p></div>
-        <span className="dashboard-date">Admin control centre</span>
+        <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><AdminLiveTime username={adminSession.username} /><p>Review shop applications, manage sellers, and monitor marketplace orders.</p></div>
       </section>
       <section className="stat-grid admin-stat-grid" aria-label="Marketplace summary">
         <div className="stat-card"><span>Seller accounts</span><strong>{sellers.length}</strong><small>Registered local businesses</small></div>
@@ -136,46 +145,64 @@ export default async function AdminPage() {
       ) : null}
       <div className="admin-grid">
         <div className="admin-primary-column">
-          <section className="dashboard-panel admin-applications-panel" aria-labelledby="admin-applications-title">
-            <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">REVIEW QUEUE</span><h2 id="admin-applications-title">Shop applications <span>{applications?.length ?? 0}</span></h2></div></div>
-            <div className="admin-list">
-              {shopApplications.length ? shopApplications.map((application) => (
-                <div className="admin-list-row seller-application-row" key={application.id}>
-                  <span className="user-avatar">{application.shop_name.slice(0, 1).toUpperCase()}</span>
-                  <span className="seller-application-details">
-                    <strong>{application.shop_name}</strong>
-                    <small>{application.shop_location} · {application.shop_phone} · Submitted {new Date(application.created_at).toLocaleDateString("en-GH")}</small>
-                    <small className="seller-shop-description">{application.shop_description}</small>
-                  </span>
-                  <AdminShopApplicationApproval applicationId={application.id} initialStatus={application.status} />
-                </div>
-              )) : <p className="table-empty">Submitted shop applications will appear here.</p>}
-            </div>
-          </section>
           <section className="dashboard-panel admin-orders-panel" aria-labelledby="admin-orders-title">
-            <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">LATEST ACTIVITY</span><h2 id="admin-orders-title">Recent orders <span>{orders?.length ?? 0}</span></h2></div></div>
-            {orders?.length ? <div className="orders-table-wrap"><table className="orders-table"><thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th></tr></thead><tbody>{orders.slice(0, 12).map((order) => <tr key={order.id}><td>#{order.id.slice(0, 8).toUpperCase()}</td><td>{order.buyer_email}</td><td>{new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(order.total_kobo / 100)}</td><td><span className={`status-pill ${order.status === "paid" ? "live" : "paused"}`}>{order.status}</span></td></tr>)}</tbody></table></div> : <p className="table-empty">Customer orders will appear here.</p>}
+            <details className="admin-content-dropdown">
+              <summary>
+                <span className="admin-content-dropdown-copy">
+                  <span className="eyebrow muted-eyebrow">LATEST ACTIVITY</span>
+                  <strong id="admin-orders-title">Recent orders <span>{orders?.length ?? 0}</span></strong>
+                </span>
+                <span className="admin-content-dropdown-toggle">View orders <span className="admin-dropdown-chevron" aria-hidden="true" /></span>
+              </summary>
+              <div className="admin-content-dropdown-body">
+                {orders?.length ? <div className="orders-table-wrap"><table className="orders-table"><thead><tr><th>Order</th><th>Shop</th><th>Buyer</th><th>Total</th><th>Status</th></tr></thead><tbody>{orders.slice(0, 12).map((order) => {
+                  const shopNames = [...new Set((order.order_items ?? []).map((item) => shopNameBySellerId.get(item.seller_id)).filter(Boolean))];
+                  return <tr key={order.id}><td>#{order.id.slice(0, 8).toUpperCase()}</td><td>{shopNames.length ? shopNames.join(", ") : "Shop unavailable"}</td><td>{order.buyer_email}</td><td>{new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(order.total_kobo / 100)}</td><td><span className={`status-pill ${order.status === "paid" ? "live" : "paused"}`}>{order.status}</span></td></tr>;
+                })}</tbody></table></div> : <p className="table-empty">Customer orders will appear here.</p>}
+              </div>
+              {!workerTableMissing ? <section className="dashboard-panel admin-workers-panel" aria-labelledby="admin-workers-title">
+                <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">WORKER NETWORK</span><h2 id="admin-workers-title">Worker applications <span>{workerProfiles?.length ?? 0}</span></h2></div></div>
+                <div className="admin-worker-list">{workerProfiles?.length ? workerProfiles.map((worker) => <article className="admin-worker-row" key={worker.id}><div><strong>{worker.name}</strong><span>{worker.trade} · {worker.location} · {worker.years_experience} years experience</span><small>{worker.bio || "Profile bio not submitted yet."}</small></div><AdminWorkerApproval workerId={worker.id} initialStatus={worker.approval_status} /></article>) : <p className="table-empty">Worker applications will appear here.</p>}</div>
+              </section> : null}
+            </details>
           </section>
         </div>
         <section className="dashboard-panel admin-sellers-panel" aria-labelledby="admin-sellers-title">
-          <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">SELLER MANAGEMENT</span><h2 id="admin-sellers-title">Seller accounts <span>{sellers.length}</span></h2></div></div>
-          <div className="admin-list">
-            {sellerShops.map((seller) => {
-              const shopProducts = productsBySeller.get(seller.id);
-              return (
-                <div className="admin-seller-entry" key={seller.id}>
+          <details className="admin-content-dropdown">
+            <summary>
+              <span className="admin-content-dropdown-copy">
+                <span className="eyebrow muted-eyebrow">SELLER MANAGEMENT</span>
+                <strong id="admin-sellers-title">Seller accounts <span>{sellers.length}</span></strong>
+              </span>
+              <span className="admin-content-dropdown-toggle">View sellers <span className="admin-dropdown-chevron" aria-hidden="true" /></span>
+            </summary>
+            <div className="admin-content-dropdown-body">
+              <div className="admin-list">
+                {visibleSellerShops.map((seller) => {
+                  const shopProducts = productsBySeller.get(seller.id);
+                  return (
+                    <div className={`admin-seller-entry ${seller.seller_status === "approved" ? "approved-shop-card" : ""}`} key={seller.id}>
                   <div className="admin-list-row">
                     <span className="user-avatar">{(seller.shopName || seller.display_name || "S").slice(0, 1).toUpperCase()}</span>
                     <span>
+                      {seller.seller_status === "approved" && seller.shopName ? <span className="approved-shop-badge">Approved shop</span> : null}
                       <strong>{seller.shopName || "Shop not registered"}</strong>
-                      <small>{seller.shopName ? `${seller.display_name || "Seller"} · ${seller.shopLocation}${seller.shopPhone ? ` · ${seller.shopPhone}` : ""}` : `Seller account · ${new Date(seller.created_at).toLocaleDateString("en-GH")}`}</small>
+                      <small>
+                        {seller.shopName ? (
+                          <>
+                            {seller.display_name || "Seller"} · {seller.shopLocation}
+                            {seller.shopPhone ? <> · <AdminCopyPhone phone={seller.shopPhone} /></> : null}
+                          </>
+                        ) : `Seller account · ${new Date(seller.created_at).toLocaleDateString("en-GH")}`}
+                      </small>
                       {seller.shopDescription ? <small className="seller-shop-description">{seller.shopDescription}</small> : null}
                     </span>
                     <AdminSellerApproval sellerId={seller.id} initialStatus={seller.seller_status} hasShop={Boolean(seller.shopName)} />
-                    <AdminPayoutForm sellerId={seller.id} initialRecipientCode={seller.paystack_recipient_code} />
                   </div>
+                  <AdminPayoutForm sellerId={seller.id} initialRecipientCode={seller.paystack_recipient_code} />
                   <AdminSellerPayouts
                     sellerId={seller.id}
+                    sellerName={seller.shopName}
                     initialPayouts={payoutsBySeller.get(seller.id) ?? []}
                     hasRecipient={Boolean(seller.paystack_recipient_code)}
                   />
@@ -201,11 +228,13 @@ export default async function AdminPage() {
                       </div>
                     </details>
                   ) : null}
-                </div>
-              );
-            })}
-            {!sellers.length ? <p className="table-empty">New seller accounts will appear here.</p> : null}
-          </div>
+                    </div>
+                  );
+                })}
+                {!sellers.length ? <p className="table-empty">New seller accounts will appear here.</p> : null}
+              </div>
+            </div>
+          </details>
         </section>
       </div>
     </main>

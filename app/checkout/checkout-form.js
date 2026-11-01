@@ -53,7 +53,6 @@ export default function CheckoutForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: form.get("email"),
           delivery: {
             name: form.get("delivery_name"),
             phone: form.get("delivery_phone"),
@@ -64,7 +63,13 @@ export default function CheckoutForm() {
           items: cart.map(({ id, quantity }) => ({ productId: id, quantity })),
         }),
       });
-      const result = await response.json();
+      const responseText = await response.text();
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error("Secure checkout returned an unexpected response. Please try again.");
+      }
 
       if (!response.ok) {
         setCheckoutState(result.error || "We couldn't place your order. Please try again.");
@@ -77,6 +82,11 @@ export default function CheckoutForm() {
       }
 
       const orderReference = result.reference;
+      if (!paystackReady || typeof window.PaystackPop !== "function") {
+        setCheckoutState("Secure payment is still loading. Please try again.");
+        return;
+      }
+
       const paystack = new window.PaystackPop();
       paystack.resumeTransaction(result.accessCode, {
         onSuccess: async (transaction) => {
@@ -131,8 +141,12 @@ export default function CheckoutForm() {
           setCheckoutState(error.message || "Paystack couldn't open the payment form. Please try again.");
         },
       });
-    } catch {
-      setCheckoutState("We couldn't connect to secure checkout. Please try again.");
+    } catch (error) {
+      setCheckoutState(
+        error instanceof Error
+          ? error.message
+          : "We couldn't connect to secure checkout. Please try again.",
+      );
     }
   }
 
@@ -192,10 +206,6 @@ export default function CheckoutForm() {
 
           <form className="checkout-page-form" onSubmit={placeOrder}>
             <div className="delivery-fields">
-              <label className="delivery-address-field">
-                Email address
-                <input name="email" type="email" autoComplete="email" required maxLength={254} placeholder="you@example.com" />
-              </label>
               <label>
                 Recipient name
                 <input name="delivery_name" autoComplete="name" required minLength={2} maxLength={100} placeholder="Name of person receiving the order" />
