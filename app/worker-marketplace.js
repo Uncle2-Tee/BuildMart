@@ -41,13 +41,13 @@ function BookingForm({ worker, onClose }) {
   return <form className="worker-booking-form" onSubmit={submit}>
     <div className="worker-modal-heading"><div><span className="worker-kicker">BOOK A PROFESSIONAL</span><h2>{worker.name}</h2><p>{worker.trade} · {worker.location}</p></div><button className="worker-close" type="button" onClick={onClose} aria-label="Close booking form">×</button></div>
     <div className="worker-form-grid">
-      <label>Name<input name="customerName" required value={form.customerName} onChange={update} /></label>
-      <label>Email<input name="customerEmail" type="email" required value={form.customerEmail} onChange={update} /></label>
-      <label>Phone<input name="customerPhone" required value={form.customerPhone} onChange={update} /></label>
+      <label>Name<input name="customerName" required value={form.customerName} onChange={update} placeholder="e.g. Ama Mensah" /></label>
+      <label>Email<input name="customerEmail" type="email" required value={form.customerEmail} onChange={update} placeholder="e.g. ama@example.com" /></label>
+      <label>Phone<input name="customerPhone" required value={form.customerPhone} onChange={update} placeholder="e.g. 024 123 4567" /></label>
       <label>Preferred date<input name="serviceDate" type="date" required min={new Date().toISOString().slice(0, 10)} value={form.serviceDate} onChange={update} /></label>
-      <label className="worker-form-full">Work address<input name="address" required value={form.address} onChange={update} /></label>
+      <label className="worker-form-full">Work address<input name="address" required value={form.address} onChange={update} placeholder="e.g. 12 Oxford Street, Accra" /></label>
       <label className="worker-form-full">Tell them about the job<textarea name="requestDetails" required minLength={10} rows={4} value={form.requestDetails} onChange={update} placeholder="What needs to be done? Include useful measurements or materials." /></label>
-      <label>Budget (optional)<input name="budget" inputMode="numeric" value={form.budget} onChange={update} placeholder="GHS" /></label>
+      <label>Budget (optional)<input name="budget" inputMode="numeric" value={form.budget} onChange={update} placeholder="e.g. 1,500 GHS" /></label>
     </div>
     {state.message ? <p className="worker-form-message" role="alert">{state.message}</p> : null}
     <button className="worker-primary-button" type="submit" disabled={state.busy}>{state.busy ? "Sending request…" : "Send booking request"}</button>
@@ -58,13 +58,60 @@ export default function WorkerMarketplace({ workers }) {
   const [trade, setTrade] = useState("All trades");
   const [search, setSearch] = useState("");
   const [selectedWorker, setSelectedWorker] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const filteredWorkers = useMemo(() => workers.filter((worker) => (trade === "All trades" || worker.trade === trade) && `${worker.name} ${worker.trade} ${worker.location} ${worker.bio}`.toLowerCase().includes(search.toLowerCase().trim())), [search, trade, workers]);
 
   return <main className="worker-page">
-    <header className="worker-header"><Link className="worker-brand" href="/" aria-label="BuildMart Ghana home"><Image className="worker-brand-logo" src="/buildmart-logo.png" alt="BuildMart Ghana" width={934} height={198} priority /></Link><span className="worker-header-actions"><Link className="worker-join-link" href="/worker/signup">Join as a worker</Link><Link className="worker-back-link" href="/">Back to marketplace <span>↗</span></Link></span></header>
-    <section className="worker-hero"><div><h1>Find trusted people<br /><em>for the work ahead.</em></h1></div><div className="worker-hero-stat"><strong>{workers.length}</strong><span>professionals<br />ready to help</span></div></section>
-    <section className="worker-directory" aria-labelledby="worker-directory-title"><div className="worker-directory-head"><div><span className="worker-kicker">THE WORKER DIRECTORY</span><h2 id="worker-directory-title">Who do you need today?</h2></div><div className="worker-filters"><input aria-label="Search workers" placeholder="Search name or location" value={search} onChange={(event) => setSearch(event.target.value)} /><select aria-label="Filter by trade" value={trade} onChange={(event) => setTrade(event.target.value)}>{trades.map((item) => <option key={item}>{item}</option>)}</select></div></div>
-      {filteredWorkers.length ? <div className="worker-grid">{filteredWorkers.map((worker) => <article className="worker-card" key={worker.id}><div className="worker-card-top"><div className="worker-avatar" style={worker.avatar_url ? { backgroundImage: `url("${worker.avatar_url}")`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>{worker.avatar_url ? null : worker.name.slice(0, 1).toUpperCase()}</div><div><span className="worker-trade">{worker.trade}</span><h3>{worker.name}</h3><p>{worker.location}</p></div></div><div className="worker-rating"><Stars value={Number(worker.rating_average)} /><strong>{Number(worker.rating_average).toFixed(1)}</strong><span>({worker.rating_count} reviews)</span></div><p className="worker-bio">{worker.bio || "A skilled professional ready to help with your project."}</p><div className="worker-card-meta"><span>{worker.years_experience} years experience</span><strong>{formatRate(worker.hourly_rate_kobo)}</strong></div><button className="worker-primary-button" type="button" onClick={() => setSelectedWorker(worker)}>Book this professional <span>→</span></button></article>)}</div> : <div className="worker-empty"><h3>No professionals match that search</h3><p>Try another trade, name or location.</p></div>}
+    <header className={`worker-header${mobileMenuOpen ? " worker-mobile-menu-open" : ""}`}>
+      <Link className="worker-brand" href="/" aria-label="BuildMart Ghana home"><Image className="worker-brand-logo" src="/buildmart-logo.png" alt="BuildMart Ghana" width={934} height={198} priority /></Link>
+      <span className="worker-header-actions">
+        <Link className="worker-join-link" href="/worker/login">Join as a worker</Link>
+        <Link className="worker-back-link" href="/">Back to marketplace <span>↗</span></Link>
+      </span>
+      <button
+        className="worker-menu-button"
+        type="button"
+        aria-label={mobileMenuOpen ? "Close workers menu" : "Open workers menu"}
+        aria-expanded={mobileMenuOpen}
+        onClick={() => setMobileMenuOpen((open) => !open)}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+      <nav className="worker-mobile-menu" aria-label="Workers navigation">
+        <Link className="worker-join-link" href="/worker/login" onClick={() => setMobileMenuOpen(false)}>Join as a worker</Link>
+        <Link className="worker-back-link" href="/" onClick={() => setMobileMenuOpen(false)}>Back to marketplace <span>↗</span></Link>
+      </nav>
+    </header>
+    <section className="worker-hero"><div><h1>Find trusted people<br /><em>for the work ahead.</em></h1></div></section>
+    <section className="worker-directory" aria-labelledby="worker-directory-title"><div className="worker-directory-head"><div><span className="worker-kicker">THE WORKER DIRECTORY</span><h2 id="worker-directory-title">Who do you need today?</h2><Link className="worker-rate-button" href="/workers/rate">Rate a worker <span aria-hidden="true">★</span></Link></div><div className="worker-filters"><input aria-label="Search workers" placeholder="Search name or location" value={search} onChange={(event) => setSearch(event.target.value)} /><select aria-label="Filter by trade" value={trade} onChange={(event) => setTrade(event.target.value)}>{trades.map((item) => <option key={item}>{item}</option>)}</select></div></div>
+      {filteredWorkers.length ? <div className="worker-grid">{filteredWorkers.map((worker) => <article className="worker-card" key={worker.id}>
+        <div className="worker-card-top">
+          <div className="worker-avatar-wrap">
+            <div className="worker-avatar" style={worker.avatar_url ? { backgroundImage: `url("${worker.avatar_url}")`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>{worker.avatar_url ? null : worker.name.slice(0, 1).toUpperCase()}</div>
+            <span className="worker-available-dot" aria-label="Available professional" />
+          </div>
+          <div className="worker-card-identity">
+            <span className="worker-trade">{worker.trade}</span>
+            <h3>{worker.name}</h3>
+            <p><span aria-hidden="true">⌖</span> {worker.location}</p>
+            <a className="worker-phone-link" href={`tel:${worker.phone}`}><span aria-hidden="true">☎</span> {worker.phone}</a>
+          </div>
+          <span className="worker-verified-badge" title="Approved BuildMart professional" aria-label="Approved BuildMart professional">✓</span>
+        </div>
+        <div className="worker-rating">
+          <Stars value={Number(worker.rating_average)} />
+          <strong>{Number(worker.rating_average).toFixed(1)}</strong>
+          <span>{worker.rating_count ? `${worker.rating_count} reviews` : "New profile"}</span>
+        </div>
+        <p className="worker-bio">{worker.bio || "A skilled professional ready to help with your project."}</p>
+        <div className="worker-card-meta">
+          <span><strong>{worker.years_experience}</strong> years experience</span>
+          <span><strong>{formatRate(worker.hourly_rate_kobo)}</strong></span>
+        </div>
+        <button className="worker-primary-button" type="button" onClick={() => setSelectedWorker(worker)}>Book this professional <span>→</span></button>
+      </article>)}</div> : <div className="worker-empty"><h3>No professionals match that search</h3><p>Try another trade, name or location.</p></div>}
     </section>
     {selectedWorker ? <div className="worker-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedWorker(null); }}><section className="worker-modal" role="dialog" aria-modal="true" aria-label={`Book ${selectedWorker.name}`}><BookingForm worker={selectedWorker} onClose={() => setSelectedWorker(null)} /></section></div> : null}
   </main>;

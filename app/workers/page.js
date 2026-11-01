@@ -2,24 +2,59 @@ import Link from "next/link";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../lib/supabase/admin";
 import WorkerMarketplace from "../worker-marketplace";
 
+const WORKER_CACHE_MS = 60 * 1000;
+const WORKER_TIMEOUT_MS = 8 * 1000;
+let workerCache = null;
+let workerCacheExpiresAt = 0;
+let workerRequest = null;
+
 export const metadata = {
   title: "Find skilled workers | BuildMart Ghana",
   description: "Find trusted masons, painters, tilers, carpenters and other skilled workers for your next project.",
 };
+
+function loadWorkers() {
+  if (workerCache && workerCacheExpiresAt > Date.now()) {
+    return Promise.resolve(workerCache);
+  }
+
+  if (workerRequest) return workerRequest;
+
+  const admin = createSupabaseAdminClient();
+  const request = admin
+    .from("worker_profiles")
+    .select("id, name, trade, bio, location, phone, years_experience, hourly_rate_kobo, avatar_url, rating_average, rating_count")
+    .eq("is_active", true)
+    .eq("approval_status", "approved")
+    .order("rating_average", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  workerRequest = Promise.race([
+    request,
+    new Promise((resolve) => setTimeout(() => resolve({
+      data: null,
+      error: { code: "WORKER_TIMEOUT", message: "Worker directory request timed out." },
+    }), WORKER_TIMEOUT_MS)),
+  ]).then((result) => {
+    if (!result.error) {
+      workerCache = result.data ?? [];
+      workerCacheExpiresAt = Date.now() + WORKER_CACHE_MS;
+    }
+    return result;
+  }).finally(() => {
+    workerRequest = null;
+  });
+
+  return workerRequest;
+}
 
 export default async function WorkersPage() {
   if (!isSupabaseAdminConfigured()) {
     return <main className="worker-page"><div className="worker-empty"><h1>Worker marketplace setup needed</h1><p>Connect Supabase to browse available professionals.</p><Link href="/">Return to marketplace</Link></div></main>;
   }
 
-  const admin = createSupabaseAdminClient();
-  const { data: workers, error } = await admin
-    .from("worker_profiles")
-    .select("id, name, trade, bio, location, phone, years_experience, hourly_rate_kobo, avatar_url, rating_average, rating_count")
-    .eq("is_active", true)
-    .eq("approval_status", "approved")
-    .order("rating_average", { ascending: false })
-    .order("created_at", { ascending: false });
+  const { data: workers, error } = await loadWorkers();
 
   if (error) {
     const workerTablesMissing = error.code === "PGRST205" ||
@@ -30,10 +65,12 @@ export default async function WorkersPage() {
     return (
       <main className="worker-page">
         <div className="worker-empty">
-          <h1>{workerTablesMissing ? "Worker marketplace setup needed" : "Workers are taking a short break"}</h1>
+          <h1>{workerTablesMissing ? "Worker marketplace setup needed" : error.code === "WORKER_TIMEOUT" ? "Worker directory is taking a moment" : "Workers are taking a short break"}</h1>
           <p>
             {workerTablesMissing
               ? "Apply the worker marketplace migration in Supabase before adding worker profiles."
+              : error.code === "WORKER_TIMEOUT"
+                ? "The directory took too long to respond. Please refresh and try again."
               : "We could not load the worker directory. Please try again shortly."}
           </p>
           {workerTablesMissing ? (
