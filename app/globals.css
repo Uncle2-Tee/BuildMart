@@ -7942,6 +7942,8 @@ button {
 
   .header-actions .buyer-account-link {
     margin-left: 14px;
+    position: relative;
+    left: 6px;
   }
 
   .landing-site-header .header-actions .buyer-account-link {
