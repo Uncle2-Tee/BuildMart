@@ -252,8 +252,7 @@
   gap: 8px;
 }
 
-.worker-filters input,
-.worker-filters select {
+.worker-filters input {
   min-height: 40px;
   padding: 0 12px;
   border: 1px solid #dedbd1;
@@ -266,6 +265,32 @@
 
 .worker-filters input {
   min-width: 220px;
+}
+
+.worker-trade-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.worker-trade-filters button {
+  min-height: 40px;
+  padding: 0 11px;
+  border: 1px solid #dedbd1;
+  border-radius: 999px;
+  background: #fff;
+  color: #405449;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.worker-trade-filters button:hover,
+.worker-trade-filters button.active {
+  border-color: #c35422;
+  background: #fff0e1;
+  color: #963d19;
 }
 
 .worker-grid {
@@ -1188,6 +1213,13 @@
 
   .worker-filters input {
     min-width: 0;
+  }
+
+  .worker-trade-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    scrollbar-width: thin;
   }
 
   .worker-grid {
