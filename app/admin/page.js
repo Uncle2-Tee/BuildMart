@@ -7,6 +7,7 @@ import AdminCopyPhone from "../admin-copy-phone";
 import AdminLiveTime from "../admin-live-time";
 import AdminPayoutForm from "../admin-payout-form";
 import AdminWorkerApproval from "../admin-worker-approval";
+import AdminDashboardRefresh from "../admin-dashboard-refresh";
 import DashboardHeader from "../dashboard-header";
 import { getAdminSession } from "../../lib/admin-session";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../lib/supabase/admin";
@@ -69,6 +70,12 @@ export default async function AdminPage() {
     console.error("Seller shop applications table is not available in Supabase", applicationsError);
   }
   const shopApplications = applications ?? [];
+  const workerApplications = [...(workerProfiles ?? [])].sort((left, right) => {
+    if (left.approval_status === "pending" && right.approval_status !== "pending") return -1;
+    if (left.approval_status !== "pending" && right.approval_status === "pending") return 1;
+    return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+  });
+  const pendingWorkerApplications = workerApplications.filter((worker) => worker.approval_status === "pending").length;
   const payoutRows = await loadPendingSellerPayouts(admin);
 
   const sellers = (profiles ?? []).filter((item) => item.role === "seller");
@@ -127,6 +134,7 @@ export default async function AdminPage() {
 
   return (
     <main className="dashboard-shell admin-dashboard">
+      <AdminDashboardRefresh />
       <DashboardHeader admin />
       <section className="dashboard-welcome">
         <div><span className="eyebrow muted-eyebrow">PLATFORM OVERVIEW</span><AdminLiveTime username={adminSession.username} /><p>Review shop applications, manage sellers, and monitor marketplace orders.</p></div>
@@ -160,10 +168,6 @@ export default async function AdminPage() {
                   return <tr key={order.id}><td>#{order.id.slice(0, 8).toUpperCase()}</td><td>{shopNames.length ? shopNames.join(", ") : "Shop unavailable"}</td><td>{order.buyer_email}</td><td>{new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(order.total_kobo / 100)}</td><td><span className={`status-pill ${order.status === "paid" ? "live" : "paused"}`}>{order.status}</span></td></tr>;
                 })}</tbody></table></div> : <p className="table-empty">Customer orders will appear here.</p>}
               </div>
-              {!workerTableMissing ? <section className="dashboard-panel admin-workers-panel" aria-labelledby="admin-workers-title">
-                <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">WORKER NETWORK</span><h2 id="admin-workers-title">Worker applications <span>{workerProfiles?.length ?? 0}</span></h2></div></div>
-                <div className="admin-worker-list">{workerProfiles?.length ? workerProfiles.map((worker) => <article className="admin-worker-row" key={worker.id}><div><strong>{worker.name}</strong><span>{worker.trade} · {worker.location} · {worker.years_experience} years experience</span><small>{worker.bio || "Profile bio not submitted yet."}</small></div><AdminWorkerApproval workerId={worker.id} initialStatus={worker.approval_status} /></article>) : <p className="table-empty">Worker applications will appear here.</p>}</div>
-              </section> : null}
             </details>
           </section>
         </div>
@@ -237,6 +241,10 @@ export default async function AdminPage() {
           </details>
         </section>
       </div>
+      {!workerTableMissing ? <section className="dashboard-panel admin-workers-panel" aria-labelledby="admin-workers-title">
+        <div className="panel-heading"><div><span className="eyebrow muted-eyebrow">WORKER NETWORK</span><h2 id="admin-workers-title">Worker applications <span className="admin-pending-count">{pendingWorkerApplications} pending</span></h2></div></div>
+        <div className="admin-worker-list">{workerApplications.length ? workerApplications.map((worker) => <article className={`admin-worker-row${worker.approval_status === "pending" ? " is-pending" : ""}`} key={worker.id}><div><strong>{worker.name}</strong><span>{worker.trade} · {worker.location} · {worker.years_experience} years experience</span><small>{worker.bio || "Profile bio not submitted yet."}</small></div><AdminWorkerApproval workerId={worker.id} initialStatus={worker.approval_status} /></article>) : <p className="table-empty">New worker applications will appear here.</p>}</div>
+      </section> : null}
     </main>
   );
 }

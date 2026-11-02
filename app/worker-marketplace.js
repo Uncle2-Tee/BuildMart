@@ -15,6 +15,10 @@ function Stars({ value = 0 }) {
   return <span className="worker-stars" aria-label={`${value.toFixed(1)} out of 5 stars`}>{"★".repeat(Math.round(value))}<span>{"★".repeat(5 - Math.round(value))}</span></span>;
 }
 
+function tradeClass(trade) {
+  return `worker-card-trade-${trade.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+}
+
 function BookingForm({ worker, onClose }) {
   const [form, setForm] = useState({ customerName: "", customerEmail: "", customerPhone: "", serviceDate: "", address: "", requestDetails: "", budget: "" });
   const [state, setState] = useState({ busy: false, message: "", success: false, bookingId: "" });
@@ -93,7 +97,7 @@ export default function WorkerMarketplace({ workers }) {
     </header>
     <section className="worker-hero"><div><h1>Find trusted people<br /><em>for the work ahead.</em></h1></div></section>
     <section className="worker-directory" aria-labelledby="worker-directory-title"><div className="worker-directory-head"><div><span className="worker-kicker">THE WORKER DIRECTORY</span><h2 id="worker-directory-title">Who do you need today?</h2><Link className="worker-rate-button" href="/workers/rate">Rate a worker <span aria-hidden="true">★</span></Link></div><div className="worker-filters"><label className="worker-search-field"><span className="visually-hidden">Search workers</span><input aria-label="Search workers by name, location, trade or phone" placeholder="Search name, location or trade" value={search} onChange={(event) => setSearch(event.target.value)} /></label><label className="worker-trade-select"><span className="visually-hidden">Filter by trade</span><select aria-label="Filter by trade" value={trade} onChange={(event) => setTrade(event.target.value)}>{trades.map((item) => <option key={item}>{item}</option>)}</select></label></div></div>
-      {filteredWorkers.length ? <div className="worker-grid">{filteredWorkers.map((worker) => <article className="worker-card" key={worker.id}>
+      {filteredWorkers.length ? <div className="worker-grid">{filteredWorkers.map((worker) => <article className={`worker-card ${tradeClass(worker.trade)}`} key={worker.id}>
         <div className="worker-card-top">
           <div className="worker-avatar-wrap">
             <div className="worker-avatar" style={worker.avatar_url ? { backgroundImage: `url("${worker.avatar_url}")`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>{worker.avatar_url ? null : worker.name.slice(0, 1).toUpperCase()}</div>

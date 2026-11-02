@@ -275,21 +275,86 @@
 
 .worker-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  padding-top: 24px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 20px;
 }
 
 .worker-card {
   display: grid;
-  gap: 8px;
-  padding: 12px;
+  gap: 6px;
+  padding: 10px;
   border: 1px solid #e5ddd1;
   border-radius: 17px;
   background: #fff;
   box-shadow: 0 8px 22px rgba(48, 62, 52, .055);
   transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
+
+.worker-card.worker-card-trade-mason {
+  border-top: 4px solid #b45b30;
+  background: linear-gradient(160deg, #fff 0%, #fff8f1 100%);
+}
+
+.worker-card.worker-card-trade-painter {
+  border-top: 4px solid #d86f8a;
+  background: linear-gradient(160deg, #fff 0%, #fff4f7 100%);
+}
+
+.worker-card.worker-card-trade-labourer {
+  border-top: 4px solid #d29b62;
+  background: linear-gradient(160deg, #fff 0%, #fffaf0 100%);
+}
+
+.worker-card.worker-card-trade-tiler {
+  border-top: 4px solid #4f9b9d;
+  background: linear-gradient(160deg, #fff 0%, #f0fbfa 100%);
+}
+
+.worker-card.worker-card-trade-carpenter {
+  border-top: 4px solid #8a5a3b;
+  background: linear-gradient(160deg, #fff 0%, #fbf5ef 100%);
+}
+
+.worker-card.worker-card-trade-electrician {
+  border-top: 4px solid #e6b83f;
+  background: linear-gradient(160deg, #fff 0%, #fffbed 100%);
+}
+
+.worker-card.worker-card-trade-plumber {
+  border-top: 4px solid #4d83bb;
+  background: linear-gradient(160deg, #fff 0%, #f1f7ff 100%);
+}
+
+.worker-card.worker-card-trade-welder {
+  border-top: 4px solid #68717b;
+  background: linear-gradient(160deg, #fff 0%, #f3f5f7 100%);
+}
+
+.worker-card.worker-card-trade-other {
+  border-top: 4px solid #7d68a8;
+  background: linear-gradient(160deg, #fff 0%, #f7f3ff 100%);
+}
+
+.worker-card.worker-card-trade-mason .worker-avatar { background: linear-gradient(145deg, #9d4f2e, #e0a267); }
+.worker-card.worker-card-trade-painter .worker-avatar { background: linear-gradient(145deg, #ad526f, #ed9ab0); }
+.worker-card.worker-card-trade-labourer .worker-avatar { background: linear-gradient(145deg, #9a6b35, #e5be7f); }
+.worker-card.worker-card-trade-tiler .worker-avatar { background: linear-gradient(145deg, #287c7e, #77c4bd); }
+.worker-card.worker-card-trade-carpenter .worker-avatar { background: linear-gradient(145deg, #68402c, #b27b51); }
+.worker-card.worker-card-trade-electrician .worker-avatar { background: linear-gradient(145deg, #b18b16, #eed16b); color: #4a3b08; }
+.worker-card.worker-card-trade-plumber .worker-avatar { background: linear-gradient(145deg, #315c91, #7aaddc); }
+.worker-card.worker-card-trade-welder .worker-avatar { background: linear-gradient(145deg, #3f4a54, #9aa8b2); }
+.worker-card.worker-card-trade-other .worker-avatar { background: linear-gradient(145deg, #5d4a8d, #a899d5); }
+
+.worker-card.worker-card-trade-mason .worker-trade { color: #9d4f2e; }
+.worker-card.worker-card-trade-painter .worker-trade { color: #ad526f; }
+.worker-card.worker-card-trade-labourer .worker-trade { color: #9a6b35; }
+.worker-card.worker-card-trade-tiler .worker-trade { color: #287c7e; }
+.worker-card.worker-card-trade-carpenter .worker-trade { color: #68402c; }
+.worker-card.worker-card-trade-electrician .worker-trade { color: #a17d0f; }
+.worker-card.worker-card-trade-plumber .worker-trade { color: #315c91; }
+.worker-card.worker-card-trade-welder .worker-trade { color: #3f4a54; }
+.worker-card.worker-card-trade-other .worker-trade { color: #5d4a8d; }
 
 .worker-card:hover {
   border-color: #d6a486;
@@ -301,7 +366,7 @@
   position: relative;
   align-items: flex-start;
   justify-content: flex-start;
-  min-height: 43px;
+  min-height: 38px;
 }
 
 .worker-avatar-wrap {
@@ -311,16 +376,16 @@
 
 .worker-avatar {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   flex: 0 0 auto;
   place-items: center;
   overflow: hidden;
   border: 2px solid #fff3e7;
-  border-radius: 12px;
+  border-radius: 10px;
   background: linear-gradient(145deg, #2e7469, #d29b62);
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
   box-shadow: 0 5px 13px rgba(32, 54, 45, .15);
 }
@@ -335,8 +400,8 @@
   position: absolute;
   right: -2px;
   bottom: -1px;
-  width: 11px;
-  height: 11px;
+  width: 9px;
+  height: 9px;
   border: 2px solid #fff;
   border-radius: 50%;
   background: #55a866;
@@ -349,16 +414,16 @@
 
 .worker-trade {
   color: #b45b30;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
 
 .worker-card h3 {
-  margin: 2px 0 1px;
+  margin: 1px 0;
   color: #20362d;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: -.035em;
 }
 
@@ -367,7 +432,7 @@
 .worker-bio {
   margin: 0;
   color: #748078;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .worker-card-top p {
@@ -385,9 +450,9 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 3px;
+  margin-top: 2px;
   color: #52635a;
-  font-size: 10px;
+  font-size: 9px;
   text-decoration: none;
 }
 
@@ -403,8 +468,8 @@
 }
 
 .worker-verified-badge {
-  width: 19px;
-  height: 19px;
+  width: 17px;
+  height: 17px;
   display: grid;
   flex: 0 0 auto;
   place-items: center;
@@ -412,16 +477,16 @@
   border-radius: 50%;
   background: #e3f2e7;
   color: #398153;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
 }
 
 .worker-rating {
-  min-height: 25px;
+  min-height: 22px;
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 4px 7px;
+  padding: 3px 6px;
   border-radius: 8px;
   background: #fff8ef;
 }
@@ -459,7 +524,7 @@
 .worker-card-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 6px;
   padding: 8px 0 0;
   border-top: 1px solid #eee8de;
 }
@@ -481,8 +546,8 @@
 }
 
 .worker-primary-button {
-  min-height: 34px;
-  padding: 0 15px;
+  min-height: 30px;
+  padding: 0 10px;
   border: 1px solid #20362d;
   border-radius: 10px;
   background: #20362d;
@@ -603,7 +668,7 @@
   color: #35835e;
   cursor: pointer;
   font: inherit;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 750;
   white-space: nowrap;
 }
@@ -885,6 +950,19 @@
   font-size: 18px;
 }
 
+.admin-pending-count {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fff0e1;
+  color: #a74d29;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+
 .admin-worker-list {
   display: grid;
   gap: 10px;
@@ -897,6 +975,12 @@
   border: 1px solid #e7dfd4;
   border-radius: 12px;
   background: #fffdf9;
+}
+
+.admin-worker-row.is-pending {
+  border-color: #e2b69a;
+  background: #fffaf4;
+  box-shadow: 0 6px 16px rgba(195, 84, 34, .08);
 }
 
 .admin-worker-row > div {
@@ -3223,6 +3307,10 @@ button {
   font-size: 25px;
   font-weight: 650;
   letter-spacing: -0.05em;
+}
+
+.storefront-editorial-heading h1.storefront-about-heading {
+  font-size: clamp(26px, 3vw, 40px);
 }
 
 .storefront-about-panel p {

@@ -24,7 +24,7 @@ export default function WorkerRatingForm() {
 
   return <form className="worker-rating-form" onSubmit={submit}>
     <label>Booking reference<input required value={form.bookingId} onChange={(event) => setForm({ ...form, bookingId: event.target.value })} placeholder="Paste the full booking ID" /></label>
-    <label>Email used for booking<input required type="email" value={form.customerEmail} onChange={(event) => setForm({ ...form, customerEmail: event.target.value })} /></label>
+    <label>Email used for booking<input required type="email" value={form.customerEmail} onChange={(event) => setForm({ ...form, customerEmail: event.target.value })} placeholder="e.g. ama.mensah@example.com" /></label>
     <fieldset>
       <legend>Your rating</legend>
       <div className="worker-rating-picker" onMouseLeave={() => setHoveredStars(0)}>
@@ -52,7 +52,7 @@ export default function WorkerRatingForm() {
         {form.stars ? <button type="button" onClick={() => setForm({ ...form, stars: 0 })}>Clear</button> : null}
       </div>
     </fieldset>
-    <label>Review (optional)<textarea rows={5} value={form.review} onChange={(event) => setForm({ ...form, review: event.target.value })} maxLength={1000} placeholder="Tell future customers about your experience." /></label>
+    <label>Review (optional)<textarea rows={5} value={form.review} onChange={(event) => setForm({ ...form, review: event.target.value })} maxLength={1000} placeholder="e.g. The work was neat, professional and completed on time." /></label>
     {message ? <p className="worker-form-message" role="alert">{message}</p> : null}
     <button className="worker-primary-button" type="submit" disabled={!form.stars}>Submit rating</button>
   </form>;

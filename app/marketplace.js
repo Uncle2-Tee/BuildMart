@@ -508,24 +508,27 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
           <section className="storefront-editorial-page">
             <div className="storefront-editorial-heading">
               <span className="eyebrow muted-eyebrow">ABOUT BUILDMART</span>
-              <h1>{pageDetails}</h1>
-              <p>A Ghana-focused marketplace connecting shoppers with local businesses for building and home projects.</p>
+              <h1 className="storefront-about-heading">{pageDetails}</h1>
+              <p>A Ghana-focused marketplace connecting shoppers, trusted sellers and skilled workers for building and home projects.</p>
             </div>
             <div className="storefront-about-panel">
               <div className="storefront-about-mark" aria-hidden="true">B</div>
               <div>
-                <h2>One place for the things that make a place.</h2>
+                <h2>One trusted place for building, buying and getting work done.</h2>
                 <p>
-                  BuildMart brings together products from approved local sellers across building materials, tools, lighting, furniture, home &amp; decor, and other useful essentials. Shoppers can browse as guests, place an order with delivery details, and continue to secure online payment.
+                  BuildMart brings together products from approved local sellers across building materials, tools, lighting, furniture, home &amp; decor, and other useful essentials. Shoppers can browse as guests or create an account to keep their details and view order history, then pay securely through Paystack with payment verification.
                 </p>
                 <p>
-                  Sellers can apply to join the marketplace. Approved shops manage their own product listings and fulfil orders for the products they sell.
+                  Sellers apply to join the marketplace and, once approved, manage their own shop, product listings and orders. Administrators review seller and worker applications to help maintain a reliable marketplace.
+                </p>
+                <p>
+                  Customers can also find approved professionals by trade and location, view their profiles, and submit detailed booking requests. Workers control when they are active, receive booking notifications by SMS, edit their live profile, and review their booking history from a protected dashboard.
                 </p>
               </div>
             </div>
             <div className="storefront-editorial-cta">
-              <div><h2>Are you a local seller?</h2><p>Apply to bring your shop and products to BuildMart.</p></div>
-              <Link className="landing-button landing-button-primary" href="/seller/login">Seller log in <span aria-hidden="true">↗</span></Link>
+              <div><h2>Ready to build something better?</h2><p>Shop local products or find a trusted professional for your next project.</p></div>
+              <div className="landing-hero-actions"><Link className="landing-button landing-button-primary" href="/shop">Shop products <span aria-hidden="true">↗</span></Link><Link className="landing-button landing-button-secondary" href="/workers">Find workers <span aria-hidden="true">↗</span></Link></div>
             </div>
           </section>
         ) : null}
