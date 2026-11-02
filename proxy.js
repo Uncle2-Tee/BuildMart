@@ -24,7 +24,12 @@ export async function proxy(request) {
     },
   });
 
-  await supabase.auth.getClaims();
+  try {
+    await supabase.auth.getClaims();
+  } catch (error) {
+    console.error("Unable to refresh Supabase session", error);
+  }
+
   return response;
 }
 

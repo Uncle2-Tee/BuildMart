@@ -46,7 +46,6 @@ export default async function AccountPage() {
             <h1>Welcome back, <em>{profile.display_name || "Buyer"}</em></h1>
             <p>Keep your account details and BuildMart purchases together.</p>
           </div>
-          <Link className="button button-dark buyer-account-shop-link" href="/dashboard/buyer/shop">Continue shopping</Link>
         </div>
         <div className="buyer-account-grid">
           <section className="dashboard-panel buyer-details-card">
@@ -68,7 +67,6 @@ export default async function AccountPage() {
             {!orders?.length ? (
               <div className="buyer-orders-empty">
                 <p>You have not placed an order from this account yet.</p>
-                <Link href="/dashboard/buyer/shop">Browse the marketplace</Link>
               </div>
             ) : (
               <div className="buyer-order-list">
