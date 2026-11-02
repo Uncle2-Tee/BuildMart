@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function SiteFooter() {
@@ -24,11 +23,6 @@ export default function SiteFooter() {
           <span>BuildMart<span className="brand-country">GH</span></span>
         </div>
         <nav className="footer-meta" aria-label="Footer navigation">
-          <Link href="/shop">Shop</Link>
-          <Link href="/categories">Categories</Link>
-          <Link href="/workers">Find workers</Link>
-          <Link href="/how-it-works">How it works</Link>
-          <Link href="/about">About</Link>
           <span>© {new Date().getFullYear()} BuildMart Ghana</span>
         </nav>
       </div>
