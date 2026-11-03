@@ -1,8 +1,8 @@
+import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../lib/supabase/admin";
 import { createSupabaseServerClient } from "../../../../lib/supabase/server";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
 import { notifyAdminBySms } from "../../../../lib/arkesel";
-import { clearWorkerDirectoryCache } from "../../../../lib/worker-directory-cache";
 
 export async function PATCH(request) {
   if (!isSameOriginRequest(request)) return Response.json({ error: "Request origin is not allowed." }, { status: 403 });
@@ -40,7 +40,7 @@ export async function PATCH(request) {
   }).eq("profile_id", data.claims.sub).select("id, name, trade, approval_status").maybeSingle();
   if (saveError) { console.error("Unable to save worker profile", saveError); return Response.json({ error: "We couldn't save your worker profile." }, { status: 500 }); }
   if (!savedProfile) return Response.json({ error: "Worker profile not found. Please sign in again." }, { status: 404 });
-  clearWorkerDirectoryCache();
+  revalidatePath("/workers");
   if (savedProfile.approval_status === "pending") {
     await notifyAdminBySms(
       "worker-profile-submitted",

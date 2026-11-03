@@ -482,14 +482,18 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
             <div className="storefront-editorial-heading">
               <span className="eyebrow muted-eyebrow">HOW IT WORKS</span>
               <h1>{pageDetails}</h1>
-              <p>From browsing to delivery, BuildMart keeps the process straightforward.</p>
+              <p>Shop trusted products, connect with skilled workers, and manage your BuildMart activity in one place.</p>
             </div>
             <div className="storefront-steps">
               {[
-                ["01", "Browse the marketplace", "Explore all products or browse by category to find materials, tools, lighting, furniture and home essentials."],
-                ["02", "Add products to your cart", "Choose products from participating local sellers and review your selections in the cart."],
-                ["03", "Enter delivery details", "At checkout, provide your contact information, recipient details and delivery address."],
-                ["04", "Pay securely online", "Continue to Paystack to complete payment. Your order is confirmed after payment verification."],
+                ["01", "Explore the marketplace", "Browse products by category or search the catalogue for building materials, tools, lighting, furniture, home decor and other essentials."],
+                ["02", "Create your buyer account", "Shop as a guest or create an account to keep your details, stay signed in across pages, and view your order history."],
+                ["03", "Build your cart", "Choose products from approved local sellers, review quantities and shipping, then continue when your order is ready."],
+                ["04", "Enter delivery details", "Provide your contact information, recipient details and delivery address so your order can be prepared for delivery."],
+                ["05", "Pay securely with Paystack", "Complete payment through the Paystack checkout interface. BuildMart verifies the payment before confirming your order."],
+                ["06", "Find the right professional", "Search approved workers by trade and location, check their profiles, and send a booking request with your project details."],
+                ["07", "Stay connected after booking", "Workers control their availability, receive new booking alerts by SMS, and manage requests from their protected dashboard."],
+                ["08", "Grow with BuildMart", "Sellers can apply, await approval, and manage their shop and products. Workers can submit profiles, receive approval, edit their details, and review booking history."],
               ].map(([number, title, description]) => (
                 <article className="storefront-step" key={number}>
                   <span>{number}</span>
@@ -498,8 +502,11 @@ export default function Marketplace({ products, isConfigured, catalogError, buye
               ))}
             </div>
             <div className="storefront-editorial-cta">
-              <div><h2>Ready to find what you need?</h2><p>Explore the BuildMart catalogue and shop local.</p></div>
-              <Link className="landing-button landing-button-primary" href="/shop">Browse all products <span aria-hidden="true">↗</span></Link>
+              <div><h2>Ready to get started?</h2><p>Shop local products or find a trusted professional for your next project.</p></div>
+              <div className="landing-hero-actions">
+                <Link className="landing-button landing-button-primary" href="/shop">Browse products <span aria-hidden="true">↗</span></Link>
+                <Link className="landing-button landing-button-secondary" href="/workers">Find workers <span aria-hidden="true">↗</span></Link>
+              </div>
             </div>
           </section>
         ) : null}

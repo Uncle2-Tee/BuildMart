@@ -10,6 +10,11 @@ export async function proxy(request) {
 
   if (!url || !key) return response;
 
+  const hasAuthSession = request.cookies
+    .getAll()
+    .some(({ name }) => /^sb-.+-auth-token(?:\.\d+)?$/.test(name));
+  if (!hasAuthSession) return response;
+
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
@@ -34,7 +39,5 @@ export async function proxy(request) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)",
-  ],
+  matcher: ["/account", "/dashboard/:path*"],
 };

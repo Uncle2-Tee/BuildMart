@@ -1,23 +1,16 @@
 import Link from "next/link";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../lib/supabase/admin";
-import { getWorkerDirectoryCache } from "../../lib/worker-directory-cache";
 import WorkerMarketplace from "../worker-marketplace";
 
-const WORKER_CACHE_MS = 60 * 1000;
 const WORKER_TIMEOUT_MS = 8 * 1000;
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Find skilled workers | BuildMart Ghana",
   description: "Find trusted masons, painters, tilers, carpenters and other skilled workers for your next project.",
 };
 
 function loadWorkers() {
-  const cache = getWorkerDirectoryCache();
-  if (cache.data && cache.expiresAt > Date.now()) {
-    return Promise.resolve(cache.data);
-  }
-
-  if (cache.request) return cache.request;
-
   const admin = createSupabaseAdminClient();
   const request = admin
     .from("worker_profiles")
@@ -28,23 +21,13 @@ function loadWorkers() {
     .order("created_at", { ascending: false })
     .limit(100);
 
-  cache.request = Promise.race([
+  return Promise.race([
     request,
     new Promise((resolve) => setTimeout(() => resolve({
       data: null,
       error: { code: "WORKER_TIMEOUT", message: "Worker directory request timed out." },
     }), WORKER_TIMEOUT_MS)),
-  ]).then((result) => {
-    if (!result.error) {
-      cache.data = result.data ?? [];
-      cache.expiresAt = Date.now() + WORKER_CACHE_MS;
-    }
-    return result;
-  }).finally(() => {
-    cache.request = null;
-  });
-
-  return cache.request;
+  ]);
 }
 
 export default async function WorkersPage() {

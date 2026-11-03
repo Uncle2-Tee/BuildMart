@@ -12,6 +12,7 @@ function formatPrice(priceKobo) {
 
 export default function SellerDashboard({ displayName, shop: initialShop, shopStatus, products: initialProducts, orders }) {
   const router = useRouter();
+  const hasInitialShop = Boolean(initialShop);
   const [shop, setShop] = useState(initialShop);
   const [currentShopStatus, setCurrentShopStatus] = useState(shopStatus);
   const [shopMessage, setShopMessage] = useState("");
@@ -46,14 +47,25 @@ export default function SellerDashboard({ displayName, shop: initialShop, shopSt
   }, [initialProducts, initialShop, shopStatus]);
 
   useEffect(() => {
-    if (shopStatus !== "pending" || !initialShop) return undefined;
+    if (shopStatus !== "pending" || !hasInitialShop) return undefined;
 
+    let lastRefreshAt = 0;
     const refreshApprovalStatus = () => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastRefreshAt < 1000) return;
+      lastRefreshAt = Date.now();
+      router.refresh();
     };
-    const intervalId = window.setInterval(refreshApprovalStatus, 3000);
-    return () => window.clearInterval(intervalId);
-  }, [initialShop, router, shopStatus]);
+    const intervalId = window.setInterval(refreshApprovalStatus, 15000);
+    window.addEventListener("focus", refreshApprovalStatus);
+    document.addEventListener("visibilitychange", refreshApprovalStatus);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshApprovalStatus);
+      document.removeEventListener("visibilitychange", refreshApprovalStatus);
+    };
+  }, [hasInitialShop, router, shopStatus]);
 
   async function registerShop(event) {
     event.preventDefault();

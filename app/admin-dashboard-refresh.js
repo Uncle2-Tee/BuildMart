@@ -3,17 +3,29 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const REFRESH_INTERVAL_MS = 15 * 1000;
+const REFRESH_INTERVAL_MS = 30 * 1000;
 
 export default function AdminDashboardRefresh() {
   const router = useRouter();
 
   useEffect(() => {
+    let lastRefreshAt = 0;
     const refresh = () => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastRefreshAt < 1000) return;
+      lastRefreshAt = Date.now();
+      router.refresh();
     };
+
     const interval = window.setInterval(refresh, REFRESH_INTERVAL_MS);
-    return () => window.clearInterval(interval);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [router]);
 
   return null;

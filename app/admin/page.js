@@ -48,12 +48,14 @@ export default async function AdminPage() {
     { data: orders, error: ordersError },
     { data: applications, error: applicationsError },
     { data: workerProfiles, error: workerProfilesError },
+    payoutRows,
   ] = await Promise.all([
     admin.from("profiles").select("id, display_name, role, seller_status, created_at, paystack_recipient_code").order("created_at", { ascending: false }).limit(100),
     admin.from("products").select("id, title, category, price_kobo, active, created_at").order("created_at", { ascending: false }).limit(100),
     admin.from("orders").select("id, buyer_email, status, total_kobo, currency, created_at, order_items(seller_id, product_title)").order("created_at", { ascending: false }).limit(100),
     admin.from("seller_shop_applications").select("id, shop_name, shop_description, shop_location, shop_phone, status, created_at").order("created_at", { ascending: false }).limit(100),
     admin.from("worker_profiles").select("id, name, trade, location, phone, years_experience, bio, approval_status, rating_average, rating_count, created_at").order("created_at", { ascending: false }).limit(100),
+    loadPendingSellerPayouts(admin),
   ]);
 
   if (profilesError) throw new Error(`Unable to load marketplace users: ${profilesError.message}`);
@@ -76,8 +78,6 @@ export default async function AdminPage() {
     return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
   });
   const pendingWorkerApplications = workerApplications.filter((worker) => worker.approval_status === "pending").length;
-  const payoutRows = await loadPendingSellerPayouts(admin);
-
   const sellers = (profiles ?? []).filter((item) => item.role === "seller");
   const payoutsBySeller = new Map();
   for (const payout of payoutRows ?? []) {

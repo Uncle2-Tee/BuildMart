@@ -1,7 +1,6 @@
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../../lib/supabase/admin";
 import { createSupabaseServerClient } from "../../../../lib/supabase/server";
 import { isSameOriginRequest } from "../../../../lib/request-origin";
-import { clearWorkerDirectoryCache } from "../../../../lib/worker-directory-cache";
 
 export async function PATCH(request) {
   if (!isSameOriginRequest(request)) return Response.json({ error: "Request origin is not allowed." }, { status: 403 });
@@ -26,6 +25,5 @@ export async function PATCH(request) {
 
   const { error: updateError } = await admin.from("worker_profiles").update({ is_active: body.active }).eq("id", worker.id);
   if (updateError) { console.error("Unable to update worker availability", updateError); return Response.json({ error: "We could not update your availability." }, { status: 500 }); }
-  clearWorkerDirectoryCache();
   return Response.json({ active: body.active });
 }

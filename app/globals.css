@@ -10742,3 +10742,34 @@ button,
     transition-duration: 0.01ms !important;
   }
 }
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+@media (max-width: 650px) {
+  .button,
+  .landing-button,
+  .landing-seller-button,
+  .seller-cta,
+  .seller-menu-link,
+  .product-add-button,
+  .checkout-button,
+  .account-submit,
+  .small-action,
+  .application-action,
+  .dashboard-seller-market-link,
+  .shop-approval-button,
+  .seller-publish-button,
+  .checkout-back-button,
+  .market-back-button,
+  .sign-out-button,
+  .worker-primary-button,
+  .worker-secondary-button,
+  .worker-rate-button,
+  .seller-pay-button {
+    min-height: 44px;
+  }
+}
