@@ -50,11 +50,14 @@ export default function WorkerBookingHistory({ bookings }) {
 
   return <section className="worker-booking-history" aria-labelledby="worker-bookings-title">
     <div className="worker-section-heading"><div><span className="worker-kicker">YOUR BOOKINGS</span><h2 id="worker-bookings-title">Booking history</h2></div><span className="worker-booking-count">{bookings.length} {bookings.length === 1 ? "request" : "requests"}</span></div>
-    {bookings.length ? <div className="worker-booking-list">{bookings.map((booking) => <article className="worker-booking-item" key={booking.id}>
-      <div className="worker-booking-item-heading"><div><h3>{booking.customer_name}</h3><span>{formatDate(booking.service_date)}</span></div><span className={`worker-booking-status status-${bookingStatuses[booking.id]}`}>{bookingStatuses[booking.id].replace("_", " ")}</span></div>
+    {bookings.length ? <div className="worker-booking-list">{bookings.map((booking) => {
+      const status = bookingStatuses[booking.id] ?? booking.status;
+      const statusLabel = typeof status === "string" ? status.replace("_", " ") : "Status unavailable";
+      return <article className="worker-booking-item" key={booking.id}>
+      <div className="worker-booking-item-heading"><div><h3>{booking.customer_name}</h3><span>{formatDate(booking.service_date)}</span></div><span className={`worker-booking-status status-${typeof status === "string" ? status : "unknown"}`}>{statusLabel}</span></div>
       <div className="worker-booking-details"><span><strong>Phone</strong>{booking.customer_phone}</span><span><strong>Location</strong>{booking.address}</span><span><strong>Budget</strong>{formatBudget(booking.budget_kobo)}</span></div>
       <p>{booking.request_details}</p>
-      {bookingStatuses[booking.id] === "pending" ? (
+      {status === "pending" ? (
         <div className="worker-booking-actions">
           <button type="button" className="worker-booking-accept" disabled={busyBookingId !== ""} onClick={() => respondToBooking(booking, "accepted")}>
             {busyBookingId === booking.id ? "Updating…" : "Accept booking"}
@@ -65,6 +68,7 @@ export default function WorkerBookingHistory({ bookings }) {
         </div>
       ) : null}
       {messages[booking.id] ? <p className="worker-booking-response-message" role="status">{messages[booking.id]}</p> : null}
-    </article>)}</div> : <div className="worker-history-empty"><h3>No booking requests yet</h3><p>New customer requests will appear here when someone books your services.</p></div>}
+    </article>;
+    })}</div> : <div className="worker-history-empty"><h3>No booking requests yet</h3><p>New customer requests will appear here when someone books your services.</p></div>}
   </section>;
 }

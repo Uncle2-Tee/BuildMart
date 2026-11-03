@@ -13,7 +13,7 @@ export default function WorkerRatingPage() {
       <section className="worker-rating-page">
         <span className="worker-kicker">CLOSE THE LOOP</span>
         <h1>How did the work go?</h1>
-        <p>Only completed bookings can be reviewed. Your feedback helps other customers choose with confidence.</p>
+        <p>Enter your booking reference and the email used when booking to share your feedback.</p>
         <WorkerRatingForm />
       </section>
     </main>
