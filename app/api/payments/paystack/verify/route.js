@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { confirmOrderPayment, hasPaystackConfig, verifyPaystackTransaction } from "../../../../../lib/paystack";
+import { confirmOrderPayment, getPaystackCallbackUrl, hasPaystackConfig, verifyPaystackTransaction } from "../../../../../lib/paystack";
 import { isSupabaseAdminConfigured } from "../../../../../lib/supabase/admin";
 import { isSameOriginRequest } from "../../../../../lib/request-origin";
 
@@ -12,11 +12,12 @@ async function verifyAndConfirm(reference) {
 
 export async function GET(request) {
   const reference = new URL(request.url).searchParams.get("reference");
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const callbackUrl = getPaystackCallbackUrl(request.url);
 
-  if (!siteUrl) {
-    return Response.json({ error: "Checkout site URL is not configured." }, { status: 503 });
+  if (!callbackUrl) {
+    return Response.json({ error: "Checkout return URL is not available." }, { status: 503 });
   }
+  const siteUrl = new URL(callbackUrl).origin;
 
   if (!hasPaystackConfig() || !isSupabaseAdminConfigured() || !reference || !uuidPattern.test(reference)) {
     return NextResponse.redirect(new URL("/checkout/complete?status=unverified", siteUrl));

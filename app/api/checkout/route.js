@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { after } from "next/server";
 import { createSupabaseAdminClient, isSupabaseAdminConfigured } from "../../../lib/supabase/admin";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 import { hasPaystackConfig } from "../../../lib/paystack";
@@ -222,6 +223,7 @@ export async function POST(request) {
         metadata: { order_id: orderId },
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(15000),
     });
 
     paystackResponse = await response.json();
@@ -246,10 +248,16 @@ export async function POST(request) {
     );
   }
 
-  await notifyNewOrderBySms(admin, {
-    orderId,
-    buyerPhone: delivery.phone,
-    sellerIds,
+  after(async () => {
+    try {
+      await notifyNewOrderBySms(admin, {
+        orderId,
+        buyerPhone: delivery.phone,
+        sellerIds,
+      });
+    } catch (error) {
+      console.error("New-order SMS notifications failed after checkout initialization", error);
+    }
   });
 
   return Response.json({ accessCode: paystackResponse.data.access_code, reference: orderId });
