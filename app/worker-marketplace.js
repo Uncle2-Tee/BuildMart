@@ -34,7 +34,14 @@ function BookingForm({ worker, onClose }) {
       const response = await fetch("/api/workers/bookings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId: worker.id, ...form }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "We could not send your booking request.");
-      setState({ busy: false, message: "Your booking request has been sent. The worker will contact you to confirm availability.", success: true, bookingId: result.bookingId });
+      setState({
+        busy: false,
+        message: result.workerNotification?.sent
+          ? "Your booking request has been sent. The worker was notified by SMS and will respond to your request."
+          : `Your booking request was saved, but we could not notify the worker by SMS. Please contact ${worker.name} directly at ${worker.phone}.`,
+        success: true,
+        bookingId: result.bookingId,
+      });
     } catch (error) {
       setState({ busy: false, message: error.message, success: false });
     }

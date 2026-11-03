@@ -782,7 +782,8 @@
   color: #32657c;
 }
 
-.worker-booking-status.status-cancelled {
+.worker-booking-status.status-cancelled,
+.worker-booking-status.status-declined {
   background: #f6e8e5;
   color: #a83e32;
 }
@@ -813,6 +814,59 @@
   margin: 0;
   color: #69786f;
   font-size: 11px;
+  line-height: 1.6;
+}
+
+.worker-booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.worker-booking-actions button {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.worker-booking-actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.worker-booking-actions button:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+.worker-booking-accept {
+  background: #e8f4e9;
+  color: #286d4b;
+}
+
+.worker-booking-accept:hover:not(:disabled) {
+  background: #d7eddd;
+}
+
+.worker-booking-decline {
+  background: #f6e8e5;
+  color: #a83e32;
+}
+
+.worker-booking-decline:hover:not(:disabled) {
+  background: #f0d9d4;
+}
+
+.worker-booking-response-message {
+  margin: 12px 0 0;
+  color: #536258;
+  font-size: 10px;
   line-height: 1.6;
 }
 
