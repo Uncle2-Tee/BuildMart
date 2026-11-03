@@ -20,7 +20,7 @@ export default function WorkerRatingForm() {
     setSaved(true);
   }
 
-  if (saved) return <div className="worker-rating-success"><span className="worker-success-mark">✓</span><h2>Thank you for sharing.</h2><p>Your rating has been added to the worker&apos;s profile.</p></div>;
+  if (saved) return <div className="worker-rating-success" role="status" aria-live="polite"><span className="worker-success-mark" aria-hidden="true">✓</span><h2>Thank you for rating us.</h2><p>Your rating has been added to the worker&apos;s profile.</p></div>;
 
   return <form className="worker-rating-form" onSubmit={submit}>
     <label>Booking reference<input required value={form.bookingId} onChange={(event) => setForm({ ...form, bookingId: event.target.value })} placeholder="Paste the full booking ID" /></label>

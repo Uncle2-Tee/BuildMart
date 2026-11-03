@@ -15,9 +15,5 @@ export async function POST(request) {
   if (!booking || booking.customer_email !== customerEmail) return Response.json({ error: "The booking reference and email must match the details used to book." }, { status: 403 });
   const { error: ratingError } = await admin.from("worker_ratings").insert({ booking_id: booking.id, worker_id: booking.worker_id, customer_email: customerEmail, stars, review: typeof body.review === "string" ? body.review.trim() : "" });
   if (ratingError) return Response.json({ error: ratingError.code === "23505" ? "This booking has already been rated." : "We could not save your rating." }, { status: ratingError.code === "23505" ? 409 : 500 });
-  const { data: ratings, error: aggregateError } = await admin.from("worker_ratings").select("stars").eq("worker_id", booking.worker_id);
-  if (aggregateError) { console.error("Unable to refresh worker rating", aggregateError); return Response.json({ saved: true }); }
-  const average = ratings.reduce((sum, item) => sum + item.stars, 0) / ratings.length;
-  await admin.from("worker_profiles").update({ rating_average: Math.round(average * 100) / 100, rating_count: ratings.length }).eq("id", booking.worker_id);
   return Response.json({ saved: true });
 }

@@ -22,6 +22,16 @@ function tradeClass(trade) {
 function BookingForm({ worker, onClose }) {
   const [form, setForm] = useState({ customerName: "", customerEmail: "", customerPhone: "", serviceDate: "", address: "", requestDetails: "", budget: "" });
   const [state, setState] = useState({ busy: false, message: "", success: false, bookingId: "" });
+  const [copyStatus, setCopyStatus] = useState("");
+
+  async function copyBookingId() {
+    try {
+      await navigator.clipboard.writeText(state.bookingId);
+      setCopyStatus("Copied");
+    } catch {
+      setCopyStatus("Copy failed");
+    }
+  }
 
   function update(event) {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -47,7 +57,7 @@ function BookingForm({ worker, onClose }) {
     }
   }
 
-  if (state.success) return <div className="worker-modal-success"><span className="worker-success-mark">✓</span><h3>Request sent</h3><p>{state.message}</p><small className="worker-booking-reference">Save your booking ID: <strong>{state.bookingId}</strong></small><button className="worker-primary-button" type="button" onClick={onClose}>Done</button></div>;
+  if (state.success) return <div className="worker-modal-success"><span className="worker-success-mark">✓</span><h3>Request sent</h3><p>{state.message}</p><div className="worker-booking-reference"><span>Save your booking ID:</span><strong>{state.bookingId}</strong><button className="worker-booking-copy" type="button" onClick={copyBookingId} aria-live="polite">{copyStatus || "Copy ID"}</button></div><button className="worker-primary-button" type="button" onClick={onClose}>Done</button></div>;
 
   return <form className="worker-booking-form" onSubmit={submit}>
     <div className="worker-modal-heading"><div><span className="worker-kicker">BOOK A PROFESSIONAL</span><h2>{worker.name}</h2><p>{worker.trade} · {worker.location}</p></div><button className="worker-close" type="button" onClick={onClose} aria-label="Close booking form">×</button></div>
@@ -120,8 +130,8 @@ export default function WorkerMarketplace({ workers }) {
         </div>
         <div className="worker-rating">
           <Stars value={Number(worker.rating_average)} />
-          <strong>{Number(worker.rating_average).toFixed(1)}</strong>
-          <span>{worker.rating_count ? `${worker.rating_count} reviews` : "New profile"}</span>
+          <strong>{Number(worker.rating_total ?? 0)}</strong>
+          <span>{worker.rating_count ? `total stars · ${worker.rating_count} ${worker.rating_count === 1 ? "review" : "reviews"}` : "New profile"}</span>
         </div>
         <p className="worker-bio">{worker.bio || "A skilled professional ready to help with your project."}</p>
         <div className="worker-card-meta">

@@ -63,5 +63,41 @@ export default async function WorkersPage() {
     );
   }
 
-  return <WorkerMarketplace workers={workers ?? []} />;
+  const workerList = workers ?? [];
+  let workersWithRatings = workerList.map((worker) => ({
+    ...worker,
+    rating_total: Math.round(Number(worker.rating_average) * Number(worker.rating_count)),
+  }));
+
+  if (workerList.length) {
+    const admin = createSupabaseAdminClient();
+    const { data: ratings, error: ratingsError } = await admin
+      .from("worker_ratings")
+      .select("worker_id, stars")
+      .in("worker_id", workerList.map((worker) => worker.id));
+
+    if (ratingsError) {
+      console.error("Unable to load worker rating totals", ratingsError);
+    } else {
+      const totalsByWorker = new Map();
+      for (const rating of ratings ?? []) {
+        const totals = totalsByWorker.get(rating.worker_id) ?? { total: 0, count: 0 };
+        totals.total += rating.stars;
+        totals.count += 1;
+        totalsByWorker.set(rating.worker_id, totals);
+      }
+
+      workersWithRatings = workerList.map((worker) => {
+        const totals = totalsByWorker.get(worker.id) ?? { total: 0, count: 0 };
+        return {
+          ...worker,
+          rating_total: totals.total,
+          rating_count: totals.count,
+          rating_average: totals.count ? Math.round((totals.total / totals.count) * 100) / 100 : 0,
+        };
+      });
+    }
+  }
+
+  return <WorkerMarketplace workers={workersWithRatings} />;
 }
